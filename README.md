@@ -47,3 +47,8 @@ Spelling-based rhyme results are not a pronunciation dictionary. Word validity a
 - Shared assets use cache-busting query strings.
 - Dictionary loading works from both `/` and tool subpages.
 - The tool navigation no longer shows a visible scrollbar.
+
+
+## 4.1 SEO Word Lists
+
+Run `node generate-seo-pages.js` from the project root to rebuild 41 static word-list pages from `words.txt`. The generator also updates `sitemap.xml` and writes `seo-pages-report.json`.

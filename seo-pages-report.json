@@ -1,0 +1,206 @@
+{
+  "generatedAt": "2026-07-30T13:22:34.923Z",
+  "pages": 41,
+  "specs": [
+    {
+      "slug": "5-letter-words",
+      "title": "5 Letter Words",
+      "count": 15921
+    },
+    {
+      "slug": "6-letter-words",
+      "title": "6 Letter Words",
+      "count": 29874
+    },
+    {
+      "slug": "7-letter-words",
+      "title": "7 Letter Words",
+      "count": 41998
+    },
+    {
+      "slug": "words-that-start-with-a",
+      "title": "Words That Start With A",
+      "count": 24678
+    },
+    {
+      "slug": "words-that-start-with-b",
+      "title": "Words That Start With B",
+      "count": 18220
+    },
+    {
+      "slug": "words-that-start-with-c",
+      "title": "Words That Start With C",
+      "count": 31257
+    },
+    {
+      "slug": "words-that-start-with-d",
+      "title": "Words That Start With D",
+      "count": 18337
+    },
+    {
+      "slug": "words-that-start-with-e",
+      "title": "Words That Start With E",
+      "count": 13787
+    },
+    {
+      "slug": "words-that-start-with-f",
+      "title": "Words That Start With F",
+      "count": 11831
+    },
+    {
+      "slug": "words-that-start-with-g",
+      "title": "Words That Start With G",
+      "count": 10846
+    },
+    {
+      "slug": "words-that-start-with-h",
+      "title": "Words That Start With H",
+      "count": 13202
+    },
+    {
+      "slug": "words-that-start-with-i",
+      "title": "Words That Start With I",
+      "count": 12548
+    },
+    {
+      "slug": "words-that-start-with-j",
+      "title": "Words That Start With J",
+      "count": 2829
+    },
+    {
+      "slug": "words-that-start-with-k",
+      "title": "Words That Start With K",
+      "count": 3937
+    },
+    {
+      "slug": "words-that-start-with-l",
+      "title": "Words That Start With L",
+      "count": 9878
+    },
+    {
+      "slug": "words-that-start-with-m",
+      "title": "Words That Start With M",
+      "count": 19316
+    },
+    {
+      "slug": "words-that-start-with-n",
+      "title": "Words That Start With N",
+      "count": 12196
+    },
+    {
+      "slug": "words-that-start-with-o",
+      "title": "Words That Start With O",
+      "count": 12100
+    },
+    {
+      "slug": "words-that-start-with-p",
+      "title": "Words That Start With P",
+      "count": 33304
+    },
+    {
+      "slug": "words-that-start-with-q",
+      "title": "Words That Start With Q",
+      "count": 1752
+    },
+    {
+      "slug": "words-that-start-with-r",
+      "title": "Words That Start With R",
+      "count": 16579
+    },
+    {
+      "slug": "words-that-start-with-s",
+      "title": "Words That Start With S",
+      "count": 37558
+    },
+    {
+      "slug": "words-that-start-with-t",
+      "title": "Words That Start With T",
+      "count": 18384
+    },
+    {
+      "slug": "words-that-start-with-u",
+      "title": "Words That Start With U",
+      "count": 21665
+    },
+    {
+      "slug": "words-that-start-with-v",
+      "title": "Words That Start With V",
+      "count": 5275
+    },
+    {
+      "slug": "words-that-start-with-w",
+      "title": "Words That Start With W",
+      "count": 6546
+    },
+    {
+      "slug": "words-that-start-with-x",
+      "title": "Words That Start With X",
+      "count": 504
+    },
+    {
+      "slug": "words-that-start-with-y",
+      "title": "Words That Start With Y",
+      "count": 1142
+    },
+    {
+      "slug": "words-that-start-with-z",
+      "title": "Words That Start With Z",
+      "count": 1368
+    },
+    {
+      "slug": "words-that-end-with-ing",
+      "title": "Words That End With ING",
+      "count": 17845
+    },
+    {
+      "slug": "words-that-end-with-ed",
+      "title": "Words That End With ED",
+      "count": 22223
+    },
+    {
+      "slug": "words-that-end-with-ly",
+      "title": "Words That End With LY",
+      "count": 15012
+    },
+    {
+      "slug": "words-that-end-with-tion",
+      "title": "Words That End With TION",
+      "count": 6351
+    },
+    {
+      "slug": "words-that-end-with-er",
+      "title": "Words That End With ER",
+      "count": 14949
+    },
+    {
+      "slug": "words-that-end-with-ness",
+      "title": "Words That End With NESS",
+      "count": 7782
+    },
+    {
+      "slug": "words-that-end-with-ment",
+      "title": "Words That End With MENT",
+      "count": 1777
+    },
+    {
+      "slug": "words-that-end-with-able",
+      "title": "Words That End With ABLE",
+      "count": 4522
+    },
+    {
+      "slug": "words-containing-q",
+      "title": "Words Containing Q",
+      "count": 5584
+    },
+    {
+      "slug": "words-containing-x",
+      "title": "Words Containing X",
+      "count": 10055
+    },
+    {
+      "slug": "words-containing-z",
+      "title": "Words Containing Z",
+      "count": 13293
+    }
+  ]
+}
