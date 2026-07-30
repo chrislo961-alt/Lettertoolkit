@@ -1,171 +1,50 @@
 <!doctype html>
 <html lang="en">
 <head>
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width,initial-scale=1">
-  <title>Word Unscrambler – Live Anagram & Word Finder</title>
-  <meta name="description" content="Unscramble letters instantly with live search, advanced pattern filters, favorites, word length filters, and Scrabble-style scores.">
+  <meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Word Tools – Unscrambler, Anagram Solver & Wordle Helper</title>
+  <meta name="description" content="Free browser-based word tools: unscramble letters, solve anagrams, find words by pattern, and narrow Wordle answers.">
   <link rel="canonical" href="https://word-unscrambler-ceu.pages.dev/">
-  <meta name="theme-color" content="#111827">
-  <meta property="og:type" content="website">
-  <meta property="og:title" content="Word Unscrambler – Find Words From Letters">
-  <meta property="og:description" content="Enter your letters and find matching English words in seconds.">
-  <meta property="og:url" content="https://word-unscrambler-ceu.pages.dev/">
-  <meta property="og:image" content="https://word-unscrambler-ceu.pages.dev/assets/og-image.svg">
-  <meta name="twitter:card" content="summary_large_image">
-  <link rel="icon" href="assets/favicon.svg" type="image/svg+xml">
-  <link rel="manifest" href="site.webmanifest">
-  <link rel="preload" href="words.txt" as="fetch" crossorigin>
+  <meta name="theme-color" content="#111827"><link rel="icon" href="assets/favicon.svg" type="image/svg+xml">
+  <link rel="manifest" href="site.webmanifest"><link rel="preload" href="words.txt" as="fetch" crossorigin>
   <link rel="stylesheet" href="styles.css">
-  <script type="application/ld+json">
-  {
-    "@context":"https://schema.org",
-    "@type":"WebApplication",
-    "name":"Word Unscrambler",
-    "url":"https://word-unscrambler-ceu.pages.dev/",
-    "applicationCategory":"UtilitiesApplication",
-    "operatingSystem":"Any",
-    "description":"A free browser-based tool that finds English words that can be made from supplied letters.",
-    "offers":{"@type":"Offer","price":"0","priceCurrency":"USD"}
-  }
-  </script>
 </head>
 <body>
-  <a class="skip-link" href="#tool">Skip to tool</a>
-  <header class="site-header">
-    <div class="shell header-inner">
-      <a class="brand" href="/" aria-label="Word Unscrambler home">
-        <span class="brand-mark" aria-hidden="true">WU</span>
-        <span>Word Unscrambler</span>
-      </a>
-      <nav aria-label="Primary navigation">
-        <a href="#how-it-works">How it works</a>
-        <a href="#faq">FAQ</a>
-        <button id="themeToggle" class="theme-toggle" type="button" aria-pressed="false">Dark mode</button>
-      </nav>
-    </div>
-  </header>
-
-  <main>
-    <section class="hero shell">
-      <div class="hero-copy">
-        <p class="eyebrow">Fast, free, and private</p>
-        <h1>Turn mixed-up letters into winning words.</h1>
-        <p class="lead">Enter up to 15 letters and see matches as you type. Add pattern filters, save favorite words, or use a question mark as a blank tile.</p>
-      </div>
-
-      <section id="tool" class="tool-card" aria-labelledby="tool-title">
-        <div class="tool-heading">
-          <div>
-            <p class="kicker">Word solver</p>
-            <h2 id="tool-title">What letters do you have?</h2>
-          </div>
-          <span id="dictionaryStatus" class="status" role="status">Loading dictionary…</span>
-        </div>
-
-        <form id="unscrambleForm" novalidate>
-          <label for="letters">Letters</label>
-          <div class="input-row">
-            <input id="letters" name="letters" type="text" inputmode="text" autocomplete="off" autocapitalize="characters" spellcheck="false" maxlength="15" placeholder="Try: listen" aria-describedby="lettersHelp">
-            <button id="solveButton" type="submit" disabled>Unscramble</button>
-          </div>
-          <p id="lettersHelp" class="help">Letters A–Z only. Use <strong>?</strong> as a wildcard.</p>
-
-          <div class="filters" aria-label="Result filters">
-            <label>Minimum length
-              <select id="minLength">
-                <option value="2">2 letters</option><option value="3" selected>3 letters</option><option value="4">4 letters</option><option value="5">5 letters</option>
-              </select>
-            </label>
-            <label>Sort by
-              <select id="sortBy">
-                <option value="length">Longest first</option>
-                <option value="score">Highest score</option>
-                <option value="alpha">A–Z</option>
-              </select>
-            </label>
-          </div>
-
-          <fieldset class="pattern-filters">
-            <legend>Advanced filters</legend>
-            <label>Starts with<input id="startsWith" type="text" maxlength="8" placeholder="ST"></label>
-            <label>Contains<input id="contains" type="text" maxlength="8" placeholder="ING"></label>
-            <label>Ends with<input id="endsWith" type="text" maxlength="8" placeholder="ER"></label>
-          </fieldset>
-
-          <div class="tool-options">
-            <label class="check-label"><input id="liveSearch" type="checkbox" checked> Live search</label>
-            <button id="clearButton" class="text-button" type="button">Clear</button>
-          </div>
-        </form>
-
-        <div id="message" class="message" aria-live="polite"></div>
-        <section id="resultsPanel" class="results-panel" hidden aria-labelledby="resultsTitle">
-          <div class="results-header">
-            <div>
-              <p class="kicker">Matches</p>
-              <h3 id="resultsTitle"><span id="resultCount">0</span> words found</h3>
-            </div>
-            <div class="result-actions">
-              <label class="check-label"><input id="favoritesOnly" type="checkbox"> Favorites only</label>
-              <button id="copyButton" class="secondary-button" type="button">Copy all</button>
-            </div>
-          </div>
-          <div id="lengthTabs" class="length-tabs" role="tablist" aria-label="Filter results by word length"></div>
-          <ol id="results" class="results-list"></ol>
-          <button id="showMoreButton" class="show-more" type="button" hidden>Show more</button>
-        </section>
-      </section>
-    </section>
-
-    <section class="stats-band" aria-label="Highlights">
-      <div class="shell stats-grid">
-        <div><strong>350k+</strong><span>English words</span></div>
-        <div><strong>Live</strong><span>results as you type</span></div>
-        <div><strong>Private</strong><span>searches stay in your browser</span></div>
-      </div>
-    </section>
-
-    <section id="how-it-works" class="content-section shell">
-      <div class="section-heading">
-        <p class="eyebrow">How it works</p>
-        <h2>Find better words with less effort</h2>
-      </div>
-      <div class="steps-grid">
-        <article><span>1</span><h3>Enter your letters</h3><p>Type your letters and results appear automatically. Add a question mark for each blank tile.</p></article>
-        <article><span>2</span><h3>Choose your filters</h3><p>Filter by beginning, middle, or ending letters, then sort by length, score, or alphabetically.</p></article>
-        <article><span>3</span><h3>Use your results</h3><p>Browse by length, save favorites locally, and copy the complete list with one click.</p></article>
-      </div>
-    </section>
-
-    <section class="content-section shell two-column">
-      <div>
-        <p class="eyebrow">Built for word games</p>
-        <h2>A practical helper for anagrams and letter games</h2>
-      </div>
-      <div class="prose">
-        <p>This word unscrambler checks which dictionary words can be made from the letters you provide. Each letter can only be used as many times as it appears in your input, unless you include wildcard tiles.</p>
-        <p>Scores use standard English-language Scrabble tile values as a quick comparison aid. Always check the official dictionary and rules used by your particular game.</p>
-      </div>
-    </section>
-
-    <section id="faq" class="content-section shell faq-section">
-      <div class="section-heading"><p class="eyebrow">FAQ</p><h2>Frequently asked questions</h2></div>
-      <div class="faq-list">
-        <details><summary>What is a word unscrambler?</summary><p>It is a tool that finds words that can be built from a group of letters. It is useful for anagrams, spelling practice, and many letter-based games.</p></details>
-        <details><summary>Can I use blank tiles?</summary><p>Yes. Enter a question mark for each wildcard. A wildcard may replace any one missing letter.</p></details>
-        <details><summary>Does this tool send my letters anywhere?</summary><p>No. After the dictionary loads, searches run entirely in your browser.</p></details>
-        <details><summary>Are all results valid in every word game?</summary><p>No single word list matches every game. Tournament and app dictionaries differ, so verify unusual words against the rules for your game.</p></details>
-      </div>
-    </section>
-  </main>
-
-  <footer>
-    <div class="shell footer-inner">
-      <div><strong>Word Unscrambler</strong><p>A fast, browser-based word finder.</p></div>
-      <p>Dictionary data attribution is documented in <a href="LICENSES.md">LICENSES.md</a>.</p>
-    </div>
-  </footer>
-  <script type="module" src="app.js"></script>
-</body>
-</html>
+<a class="skip-link" href="#workspace">Skip to tools</a>
+<header class="site-header"><div class="shell header-inner">
+  <a class="brand" href="#unscrambler"><span class="brand-mark">WT</span><span>Word Tools</span></a>
+  <nav aria-label="Primary navigation"><a href="#tools">Tools</a><a href="#faq">FAQ</a><button id="themeToggle" class="theme-toggle" type="button">Dark mode</button></nav>
+</div></header>
+<main>
+<section class="platform-hero shell">
+  <div><p class="eyebrow">Four tools. One fast dictionary.</p><h1>Find the right word, faster.</h1><p class="lead">Unscramble letters, solve exact anagrams, search by pattern, or narrow five-letter answers. Everything runs privately in your browser.</p></div>
+  <div class="hero-badge"><strong id="dictionaryStatus">Loading dictionary…</strong><span>No sign-up. No search history.</span></div>
+</section>
+<section id="tools" class="tool-nav shell" aria-label="Word tools">
+  <button class="tool-tab active" data-tool="unscrambler">Unscrambler</button>
+  <button class="tool-tab" data-tool="anagram">Anagram Solver</button>
+  <button class="tool-tab" data-tool="finder">Word Finder</button>
+  <button class="tool-tab" data-tool="wordle">Wordle Helper</button>
+</section>
+<section id="workspace" class="workspace shell">
+  <section class="tool-pane active" data-pane="unscrambler"><div class="pane-intro"><p class="kicker">Word Unscrambler</p><h2>Build words from your letters</h2><p>Use each letter once. Add <strong>?</strong> for a blank tile.</p></div>
+    <form id="unscramblerForm" class="tool-form"><label>Letters<input id="unscrambleLetters" maxlength="15" placeholder="LISTEN"></label><div class="form-grid"><label>Minimum length<select id="unscrambleMin"><option>2</option><option selected>3</option><option>4</option><option>5</option></select></label><label>Sort<select id="unscrambleSort"><option value="length">Longest first</option><option value="score">Highest score</option><option value="alpha">A–Z</option></select></label></div><button type="submit" class="primary-button">Unscramble</button></form>
+  </section>
+  <section class="tool-pane" data-pane="anagram"><div class="pane-intro"><p class="kicker">Anagram Solver</p><h2>Find exact anagrams</h2><p>Results use every supplied letter exactly once.</p></div>
+    <form id="anagramForm" class="tool-form"><label>Letters<input id="anagramLetters" maxlength="15" placeholder="SILENT"></label><label>Sort<select id="anagramSort"><option value="score">Highest score</option><option value="alpha">A–Z</option></select></label><button type="submit" class="primary-button">Solve anagram</button></form>
+  </section>
+  <section class="tool-pane" data-pane="finder"><div class="pane-intro"><p class="kicker">Word Finder</p><h2>Search by shape and pattern</h2><p>Combine length, beginning, middle, ending, and fixed-position filters.</p></div>
+    <form id="finderForm" class="tool-form"><div class="form-grid"><label>Length<input id="finderLength" type="number" min="2" max="15" value="5"></label><label>Pattern<input id="finderPattern" maxlength="15" placeholder="A??LE"></label></div><div class="form-grid three"><label>Starts with<input id="finderStarts" placeholder="ST"></label><label>Contains<input id="finderContains" placeholder="ING"></label><label>Ends with<input id="finderEnds" placeholder="ER"></label></div><label>Exclude letters<input id="finderExcluded" placeholder="QXZ"></label><button type="submit" class="primary-button">Find words</button></form>
+  </section>
+  <section class="tool-pane" data-pane="wordle"><div class="pane-intro"><p class="kicker">Wordle Helper</p><h2>Narrow five-letter possibilities</h2><p>Use question marks for unknown green positions.</p></div>
+    <form id="wordleForm" class="tool-form"><label>Green pattern<input id="wordleGreens" maxlength="5" placeholder="?A??E"></label><div class="form-grid"><label>Yellow letters<input id="wordleYellows" maxlength="10" placeholder="RT"></label><label>Gray letters<input id="wordleGrays" maxlength="20" placeholder="SION"></label></div><button type="submit" class="primary-button">Find candidates</button></form>
+  </section>
+  <aside class="results-card"><div class="results-heading"><div><p class="kicker">Results</p><h2><span id="resultCount">0</span> matches</h2></div><button id="copyButton" class="secondary-button" disabled>Copy all</button></div><p id="resultMessage" class="message">Choose a tool and run a search.</p><ol id="results" class="results-list"></ol><button id="showMoreButton" class="show-more" hidden>Show more</button></aside>
+</section>
+<section class="stats-band"><div class="shell stats-grid"><div><strong>359k+</strong><span>dictionary entries</span></div><div><strong>4</strong><span>connected tools</span></div><div><strong>Local</strong><span>browser processing</span></div></div></section>
+<section class="content-section shell"><div class="section-heading"><p class="eyebrow">Platform 2.0</p><h2>A shared engine behind every search</h2></div><div class="steps-grid"><article><span>1</span><h3>Load once</h3><p>The dictionary is loaded once and reused across every tool.</p></article><article><span>2</span><h3>Switch instantly</h3><p>Move between tools without another page load or download.</p></article><article><span>3</span><h3>Stay private</h3><p>Searches happen locally after the initial dictionary download.</p></article></div></section>
+<section id="faq" class="content-section shell faq-section"><div class="section-heading"><p class="eyebrow">FAQ</p><h2>Common questions</h2></div><div class="faq-list"><details><summary>Are these official game dictionaries?</summary><p>No. Word lists differ between games. Verify unusual words against the rules of your game.</p></details><details><summary>What does a question mark mean?</summary><p>In the unscrambler it is a wildcard tile. In pattern searches it represents an unknown position.</p></details><details><summary>Are searches stored?</summary><p>No. Searches run in your browser and are not sent to a server.</p></details></div></section>
+</main>
+<footer><div class="shell footer-inner"><div><strong>Word Tools</strong><p>Free word-solving utilities.</p></div><p><a href="LICENSES.md">Dictionary attribution</a></p></div></footer>
+<script type="module" src="app.js"></script>
+</body></html>

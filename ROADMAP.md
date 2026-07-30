@@ -1,11 +1,14 @@
 # Roadmap
 
-- [x] Modular shared core engine
-- [x] Word Unscrambler UI
-- [x] Live search and advanced filters
-- [ ] Anagram Solver page
-- [ ] Word Finder page
-- [ ] Wordle Helper page
-- [ ] SEO word-list pages
-- [ ] Search Console and analytics
-- [ ] Custom domain
+## Platform 2.0
+- Shared dictionary and search engine
+- Four connected tools
+- Responsive tabbed workspace
+- Dark mode and copy results
+
+## Next
+- Dedicated URLs and SEO copy for each tool
+- Curated game dictionaries
+- Crossword pattern helper
+- Static word-list landing pages
+- Search Console and analytics after custom domain
