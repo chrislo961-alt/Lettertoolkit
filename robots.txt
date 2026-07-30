@@ -1,0 +1,4 @@
+User-agent: *
+Allow: /
+
+Sitemap: https://word-unscrambler-ceu.pages.dev/sitemap.xml
