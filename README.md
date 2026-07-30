@@ -1,19 +1,11 @@
-# Word Unscrambler v4
+# Word Tools Platform 1.0
 
-A static, privacy-friendly word solver for Cloudflare Pages.
+A modular static word-tool platform for Cloudflare Pages.
 
-## New in v4
+## Core modules
+- `core/dictionary.js` loads and indexes the dictionary.
+- `core/engine.js` provides unscrambling, exact anagrams, pattern search, and sorting.
+- `core/filters.js` contains validation and reusable filters.
+- `core/score.js` contains word scoring.
 
-- Live results with a 250 ms debounce
-- Starts with, contains, and ends with filters
-- Local favorites stored in the browser
-- Favorites-only result view
-- Dark mode stored in the browser
-- Clear/reset control
-- Existing length, score, alphabetic sorting, wildcard, copy, and pagination features retained
-
-## Deploy
-
-Upload the contents of this folder to the root of the GitHub repository connected to Cloudflare Pages, then commit to `main`.
-
-No build command or server is required.
+Upload the contents of this folder to the root of the GitHub repository. Cloudflare Pages deploys automatically from `main`.

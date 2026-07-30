@@ -1,16 +1,11 @@
-# Product roadmap
+# Roadmap
 
-## Completed
-
-- v2: First deployable static version
-- v3: Professional redesign, large dictionary, wildcard support, scores, sorting, and SEO foundation
-- v4: Live search, advanced pattern filters, favorites, and dark mode
-
-## Next
-
-- v5: Dedicated Anagram Solver and Word Finder pages
-- v6: Wordle Helper with positional letter filters
-- v7: Curated word-length landing pages
-- v8: Scalable SEO page templates and internal linking
-- v9: Custom domain, Search Console, analytics, and production monitoring
-- v10: Content expansion and monetization readiness
+- [x] Modular shared core engine
+- [x] Word Unscrambler UI
+- [x] Live search and advanced filters
+- [ ] Anagram Solver page
+- [ ] Word Finder page
+- [ ] Wordle Helper page
+- [ ] SEO word-list pages
+- [ ] Search Console and analytics
+- [ ] Custom domain

@@ -1,6 +1,6 @@
-'use strict';
-
-const LETTER_SCORES = Object.freeze({a:1,b:3,c:3,d:2,e:1,f:4,g:2,h:4,i:1,j:8,k:5,l:1,m:3,n:1,o:1,p:3,q:10,r:1,s:1,t:1,u:1,v:4,w:4,x:8,y:4,z:10});
+import {loadDictionary as fetchDictionary} from './core/dictionary.js';
+import {unscramble, sortResults} from './core/engine.js';
+import {sanitizeLetters, sanitizePattern} from './core/filters.js';
 const state = {
   wordsByLength: new Map(), results: [], filtered: [], activeLength: 0,
   visible: 120, ready: false, favorites: new Set(), liveTimer: null
@@ -9,29 +9,8 @@ const state = {
 const ids = ['unscrambleForm','letters','minLength','sortBy','startsWith','contains','endsWith','solveButton','dictionaryStatus','message','resultsPanel','resultCount','results','lengthTabs','copyButton','showMoreButton','liveSearch','themeToggle','favoritesOnly','clearButton'];
 const el = Object.fromEntries(ids.map(id => [id, document.getElementById(id)]));
 
-function countLetters(value){
-  const counts = new Uint8Array(26); let wildcards = 0;
-  for(const char of value.toLowerCase()){
-    if(char === '?') wildcards++;
-    else { const code = char.charCodeAt(0)-97; if(code>=0 && code<26) counts[code]++; }
-  }
-  return {counts,wildcards};
-}
-
-function canBuild(word, rack){
-  const needed = new Uint8Array(26); let missing = 0;
-  for(let i=0;i<word.length;i++){
-    const idx = word.charCodeAt(i)-97;
-    needed[idx]++;
-    if(needed[idx] > rack.counts[idx]) missing++;
-    if(missing > rack.wildcards) return false;
-  }
-  return true;
-}
-
-function scoreWord(word){ return [...word].reduce((sum,ch)=>sum+(LETTER_SCORES[ch]||0),0); }
 function setMessage(text,type=''){ el.message.textContent=text; el.message.className=`message ${type}`.trim(); }
-function sanitize(value,max=15){ return value.toLowerCase().replace(/[^a-z?]/g,'').slice(0,max); }
+const sanitize = sanitizeLetters;
 function sanitizePattern(value,max=8){ return value.toLowerCase().replace(/[^a-z]/g,'').slice(0,max); }
 
 async function loadDictionary(){
@@ -66,21 +45,6 @@ function getFilters(){
   };
 }
 
-function matchesFilters(word, filters){
-  return (!filters.starts || word.startsWith(filters.starts)) &&
-    (!filters.contains || word.includes(filters.contains)) &&
-    (!filters.ends || word.endsWith(filters.ends));
-}
-
-function sortResults(items){
-  const mode = el.sortBy.value;
-  return items.sort((a,b)=> mode==='alpha'
-    ? a.word.localeCompare(b.word)
-    : mode==='score'
-      ? b.score-a.score || b.word.length-a.word.length || a.word.localeCompare(b.word)
-      : b.word.length-a.word.length || b.score-a.score || a.word.localeCompare(b.word));
-}
-
 function solve({silent=false}={}){
   const clean = sanitize(el.letters.value);
   el.letters.value = clean.toUpperCase();
@@ -90,20 +54,11 @@ function solve({silent=false}={}){
     return;
   }
 
-  const rack = countLetters(clean);
   const min = Number(el.minLength.value);
-  const max = clean.length;
   const filters = getFilters();
-  const found=[];
+  const found = unscramble({letters:clean,wordsByLength:state.wordsByLength,minLength:min,filters,sort:el.sortBy.value});
 
-  for(let len=min;len<=max;len++){
-    const list=state.wordsByLength.get(len)||[];
-    for(const word of list){
-      if(matchesFilters(word,filters) && canBuild(word,rack)) found.push({word,score:scoreWord(word)});
-    }
-  }
-
-  state.results=sortResults(found);
+  state.results=found;
   state.activeLength=0;
   state.visible=120;
   renderTabs();
@@ -194,7 +149,7 @@ function toggleTheme(){
 el.unscrambleForm.addEventListener('submit',event=>{event.preventDefault();if(state.ready)solve();});
 el.letters.addEventListener('input',()=>{el.letters.value=sanitize(el.letters.value).toUpperCase();scheduleLiveSearch();});
 for(const field of [el.startsWith,el.contains,el.endsWith]) field.addEventListener('input',()=>{field.value=sanitizePattern(field.value).toUpperCase();scheduleLiveSearch();});
-el.sortBy.addEventListener('change',()=>{if(state.results.length){state.results=sortResults(state.results);renderResults();}});
+el.sortBy.addEventListener('change',()=>{if(state.results.length){state.results=sortResults(state.results,el.sortBy.value);renderResults();}});
 el.minLength.addEventListener('change',()=>{if(el.letters.value.length>=2&&state.ready)solve({silent:true});});
 el.liveSearch.addEventListener('change',scheduleLiveSearch);
 el.favoritesOnly.addEventListener('change',()=>{state.activeLength=0;renderTabs();renderResults();});
