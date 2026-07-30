@@ -1,16 +1,25 @@
-# Word Unscrambler v2
+# Word Unscrambler v3
 
-A static, browser-based word unscrambler built with HTML, CSS, and JavaScript.
+A static, privacy-friendly word unscrambler designed for Cloudflare Pages.
 
-## Files
+## Deploy
 
-- `index.html` – page structure and SEO metadata
-- `style.css` – responsive design
-- `script.js` – word filtering logic
-- `words.txt` – test dictionary
-- `robots.txt` – crawler rules
-- `sitemap.xml` – initial sitemap
+Upload all files to the root of the GitHub repository. Cloudflare Pages will redeploy automatically. No build command is required; the output directory is the repository root.
 
-## Next step
+## Local test
 
-Replace the small test dictionary with a larger, properly licensed English word list.
+Run `python -m http.server 8000` in this folder, then open `http://localhost:8000`.
+
+## Before using a custom domain
+
+Replace the Pages URL in `index.html`, `robots.txt`, and `sitemap.xml` with the final HTTPS domain.
+
+## Main features
+
+- 350,000+ alphabetic English entries
+- wildcard support using `?`
+- length filters and result tabs
+- Scrabble-style point values
+- fully client-side search
+- responsive and accessible interface
+- basic technical SEO and structured data

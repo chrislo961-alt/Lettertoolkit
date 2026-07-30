@@ -2,53 +2,43 @@
 <html lang="en">
 <head>
   <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
   <title>Word Unscrambler – Find Words From Letters</title>
-  <meta name="description" content="Unscramble letters into valid English words. Filter by word length and find the longest matches first.">
-  <meta name="robots" content="index,follow">
+  <meta name="description" content="Unscramble letters into valid English words. Filter by word length, sort by score, and copy results instantly.">
   <link rel="canonical" href="https://word-unscrambler-ceu.pages.dev/">
-  <link rel="stylesheet" href="style.css">
+  <meta name="theme-color" content="#111827">
+  <meta property="og:type" content="website">
+  <meta property="og:title" content="Word Unscrambler – Find Words From Letters">
+  <meta property="og:description" content="Enter your letters and find matching English words in seconds.">
+  <meta property="og:url" content="https://word-unscrambler-ceu.pages.dev/">
+  <meta property="og:image" content="https://word-unscrambler-ceu.pages.dev/assets/og-image.svg">
+  <meta name="twitter:card" content="summary_large_image">
+  <link rel="icon" href="assets/favicon.svg" type="image/svg+xml">
+  <link rel="manifest" href="site.webmanifest">
+  <link rel="preload" href="words.txt" as="fetch" crossorigin>
+  <link rel="stylesheet" href="styles.css">
   <script type="application/ld+json">
   {
-    "@context": "https://schema.org",
-    "@type": "FAQPage",
-    "mainEntity": [
-      {
-        "@type": "Question",
-        "name": "What is a word unscrambler?",
-        "acceptedAnswer": {
-          "@type": "Answer",
-          "text": "A word unscrambler finds words that can be made from a set of letters without using any letter more times than it appears."
-        }
-      },
-      {
-        "@type": "Question",
-        "name": "How do I use this tool?",
-        "acceptedAnswer": {
-          "@type": "Answer",
-          "text": "Enter your letters, choose optional length filters, and press Find Words."
-        }
-      },
-      {
-        "@type": "Question",
-        "name": "Does the tool work on mobile?",
-        "acceptedAnswer": {
-          "@type": "Answer",
-          "text": "Yes. The page is designed to work on phones, tablets, and desktop computers."
-        }
-      }
-    ]
+    "@context":"https://schema.org",
+    "@type":"WebApplication",
+    "name":"Word Unscrambler",
+    "url":"https://word-unscrambler-ceu.pages.dev/",
+    "applicationCategory":"UtilitiesApplication",
+    "operatingSystem":"Any",
+    "description":"A free browser-based tool that finds English words that can be made from supplied letters.",
+    "offers":{"@type":"Offer","price":"0","priceCurrency":"USD"}
   }
   </script>
 </head>
 <body>
+  <a class="skip-link" href="#tool">Skip to tool</a>
   <header class="site-header">
     <div class="shell header-inner">
       <a class="brand" href="/" aria-label="Word Unscrambler home">
         <span class="brand-mark" aria-hidden="true">WU</span>
         <span>Word Unscrambler</span>
       </a>
-      <nav aria-label="Main navigation">
+      <nav aria-label="Primary navigation">
         <a href="#how-it-works">How it works</a>
         <a href="#faq">FAQ</a>
       </nav>
@@ -56,139 +46,110 @@
   </header>
 
   <main>
-    <section class="hero">
-      <div class="shell hero-grid">
-        <div>
-          <p class="eyebrow">Free word finder</p>
-          <h1>Unscramble letters into words</h1>
-          <p class="hero-copy">
-            Enter your letters, set optional filters, and discover matching English words sorted from longest to shortest.
-          </p>
+    <section class="hero shell">
+      <div class="hero-copy">
+        <p class="eyebrow">Fast, free, and private</p>
+        <h1>Turn mixed-up letters into winning words.</h1>
+        <p class="lead">Enter up to 15 letters. Use a question mark for a blank tile, then sort results by length or Scrabble score.</p>
+      </div>
+
+      <section id="tool" class="tool-card" aria-labelledby="tool-title">
+        <div class="tool-heading">
+          <div>
+            <p class="kicker">Word solver</p>
+            <h2 id="tool-title">What letters do you have?</h2>
+          </div>
+          <span id="dictionaryStatus" class="status" role="status">Loading dictionary…</span>
         </div>
 
-        <section class="tool-card" aria-labelledby="tool-title">
-          <h2 id="tool-title">Enter your letters</h2>
-
-          <form id="unscramble-form" novalidate>
-            <label for="letters">Letters</label>
-            <div class="input-row">
-              <input
-                id="letters"
-                name="letters"
-                type="text"
-                inputmode="text"
-                autocomplete="off"
-                spellcheck="false"
-                maxlength="15"
-                placeholder="Example: teacher"
-                aria-describedby="letters-help status"
-              >
-              <button class="primary-button" type="submit">Find words</button>
-            </div>
-
-            <p id="letters-help" class="field-help">Use 2–15 letters. Spaces, numbers, and punctuation are ignored.</p>
-
-            <div class="filters">
-              <label>
-                Minimum length
-                <select id="min-length" name="minLength">
-                  <option value="2">2</option>
-                  <option value="3" selected>3</option>
-                  <option value="4">4</option>
-                  <option value="5">5</option>
-                  <option value="6">6</option>
-                  <option value="7">7</option>
-                </select>
-              </label>
-
-              <label>
-                Maximum length
-                <select id="max-length" name="maxLength">
-                  <option value="15" selected>Any</option>
-                  <option value="3">3</option>
-                  <option value="4">4</option>
-                  <option value="5">5</option>
-                  <option value="6">6</option>
-                  <option value="7">7</option>
-                  <option value="8">8</option>
-                  <option value="9">9</option>
-                </select>
-              </label>
-            </div>
-
-            <div class="secondary-actions">
-              <button id="example-button" class="text-button" type="button">Try example</button>
-              <button id="clear-button" class="text-button" type="button">Clear</button>
-            </div>
-          </form>
-
-          <div id="status" class="status" role="status" aria-live="polite">
-            Loading word list…
+        <form id="unscrambleForm" novalidate>
+          <label for="letters">Letters</label>
+          <div class="input-row">
+            <input id="letters" name="letters" type="text" inputmode="text" autocomplete="off" autocapitalize="characters" spellcheck="false" maxlength="15" placeholder="Try: listen" aria-describedby="lettersHelp">
+            <button id="solveButton" type="submit" disabled>Unscramble</button>
           </div>
+          <p id="lettersHelp" class="help">Letters A–Z only. Use <strong>?</strong> as a wildcard.</p>
 
-          <section id="results-section" class="results-section" hidden>
-            <div class="results-heading">
-              <h3>Results</h3>
-              <span id="result-count" class="result-count"></span>
+          <div class="filters" aria-label="Result filters">
+            <label>Minimum length
+              <select id="minLength">
+                <option value="2">2 letters</option><option value="3" selected>3 letters</option><option value="4">4 letters</option><option value="5">5 letters</option>
+              </select>
+            </label>
+            <label>Sort by
+              <select id="sortBy">
+                <option value="length">Longest first</option>
+                <option value="score">Highest score</option>
+                <option value="alpha">A–Z</option>
+              </select>
+            </label>
+          </div>
+        </form>
+
+        <div id="message" class="message" aria-live="polite"></div>
+        <section id="resultsPanel" class="results-panel" hidden aria-labelledby="resultsTitle">
+          <div class="results-header">
+            <div>
+              <p class="kicker">Matches</p>
+              <h3 id="resultsTitle"><span id="resultCount">0</span> words found</h3>
             </div>
-            <div id="results"></div>
-          </section>
+            <button id="copyButton" class="secondary-button" type="button">Copy all</button>
+          </div>
+          <div id="lengthTabs" class="length-tabs" role="tablist" aria-label="Filter results by word length"></div>
+          <ol id="results" class="results-list"></ol>
+          <button id="showMoreButton" class="show-more" type="button" hidden>Show more</button>
         </section>
+      </section>
+    </section>
+
+    <section class="stats-band" aria-label="Highlights">
+      <div class="shell stats-grid">
+        <div><strong>350k+</strong><span>English words</span></div>
+        <div><strong>15</strong><span>letters per search</span></div>
+        <div><strong>0</strong><span>data sent to a server</span></div>
       </div>
     </section>
 
-    <section id="how-it-works" class="content-section">
-      <div class="shell narrow">
-        <h2>How to use the Word Unscrambler</h2>
-        <ol class="steps">
-          <li><strong>Enter your letters.</strong> Type between 2 and 15 letters.</li>
-          <li><strong>Choose filters.</strong> Set minimum or maximum word length when needed.</li>
-          <li><strong>Find words.</strong> Results are shown with the longest matches first.</li>
-        </ol>
-
-        <h2>What is a word unscrambler?</h2>
-        <p>
-          A word unscrambler checks which dictionary words can be formed from the letters you provide.
-          It never uses a letter more times than it appears in your input.
-        </p>
-
-        <h2>Word game tips</h2>
-        <p>
-          Start with longer words, then inspect shorter combinations. Common endings such as
-          <em>-er</em>, <em>-ing</em>, and <em>-ed</em> can help you spot additional possibilities.
-        </p>
+    <section id="how-it-works" class="content-section shell">
+      <div class="section-heading">
+        <p class="eyebrow">How it works</p>
+        <h2>Find words in three quick steps</h2>
+      </div>
+      <div class="steps-grid">
+        <article><span>1</span><h3>Enter your letters</h3><p>Type the tiles or letters you want to use. Add a question mark for each blank tile.</p></article>
+        <article><span>2</span><h3>Choose your filters</h3><p>Set a minimum word length and choose whether to sort by length, score, or alphabetically.</p></article>
+        <article><span>3</span><h3>Use your results</h3><p>Browse words by length, check tile scores, and copy the complete list with one click.</p></article>
       </div>
     </section>
 
-    <section id="faq" class="content-section alternate">
-      <div class="shell narrow">
-        <h2>Frequently asked questions</h2>
+    <section class="content-section shell two-column">
+      <div>
+        <p class="eyebrow">Built for word games</p>
+        <h2>A practical helper for anagrams and letter games</h2>
+      </div>
+      <div class="prose">
+        <p>This word unscrambler checks which dictionary words can be made from the letters you provide. Each letter can only be used as many times as it appears in your input, unless you include wildcard tiles.</p>
+        <p>Scores use standard English-language Scrabble tile values as a quick comparison aid. Always check the official dictionary and rules used by your particular game.</p>
+      </div>
+    </section>
 
-        <details>
-          <summary>Why do I only see a limited number of words?</summary>
-          <p>This first version uses a small test dictionary. We will replace it with a larger licensed word list next.</p>
-        </details>
-
-        <details>
-          <summary>Can I use the tool on my phone?</summary>
-          <p>Yes. The layout is responsive and designed for both mobile and desktop.</p>
-        </details>
-
-        <details>
-          <summary>Is this affiliated with any word game?</summary>
-          <p>No. Third-party game names and trademarks belong to their respective owners.</p>
-        </details>
+    <section id="faq" class="content-section shell faq-section">
+      <div class="section-heading"><p class="eyebrow">FAQ</p><h2>Frequently asked questions</h2></div>
+      <div class="faq-list">
+        <details><summary>What is a word unscrambler?</summary><p>It is a tool that finds words that can be built from a group of letters. It is useful for anagrams, spelling practice, and many letter-based games.</p></details>
+        <details><summary>Can I use blank tiles?</summary><p>Yes. Enter a question mark for each wildcard. A wildcard may replace any one missing letter.</p></details>
+        <details><summary>Does this tool send my letters anywhere?</summary><p>No. After the dictionary loads, searches run entirely in your browser.</p></details>
+        <details><summary>Are all results valid in every word game?</summary><p>No single word list matches every game. Tournament and app dictionaries differ, so verify unusual words against the rules for your game.</p></details>
       </div>
     </section>
   </main>
 
   <footer>
     <div class="shell footer-inner">
-      <span>© 2026 Word Unscrambler</span>
-      <span>Free browser-based word tool</span>
+      <div><strong>Word Unscrambler</strong><p>A fast, browser-based word finder.</p></div>
+      <p>Dictionary data attribution is documented in <a href="LICENSES.md">LICENSES.md</a>.</p>
     </div>
   </footer>
-
-  <script src="script.js" defer></script>
+  <script src="app.js" defer></script>
 </body>
 </html>
