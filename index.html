@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>Word Unscrambler - Free Word Finder Tool</title>
+<meta name="description" content="Unscramble letters into words instantly. Free online Word Unscrambler for Scrabble, Wordle and other word games.">
+
+<style>
+body{
+font-family:Arial,Helvetica,sans-serif;
+background:#f5f7fb;
+margin:0;
+padding:0;
+color:#222;
+}
+
+header{
+background:#1565c0;
+color:white;
+padding:30px;
+text-align:center;
+}
+
+main{
+max-width:900px;
+margin:40px auto;
+background:white;
+padding:30px;
+border-radius:10px;
+box-shadow:0 0 20px rgba(0,0,0,.08);
+}
+
+h1{
+margin-top:0;
+font-size:38px;
+}
+
+input{
+width:100%;
+padding:18px;
+font-size:22px;
+border:2px solid #ddd;
+border-radius:8px;
+box-sizing:border-box;
+}
+
+button{
+margin-top:20px;
+padding:15px 35px;
+background:#1565c0;
+color:white;
+border:none;
+border-radius:8px;
+font-size:18px;
+cursor:pointer;
+}
+
+button:hover{
+background:#0d47a1;
+}
+
+#results{
+margin-top:35px;
+padding:20px;
+background:#f0f6ff;
+border-radius:8px;
+}
+
+footer{
+text-align:center;
+padding:30px;
+color:#777;
+font-size:14px;
+}
+</style>
+</head>
+
+<body>
+
+<header>
+
+<h1>Word Unscrambler</h1>
+
+<p>Unscramble letters and discover valid English words instantly.</p>
+
+</header>
+
+<main>
+
+<h2>Enter Your Letters</h2>
+
+<input
+id="letters"
+placeholder="Example: teacher">
+
+<button onclick="findWords()">
+Find Words
+</button>
+
+<div id="results">
+
+Your results will appear here.
+
+</div>
+
+<h2>How to Use</h2>
+
+<p>
+Type your letters above and click
+<strong>Find Words</strong>.
+This free tool helps you discover possible English words for games like Scrabble and Wordle.
+</p>
+
+<h2>Coming Soon</h2>
+
+<ul>
+<li>Anagram Solver</li>
+<li>Word Finder</li>
+<li>Wordle Solver</li>
+<li>Scrabble Solver</li>
+</ul>
+
+</main>
+
+<footer>
+
+© 2026 Word Unscrambler
+
+</footer>
+
+<script>
+
+function findWords(){
+
+let letters=document.getElementById("letters").value.trim();
+
+if(letters===""){
+
+document.getElementById("results").innerHTML="Please enter some letters.";
+
+return;
+
+}
+
+document.getElementById("results").innerHTML=
+"<strong>You entered:</strong> "+letters+
+"<br><br>The real word search engine will be added next.";
+
+}
+
+</script>
+
+</body>
+
+</html>
