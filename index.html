@@ -3,8 +3,8 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width,initial-scale=1">
-  <title>Word Unscrambler – Find Words From Letters</title>
-  <meta name="description" content="Unscramble letters into valid English words. Filter by word length, sort by score, and copy results instantly.">
+  <title>Word Unscrambler – Live Anagram & Word Finder</title>
+  <meta name="description" content="Unscramble letters instantly with live search, advanced pattern filters, favorites, word length filters, and Scrabble-style scores.">
   <link rel="canonical" href="https://word-unscrambler-ceu.pages.dev/">
   <meta name="theme-color" content="#111827">
   <meta property="og:type" content="website">
@@ -41,6 +41,7 @@
       <nav aria-label="Primary navigation">
         <a href="#how-it-works">How it works</a>
         <a href="#faq">FAQ</a>
+        <button id="themeToggle" class="theme-toggle" type="button" aria-pressed="false">Dark mode</button>
       </nav>
     </div>
   </header>
@@ -50,7 +51,7 @@
       <div class="hero-copy">
         <p class="eyebrow">Fast, free, and private</p>
         <h1>Turn mixed-up letters into winning words.</h1>
-        <p class="lead">Enter up to 15 letters. Use a question mark for a blank tile, then sort results by length or Scrabble score.</p>
+        <p class="lead">Enter up to 15 letters and see matches as you type. Add pattern filters, save favorite words, or use a question mark as a blank tile.</p>
       </div>
 
       <section id="tool" class="tool-card" aria-labelledby="tool-title">
@@ -84,6 +85,18 @@
               </select>
             </label>
           </div>
+
+          <fieldset class="pattern-filters">
+            <legend>Advanced filters</legend>
+            <label>Starts with<input id="startsWith" type="text" maxlength="8" placeholder="ST"></label>
+            <label>Contains<input id="contains" type="text" maxlength="8" placeholder="ING"></label>
+            <label>Ends with<input id="endsWith" type="text" maxlength="8" placeholder="ER"></label>
+          </fieldset>
+
+          <div class="tool-options">
+            <label class="check-label"><input id="liveSearch" type="checkbox" checked> Live search</label>
+            <button id="clearButton" class="text-button" type="button">Clear</button>
+          </div>
         </form>
 
         <div id="message" class="message" aria-live="polite"></div>
@@ -93,7 +106,10 @@
               <p class="kicker">Matches</p>
               <h3 id="resultsTitle"><span id="resultCount">0</span> words found</h3>
             </div>
-            <button id="copyButton" class="secondary-button" type="button">Copy all</button>
+            <div class="result-actions">
+              <label class="check-label"><input id="favoritesOnly" type="checkbox"> Favorites only</label>
+              <button id="copyButton" class="secondary-button" type="button">Copy all</button>
+            </div>
           </div>
           <div id="lengthTabs" class="length-tabs" role="tablist" aria-label="Filter results by word length"></div>
           <ol id="results" class="results-list"></ol>
@@ -105,20 +121,20 @@
     <section class="stats-band" aria-label="Highlights">
       <div class="shell stats-grid">
         <div><strong>350k+</strong><span>English words</span></div>
-        <div><strong>15</strong><span>letters per search</span></div>
-        <div><strong>0</strong><span>data sent to a server</span></div>
+        <div><strong>Live</strong><span>results as you type</span></div>
+        <div><strong>Private</strong><span>searches stay in your browser</span></div>
       </div>
     </section>
 
     <section id="how-it-works" class="content-section shell">
       <div class="section-heading">
         <p class="eyebrow">How it works</p>
-        <h2>Find words in three quick steps</h2>
+        <h2>Find better words with less effort</h2>
       </div>
       <div class="steps-grid">
-        <article><span>1</span><h3>Enter your letters</h3><p>Type the tiles or letters you want to use. Add a question mark for each blank tile.</p></article>
-        <article><span>2</span><h3>Choose your filters</h3><p>Set a minimum word length and choose whether to sort by length, score, or alphabetically.</p></article>
-        <article><span>3</span><h3>Use your results</h3><p>Browse words by length, check tile scores, and copy the complete list with one click.</p></article>
+        <article><span>1</span><h3>Enter your letters</h3><p>Type your letters and results appear automatically. Add a question mark for each blank tile.</p></article>
+        <article><span>2</span><h3>Choose your filters</h3><p>Filter by beginning, middle, or ending letters, then sort by length, score, or alphabetically.</p></article>
+        <article><span>3</span><h3>Use your results</h3><p>Browse by length, save favorites locally, and copy the complete list with one click.</p></article>
       </div>
     </section>
 

@@ -1,35 +1,16 @@
 # Product roadmap
 
-## v3 — Foundation (current)
-- Fast static word unscrambler
-- Responsive redesign
-- Large local dictionary
-- filters, scores, copy, wildcard support
-- SEO baseline and deployment documentation
+## Completed
 
-## v4 — Dictionary quality
-- Replace broad dictionary with game-specific licensed lists where permitted
-- Add US/UK spelling controls
-- Add exclusion controls for proper nouns and uncommon words
+- v2: First deployable static version
+- v3: Professional redesign, large dictionary, wildcard support, scores, sorting, and SEO foundation
+- v4: Live search, advanced pattern filters, favorites, and dark mode
 
-## v5 — Tool suite
-- Anagram Solver
-- Word Finder
-- Wordle Helper
-- Words by length
+## Next
 
-## v6 — SEO architecture
-- Hand-written landing pages for high-value intents
-- internal linking and breadcrumbs
-- reusable page templates
-- avoid thin, automatically generated pages
-
-## v7 — Measurement
-- Privacy-conscious analytics
-- Google Search Console
-- performance monitoring and search-query review
-
-## v8 — Brand and domain
-- custom .com domain
-- final logo and social preview assets
-- legal and editorial pages
+- v5: Dedicated Anagram Solver and Word Finder pages
+- v6: Wordle Helper with positional letter filters
+- v7: Curated word-length landing pages
+- v8: Scalable SEO page templates and internal linking
+- v9: Custom domain, Search Console, analytics, and production monitoring
+- v10: Content expansion and monetization readiness
