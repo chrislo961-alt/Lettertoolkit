@@ -11,22 +11,14 @@ const el = Object.fromEntries(ids.map(id => [id, document.getElementById(id)]));
 
 function setMessage(text,type=''){ el.message.textContent=text; el.message.className=`message ${type}`.trim(); }
 const sanitize = sanitizeLetters;
-function sanitizePattern(value,max=8){ return value.toLowerCase().replace(/[^a-z]/g,'').slice(0,max); }
 
 async function loadDictionary(){
   try{
-    const response = await fetch('words.txt');
-    if(!response.ok) throw new Error(`HTTP ${response.status}`);
-    const text = await response.text();
-    for(const raw of text.split(/\r?\n/)){
-      const word = raw.trim().toLowerCase();
-      if(!word) continue;
-      if(!state.wordsByLength.has(word.length)) state.wordsByLength.set(word.length,[]);
-      state.wordsByLength.get(word.length).push(word);
-    }
+    const dictionary = await fetchDictionary('./words.txt');
+    state.wordsByLength = dictionary.wordsByLength;
     state.ready = true;
     el.solveButton.disabled = false;
-    const total = [...state.wordsByLength.values()].reduce((n,list)=>n+list.length,0);
+    const total = dictionary.total;
     el.dictionaryStatus.textContent = `${total.toLocaleString()} words ready`;
     el.dictionaryStatus.classList.add('ready');
     scheduleLiveSearch();
