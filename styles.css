@@ -21,3 +21,38 @@ button,input,select{font:inherit}button{border:0;cursor:pointer;transition:.18s 
 .stats-band{background:var(--text);color:var(--surface);padding:30px 0}.stats-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:20px;text-align:center}.stats-grid strong{display:block;font-size:1.7rem}.stats-grid span{opacity:.72;font-size:.88rem}.content-section{padding:90px 0}.section-heading{max-width:650px;margin-bottom:38px}.content-section h2{font-size:clamp(2rem,4vw,3.4rem);line-height:1.05;letter-spacing:-.04em;margin:0}.steps-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:20px}.steps-grid article,.faq-list details{background:var(--surface);border:1px solid var(--line);border-radius:20px;padding:26px}.steps-grid article>span{display:grid;place-items:center;width:38px;height:38px;border-radius:12px;background:var(--surface-2);color:var(--accent);font-weight:850}.steps-grid h3{margin:22px 0 8px}.steps-grid p,.faq-list p,footer p{color:var(--muted)}.faq-section{padding-top:40px}.faq-list{display:grid;gap:12px}.faq-list summary{font-weight:850;cursor:pointer}.faq-list p{margin-bottom:0}footer{border-top:1px solid var(--line);padding:34px 0;background:var(--surface)}footer p{margin:.25rem 0;font-size:.88rem}
 @media(max-width:900px){.platform-hero,.workspace{grid-template-columns:1fr}.platform-hero{gap:1.5rem;padding-top:3rem}.results-card{position:static;max-height:none}.form-grid.three{grid-template-columns:1fr}.results-list{grid-template-columns:1fr}.steps-grid{grid-template-columns:1fr}}
 @media(max-width:560px){nav a{display:none}.form-grid{grid-template-columns:1fr}.tool-pane,.results-card{padding:1.25rem;border-radius:20px}.platform-hero h1{font-size:3.5rem}.stats-grid{grid-template-columns:1fr}.footer-inner{align-items:flex-start;flex-direction:column}}
+
+/* v2.0.2: make all typing and selection fields clearly visible */
+.tool-form input,
+.tool-form select {
+  background: #ffffff;
+  color: #111827;
+  border: 2px solid #c7d2e3;
+  box-shadow: 0 2px 8px rgba(17, 24, 39, 0.06);
+  min-height: 54px;
+}
+
+.tool-form input::placeholder {
+  color: #7b8492;
+  opacity: 1;
+}
+
+.tool-form input:hover,
+.tool-form select:hover {
+  border-color: #9aa9bd;
+}
+
+.tool-form input:focus,
+.tool-form select:focus {
+  background: #ffffff;
+  color: #111827;
+  border-color: var(--accent);
+  box-shadow: 0 0 0 4px rgba(91, 92, 226, 0.16), 0 4px 12px rgba(17, 24, 39, 0.08);
+}
+
+:root[data-theme="dark"] .tool-form input,
+:root[data-theme="dark"] .tool-form select {
+  background: #ffffff;
+  color: #111827;
+  border-color: #b9c5d6;
+}

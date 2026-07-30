@@ -7,3 +7,6 @@ Upload the contents of this folder to the root of the GitHub repository connecte
 
 ## Test
 Serve the folder over HTTP (not `file://`) because the app loads JavaScript modules and `words.txt` with `fetch()`.
+
+## 2.0.2
+Form inputs and dropdowns now use a solid white background, stronger border, and clearer focus state so users can immediately see where to type.
