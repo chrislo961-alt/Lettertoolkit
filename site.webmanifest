@@ -1,1 +1,15 @@
-{"name":"Word Unscrambler","short_name":"Unscrambler","start_url":"/","display":"standalone","background_color":"#f4f7fb","theme_color":"#111827","icons":[{"src":"assets/favicon.svg","sizes":"any","type":"image/svg+xml"}]}
+{
+  "name": "LetterToolkit",
+  "short_name": "LetterToolkit",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#f4f7fb",
+  "theme_color": "#111827",
+  "icons": [
+    {
+      "src": "/assets/favicon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml"
+    }
+  ]
+}

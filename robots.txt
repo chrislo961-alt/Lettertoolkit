@@ -1,3 +1,4 @@
 User-agent: *
 Allow: /
-Sitemap: https://word-unscrambler-ceu.pages.dev/sitemap.xml
+
+Sitemap: https://lettertoolkit.com/sitemap.xml

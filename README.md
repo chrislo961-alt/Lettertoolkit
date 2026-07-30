@@ -1,12 +1,15 @@
-# Word Tools Platform 2.0.1
+# LetterToolkit 3.0
 
-A static, browser-based suite containing Word Unscrambler, Anagram Solver, Word Finder, and Wordle Helper.
+Production-ready static site for Cloudflare Pages.
 
-## Deploy
-Upload the contents of this folder to the root of the GitHub repository connected to Cloudflare Pages. No build command is required.
+## Publish
+Upload all files and folders in this directory to the root of the existing GitHub repository and commit to `main`. Cloudflare Pages will deploy automatically.
 
-## Test
-Serve the folder over HTTP (not `file://`) because the app loads JavaScript modules and `words.txt` with `fetch()`.
-
-## 2.0.2
-Form inputs and dropdowns now use a solid white background, stronger border, and clearer focus state so users can immediately see where to type.
+## Included
+- SEO-focused home page
+- Separate URLs for four working tools
+- Shared client-side dictionary engine
+- Sitemap, robots.txt, canonical metadata
+- About and privacy pages
+- Reserved ad placements (no ad scripts installed)
+- Responsive design and dark mode
