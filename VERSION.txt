@@ -1,2 +1,1 @@
-LetterToolkit 4.0 SEO Edition
-Built 2026-07-30
+4.0.1

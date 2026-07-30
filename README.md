@@ -40,3 +40,10 @@ The pages currently use `hello@lettertoolkit.com`. Create that mailbox/forwarder
 
 ## Important
 Spelling-based rhyme results are not a pronunciation dictionary. Word validity also varies between games and publishers.
+
+
+## 4.0.1 hotfix
+- The homepage now opens directly on Word Unscrambler.
+- Shared assets use cache-busting query strings.
+- Dictionary loading works from both `/` and tool subpages.
+- The tool navigation no longer shows a visible scrollbar.
