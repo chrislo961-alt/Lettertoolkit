@@ -1,14 +1,9 @@
-# Word Tools Platform 2.0
+# Word Tools Platform 2.0.1
 
-Static multi-tool word platform for Cloudflare Pages.
-
-## Included tools
-- Word Unscrambler
-- Exact Anagram Solver
-- Word Finder with positional pattern filters
-- Wordle Helper
-
-All tools share one browser-loaded dictionary and ES module core engine.
+A static, browser-based suite containing Word Unscrambler, Anagram Solver, Word Finder, and Wordle Helper.
 
 ## Deploy
-Upload the contents of this folder to the repository root. Cloudflare Pages requires no build command.
+Upload the contents of this folder to the root of the GitHub repository connected to Cloudflare Pages. No build command is required.
+
+## Test
+Serve the folder over HTTP (not `file://`) because the app loads JavaScript modules and `words.txt` with `fetch()`.
