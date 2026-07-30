@@ -1,15 +1,12 @@
-# LetterToolkit 3.0
+# LetterToolkit 3.1
 
-Production-ready static site for Cloudflare Pages.
+Static Cloudflare Pages website with five browser-based word tools.
 
-## Publish
-Upload all files and folders in this directory to the root of the existing GitHub repository and commit to `main`. Cloudflare Pages will deploy automatically.
+## Included tools
+- Word Unscrambler
+- Anagram Solver
+- Word Finder
+- Wordle Helper
+- Crossword Solver
 
-## Included
-- SEO-focused home page
-- Separate URLs for four working tools
-- Shared client-side dictionary engine
-- Sitemap, robots.txt, canonical metadata
-- About and privacy pages
-- Reserved ad placements (no ad scripts installed)
-- Responsive design and dark mode
+Upload all files and folders to the root of the GitHub repository. No build command is required.
