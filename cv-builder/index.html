@@ -85,9 +85,25 @@
     .cover-letter{min-height:470px}
     .preview-design-grid{display:grid;grid-template-columns:minmax(0,.72fr) minmax(380px,1.28fr);gap:22px;align-items:start}
 
+
+    .ai-actions{display:flex;gap:10px;flex-wrap:wrap;margin-top:12px}
+    .ai-progress{display:none;align-items:center;gap:10px;margin-top:12px;padding:12px 14px;border-radius:12px;background:#f8f9ff;border:1px solid #e8eaff}
+    .ai-progress.active{display:flex}
+    .spinner{width:18px;height:18px;border:3px solid #d9dcff;border-top-color:var(--brand);border-radius:50%;animation:spin .8s linear infinite}
+    @keyframes spin{to{transform:rotate(360deg)}}
+    .upload-box{border:1.5px dashed var(--line);border-radius:14px;padding:16px;background:#fbfcff;margin-bottom:16px}
+    .upload-box input{padding:9px;background:#fff}
+    .upload-meta{margin-top:8px;font-size:.84rem;color:var(--muted)}
+    .quick-tools{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-top:12px}
+    .quick-tool{background:#fff;border:1px solid var(--line);border-radius:12px;padding:11px;text-align:left;font-weight:750}
+    .quick-tool span{display:block;font-size:.78rem;color:var(--muted);font-weight:500;margin-top:3px}
+    .result-empty{padding:24px 16px;text-align:center;color:var(--muted);border:1px dashed var(--line);border-radius:12px}
+    .sticky-mobile-actions{display:none}
+
     @media(max-width:980px){
       .ai-workspace,.preview-design-grid{grid-template-columns:1fr}
       .preview-wrap{position:static}
+      .quick-tools{grid-template-columns:1fr}
       .steps{grid-template-columns:1fr 1fr}
       .navlinks{display:none}
     }
@@ -96,6 +112,7 @@
       .template-cards{grid-template-columns:1fr}
       .steps{grid-template-columns:1fr}
       .job-ad,.cover-letter{min-height:260px}
+      .sticky-mobile-actions{display:flex;position:sticky;bottom:10px;z-index:15;gap:8px;padding:8px;background:rgba(244,247,251,.95);backdrop-filter:blur(8px);border-radius:14px;border:1px solid var(--line)}
       .panel{padding:18px}.preview{padding:22px}
     }
     @media print{
@@ -140,6 +157,11 @@
     <div class="panel">
       <h2>1. Your CV</h2>
       <p class="lead">Add the information you want included. Everything below autosaves locally in your browser.</p>
+      <div class="upload-box">
+        <label for="cvFile">Import an existing CV</label>
+        <input id="cvFile" type="file" accept=".txt,.html,.htm,.pdf,.docx">
+        <div class="upload-meta" id="uploadMeta">TXT and HTML can be read in the browser. PDF/DOCX parsing will be added in the next backend step.</div>
+      </div>
       <div class="grid">
         <div><label for="language">Language</label><select id="language"><option value="English">English</option><option value="Swedish">Swedish</option><option value="Norwegian">Norwegian</option></select></div>
         <div><label for="role">Target role</label><input id="role" placeholder="Operations Manager"></div>
@@ -152,6 +174,11 @@
         <div class="full"><label for="education">Education</label><textarea id="education" placeholder="School | Degree | Year"></textarea></div>
         <div class="full"><label for="skills">Skills</label><textarea id="skills" placeholder="Excel, project management, customer operations..."></textarea></div>
       </div>
+      <div class="quick-tools">
+        <button class="quick-tool" id="fillExample" type="button">Load example<span>See the full flow instantly</span></button>
+        <button class="quick-tool" id="copyCvText" type="button">Copy CV text<span>Copy the current CV to clipboard</span></button>
+        <button class="quick-tool" id="clearCvOnly" type="button">Clear CV fields<span>Keep job ad and AI results</span></button>
+      </div>
     </div>
 
     <div class="panel">
@@ -163,10 +190,11 @@
           <label for="jobAd">Job advertisement</label>
           <textarea id="jobAd" class="job-ad" placeholder="Paste the full job advertisement here..."></textarea>
 
-          <div class="row" style="margin-top:12px">
+          <div class="ai-actions">
             <button class="primary" id="aiImprove">Tailor my CV with AI</button>
             <button class="secondary" id="aiLetter">Generate cover letter</button>
           </div>
+          <div id="aiProgress" class="ai-progress"><span class="spinner"></span><span id="aiProgressText">Working...</span></div>
           <div id="status" class="status">AI is connected securely through LetterToolkit's Cloudflare Worker.</div>
 
           <div class="notice" style="margin-top:14px">
@@ -181,6 +209,7 @@
           </div>
 
           <div id="cv-results" class="result-panel active">
+            <div id="cvEmpty" class="result-empty">Run <strong>Tailor my CV with AI</strong> to see suggestions here.</div>
             <div class="review-grid">
               <div class="review-block">
                 <div class="review-head"><h3>Profile</h3><button class="tertiary mini" id="applySummary">Use this</button></div>
@@ -198,6 +227,7 @@
           </div>
 
           <div id="letter-results" class="result-panel">
+            <div id="letterEmpty" class="result-empty">Run <strong>Generate cover letter</strong> to create a draft here.</div>
             <textarea id="coverLetter" class="cover-letter" placeholder="Your AI-generated cover letter will appear here."></textarea>
             <div class="row" style="margin-top:10px">
               <button class="secondary" id="copyLetter">Copy cover letter</button>
@@ -225,7 +255,7 @@
           <button class="secondary" id="downloadTxt">Download CV TXT</button>
           <button class="secondary" id="backup">Backup JSON</button>
         </div>
-        <div class="footer-note">Privacy: CV text is sent to the AI endpoint only when you press an AI button. Avoid unnecessary sensitive data.</div>
+        <div class="sticky-mobile-actions"><button class="primary" id="mobileImprove" type="button">Tailor with AI</button><button class="secondary" id="mobileLetter" type="button">Cover letter</button></div><div class="footer-note">Privacy: CV text is sent to the AI endpoint only when you press an AI button. Avoid unnecessary sensitive data.</div>
       </div>
 
       <div class="preview-wrap">
@@ -265,9 +295,39 @@ function render(){
   $("preview").style.fontSize=tpl==="compact"?"14px":"16px";
   $("preview").style.borderTop=tpl==="modern"?"8px solid #5b5ce2":"1px solid #dfe5ef";
   save();
+  if(document.getElementById("cvEmpty")) refreshEmptyStates();
 }
 function load(){try{const d=JSON.parse(localStorage.getItem(key)||"{}");ids.forEach(id=>{if(d[id]!=null)$(id).value=d[id]});document.body.dataset.template=d.template||"classic";document.querySelectorAll(".template-card").forEach(c=>c.classList.toggle("active",c.dataset.template===document.body.dataset.template));}catch{}render();}
 function payload(){return{language:$("language").value,targetRole:$("role").value,cv:{name:$("name").value,email:$("email").value,phone:$("phone").value,location:$("location").value,summary:$("summary").value,experience:$("experience").value,education:$("education").value,skills:$("skills").value},jobAd:$("jobAd").value};}
+
+function setBusy(on, text="Working..."){
+  $("aiProgress").classList.toggle("active", !!on);
+  $("aiProgressText").textContent=text;
+  $("aiImprove").disabled=!!on;
+  $("aiLetter").disabled=!!on;
+}
+function refreshEmptyStates(){
+  $("cvEmpty").style.display = ($("reviewSummary").value || $("reviewExperience").value || $("reviewSkills").value) ? "none" : "block";
+  $("letterEmpty").style.display = $("coverLetter").value ? "none" : "block";
+}
+function cvText(){
+  return `${$("name").value}
+${$("role").value}
+${$("email").value} | ${$("phone").value} | ${$("location").value}
+
+PROFILE
+${$("summary").value}
+
+EXPERIENCE
+${$("experience").value}
+
+EDUCATION
+${$("education").value}
+
+SKILLS
+${$("skills").value}`.trim();
+}
+
 async function callAI(action){
   const r=await fetch(WORKER_URL+"/api/cv",{method:"POST",headers:{"content-type":"application/json"},body:JSON.stringify({action,...payload()})});
   const data=await r.json();
@@ -277,6 +337,7 @@ async function callAI(action){
 $("aiImprove").onclick=async()=>{
   $("status").textContent="Tailoring your CV...";
   $("status").className="status";
+  setBusy(true,"Tailoring your CV to the job...");
   try{
     const d=await callAI("improve_cv");
     $("reviewSummary").value=d.summary||"";
@@ -284,25 +345,69 @@ $("aiImprove").onclick=async()=>{
     $("reviewSkills").value=d.skills||"";
     save();
     showResultTab("cv-results");
+    refreshEmptyStates();
     $("status").textContent="AI suggestions are ready. Review them before applying.";
+    setBusy(false);
     $("status").className="status ok";
-  }catch(e){$("status").textContent=e.message;$("status").className="status error";}
+  }catch(e){setBusy(false);$("status").textContent=e.message;$("status").className="status error";}
 };
 $("aiLetter").onclick=async()=>{
   $("status").textContent="Generating cover letter...";
   $("status").className="status";
+  setBusy(true,"Writing your cover letter...");
   try{
     const d=await callAI("cover_letter");
     $("coverLetter").value=d.coverLetter||"";
     showResultTab("letter-results");
     save();
+    refreshEmptyStates();
     $("status").textContent="Cover letter generated. Edit it before sending.";
+    setBusy(false);
     $("status").className="status ok";
-  }catch(e){$("status").textContent=e.message;$("status").className="status error";}
+  }catch(e){setBusy(false);$("status").textContent=e.message;$("status").className="status error";}
 };
 $("applySummary").onclick=()=>{$("summary").value=$("reviewSummary").value;render();};
 $("applyExperience").onclick=()=>{$("experience").value=$("reviewExperience").value;render();};
 $("applySkills").onclick=()=>{$("skills").value=$("reviewSkills").value;render();};
+
+$("fillExample").onclick=()=>{
+  $("language").value="Norwegian";
+  $("role").value="Restaurant worker";
+  $("name").value="Ola Nordmann";
+  $("email").value="ola@example.com";
+  $("phone").value="+47 900 00 000";
+  $("location").value="Oslo";
+  $("summary").value="Praktisk anlagt medarbeider med erfaring fra byggfag og varierte arbeidsoppgaver.";
+  $("experience").value="Byggarbeider | 2022–2026\n- Utførte praktiske oppgaver i høyt tempo\n- Samarbeidet tett med kolleger\n- Tok ansvar for kvalitet og fremdrift";
+  $("education").value="Videregående skole | Byggfag";
+  $("skills").value="Praktisk arbeid, samarbeid, kundeservice, pålitelighet";
+  $("jobAd").value="Vi søker en pizzamedarbeider som er pålitelig, effektiv, samarbeidsvillig og komfortabel med høyt tempo.";
+  render();
+};
+$("copyCvText").onclick=async()=>{await navigator.clipboard.writeText(cvText());$("status").textContent="CV text copied.";$("status").className="status ok";};
+$("clearCvOnly").onclick=()=>{
+  ["role","name","email","phone","location","summary","experience","education","skills"].forEach(id=>$(id).value="");
+  render();
+};
+$("mobileImprove").onclick=()=>$("aiImprove").click();
+$("mobileLetter").onclick=()=>$("aiLetter").click();
+
+$("cvFile").addEventListener("change", async e=>{
+  const file=e.target.files[0];
+  if(!file)return;
+  $("uploadMeta").textContent=file.name;
+  const ext=file.name.split(".").pop().toLowerCase();
+  if(ext==="txt"||ext==="html"||ext==="htm"){
+    const text=await file.text();
+    const clean=ext==="txt"?text:text.replace(/<[^>]+>/g," ").replace(/\s+/g," ").trim();
+    $("experience").value=clean;
+    render();
+    $("uploadMeta").textContent=`${file.name} imported locally. Review the text and move details into the correct fields.`;
+  }else{
+    $("uploadMeta").textContent=`${file.name} selected. Reliable ${ext.toUpperCase()} parsing is not enabled yet.`;
+  }
+});
+
 document.querySelectorAll(".template-card").forEach(card=>card.onclick=()=>{document.body.dataset.template=card.dataset.template;document.querySelectorAll(".template-card").forEach(c=>c.classList.toggle("active",c===card));render();});
 function dl(name,content,type="text/plain"){const b=new Blob([content],{type});const u=URL.createObjectURL(b);const a=document.createElement("a");a.href=u;a.download=name;a.click();setTimeout(()=>URL.revokeObjectURL(u),1000);}
 $("downloadTxt").onclick=()=>dl("cv.txt",`${$("name").value}\n${$("role").value}\n\nPROFILE\n${$("summary").value}\n\nEXPERIENCE\n${$("experience").value}\n\nEDUCATION\n${$("education").value}\n\nSKILLS\n${$("skills").value}`);
@@ -324,6 +429,7 @@ function showResultTab(id){
 
 ids.forEach(id=>$(id).addEventListener("input",render));
 load();
+refreshEmptyStates();
 </script>
 </body>
 </html>
