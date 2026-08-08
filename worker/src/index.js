@@ -390,7 +390,80 @@ ${jobAd}`;
         return json(request, result);
       }
 
-      if (!["improve_cv", "cover_letter", "translate_cv", "review_cv"].includes(body.action)) {
+      if (body.action === "rewrite_application") {
+        const language = safeText(body.language, 40) || "English";
+        const targetRole = safeText(body.targetRole, 120);
+        const version = safeText(body.version, 40);
+        const current = safeText(body.application, 14000);
+        const jobAd = safeText(body.jobAd, 12000);
+
+        const styleMap = {
+          shorter: "Make it approximately 25% shorter while keeping the strongest relevant points.",
+          warmer: "Make it warmer, more human and personable while remaining professional.",
+          more_direct: "Make it more direct, concise and confident without sounding arrogant."
+        };
+
+        const prompt = `Rewrite this job application in ${language}.
+Target role: ${targetRole}
+Requested variation: ${styleMap[version] || "Improve clarity while preserving meaning."}
+
+Rules:
+- Preserve factual accuracy.
+- Do not invent experience, employers, education, achievements, metrics, certifications or skills.
+- Keep the application tailored to the job ad.
+- Return JSON only: {"application":"..."}
+
+CURRENT APPLICATION:
+${current}
+
+JOB ADVERTISEMENT:
+${jobAd}`;
+
+        const result = await callResponses(env, prompt, 1500);
+        return json(request, result);
+      }
+
+      if (body.action === "review_application") {
+        const language = safeText(body.language, 40) || "English";
+        const targetRole = safeText(body.targetRole, 120);
+        const current = safeText(body.application, 14000);
+        const background = safeText(body.background, 14000);
+        const jobAd = safeText(body.jobAd, 12000);
+
+        const prompt = `Act as a senior recruiter and application editor.
+Review the job application in ${language} for the target role "${targetRole}".
+
+Rules:
+- Evaluate relevance, specificity, clarity, tone, structure and credibility.
+- Never invent facts.
+- Score 0-100.
+- Give no more than 5 focused feedback items.
+- Create an improved version using only facts already present in the application/background.
+- Return JSON only.
+
+Exact shape:
+{
+  "score":0,
+  "verdict":"",
+  "overview":"",
+  "feedback":[{"title":"","reason":""}],
+  "improvedApplication":""
+}
+
+APPLICATION:
+${current}
+
+APPLICANT BACKGROUND:
+${background}
+
+JOB ADVERTISEMENT:
+${jobAd}`;
+
+        const result = await callResponses(env, prompt, 1800);
+        return json(request, result);
+      }
+
+      if (!["improve_cv", "cover_letter", "translate_cv", "review_cv", "review_application", "rewrite_application"].includes(body.action)) {
         return json(request, { error: "Unsupported action." }, 400);
       }
 

@@ -1,26 +1,33 @@
-# LetterToolkit 6.13 – AI Review
+# LetterToolkit 6.14 – Application Builder Pro
 
-Adds a controlled AI review workflow.
+Focuses on making the dedicated job application page a polished product.
 
-## New
-- AI Review CV button
-- CV score (0–100)
-- recruiter-style overview
-- up to 8 focused suggestions
-- current text vs suggested replacement
-- Accept / Reject per suggestion
-- Accept all
-- no CV field is changed until the user accepts
-- job advertisement is used for relevance when supplied
-- review is returned in the selected language
-- AI is explicitly forbidden from inventing facts
+## New on Application Builder
+- word count and character count
+- visible tone indicator
+- alternate versions:
+  - Shorter
+  - Warmer
+  - More direct
+- AI Review application
+- application score 0–100
+- recruiter-style feedback
+- improved application version
+- one-click "Use improved version"
+- existing CV handoff, upload, language and tone controls remain
+
+## Worker
+Adds:
+- `rewrite_application`
+- `review_application`
 
 ## Install
-Replace:
-- `/cv-builder/index.html`
-- the established Worker `/src/index.js`
+Copy/replace in the repository:
+- `application-builder/index.html`
+- `cv-builder/index.html` may remain unchanged if already on 6.13
+- `worker/src/index.js`
 
-Then deploy from the established Worker folder:
+Deploy from the `worker` folder in THIS new ZIP:
 `npx.cmd wrangler deploy`
 
-Commit and push both changed files.
+Then commit/push the changed site files.

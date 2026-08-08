@@ -52,6 +52,18 @@
     .tone{border:1px solid var(--line);background:#fff;color:var(--muted);padding:8px 11px}
     .tone.active{background:var(--soft);color:#3435a4;border-color:#cfd3ff}
     .notice{background:#f8f9ff;border:1px solid #e8eaff;padding:12px 14px;border-radius:12px;font-size:.88rem;color:#4b4d8d}
+    .app-metrics{display:flex;gap:10px;flex-wrap:wrap;margin-top:10px}
+    .metric{background:#f8f9ff;border:1px solid #e8eaff;border-radius:10px;padding:8px 10px;font-size:.82rem;color:#4b4d8d}
+    .review-box{display:none;margin-top:14px;border:1px solid var(--line);border-radius:14px;padding:14px;background:#fbfcff}
+    .review-box.active{display:block}
+    .review-score{font-size:1.4rem;font-weight:850;color:var(--brand)}
+    .review-list{display:grid;gap:10px;margin-top:10px}
+    .review-item{border:1px solid var(--line);border-radius:11px;background:#fff;padding:11px}
+    .review-item h4{margin:0 0 5px}
+    .review-item p{margin:0;color:var(--muted);font-size:.88rem}
+    .version-row{display:flex;gap:8px;flex-wrap:wrap;margin-top:10px}
+    .version-btn{background:#fff;border:1px solid var(--line);color:var(--text)}
+    .version-btn.active{background:var(--soft);border-color:#cfd3ff;color:#3435a4}
     @media(max-width:900px){.workspace{grid-template-columns:1fr}.result-wrap{position:static}.grid{grid-template-columns:1fr}.full{grid-column:auto}.navlinks{display:none}}
   </style>
 </head>
@@ -129,6 +141,30 @@
       </div>
       <div class="panel">
         <textarea id="result" class="result" placeholder="Your generated application will appear here. You can edit it directly."></textarea>
+        <div class="app-metrics">
+          <div class="metric" id="wordCount">0 words</div>
+          <div class="metric" id="charCount">0 characters</div>
+          <div class="metric" id="toneMetric">Professional tone</div>
+        </div>
+        <div class="version-row">
+          <button class="version-btn active" data-version="current" type="button">Current</button>
+          <button class="version-btn" data-version="shorter" type="button">Shorter</button>
+          <button class="version-btn" data-version="warmer" type="button">Warmer</button>
+          <button class="version-btn" data-version="more_direct" type="button">More direct</button>
+        </div>
+        <div class="row" style="margin-top:12px">
+          <button class="secondary" id="reviewApplication" type="button">AI Review application</button>
+        </div>
+        <div id="reviewBox" class="review-box">
+          <div class="review-score" id="reviewScore">– / 100</div>
+          <div id="reviewVerdict" style="font-weight:800;margin-top:4px"></div>
+          <div id="reviewOverview" class="small" style="margin-top:4px"></div>
+          <div id="reviewList" class="review-list"></div>
+          <div class="row" style="margin-top:10px">
+            <button class="primary" id="applyReviewedApplication" type="button">Use improved version</button>
+            <button class="secondary" id="closeAppReview" type="button">Close review</button>
+          </div>
+        </div>
       </div>
     </div>
   </section>
@@ -139,11 +175,23 @@ const WORKER_URL="https://lettertoolkit-cv-ai.chrislo961.workers.dev";
 const $=id=>document.getElementById(id);
 let selectedFile=null;
 let tone="professional";
+let generatedVersions={current:""};
+let reviewedApplication="";
 
 document.querySelectorAll(".tone").forEach(btn=>btn.onclick=()=>{
   tone=btn.dataset.tone;
   document.querySelectorAll(".tone").forEach(b=>b.classList.toggle("active",b===btn));
+  updateMetrics();
 });
+
+function updateMetrics(){
+  const text=$("result").value.trim();
+  const words=text?text.split(/\s+/).filter(Boolean).length:0;
+  $("wordCount").textContent=`${words} words`;
+  $("charCount").textContent=`${text.length} characters`;
+  $("toneMetric").textContent=`${tone.charAt(0).toUpperCase()+tone.slice(1)} tone`;
+}
+$("result").addEventListener("input",updateMetrics);
 
 function loadHandoff(){
   try{
@@ -231,11 +279,110 @@ $("generate").onclick=async()=>{
     const d=await r.json();
     if(!r.ok)throw new Error(d.error||"Could not generate application.");
     $("result").value=d.application||"";
+    generatedVersions.current=$("result").value;
+    updateMetrics();
     $("status").textContent="Application generated. Edit it before sending.";
     $("status").className="status ok";
   }catch(err){$("status").textContent=err.message;$("status").className="status error";}
   finally{$("progress").classList.remove("active");}
 };
+
+
+document.querySelectorAll(".version-btn").forEach(btn=>btn.onclick=async()=>{
+  const version=btn.dataset.version;
+  document.querySelectorAll(".version-btn").forEach(b=>b.classList.toggle("active",b===btn));
+
+  if(version==="current"){
+    $("result").value=generatedVersions.current||$("result").value;
+    updateMetrics();
+    return;
+  }
+
+  if(generatedVersions[version]){
+    $("result").value=generatedVersions[version];
+    updateMetrics();
+    return;
+  }
+
+  if(!$("result").value.trim()){
+    $("status").textContent="Generate an application first.";
+    $("status").className="status error";
+    return;
+  }
+
+  $("progress").classList.add("active");
+  $("status").textContent="Creating alternate version...";
+  try{
+    const r=await fetch(WORKER_URL+"/api/cv",{method:"POST",headers:{"content-type":"application/json"},body:JSON.stringify({
+      action:"rewrite_application",
+      language:$("language").value,
+      targetRole:$("role").value,
+      tone,
+      version,
+      application:$("result").value,
+      background:$("background").value,
+      jobAd:$("jobAd").value
+    })});
+    const d=await r.json();
+    if(!r.ok)throw new Error(d.error||"Could not rewrite application.");
+    generatedVersions[version]=d.application||"";
+    $("result").value=generatedVersions[version];
+    updateMetrics();
+    $("status").textContent="Alternate version ready.";
+    $("status").className="status ok";
+  }catch(err){
+    $("status").textContent=err.message;
+    $("status").className="status error";
+  }finally{$("progress").classList.remove("active");}
+});
+
+$("reviewApplication").onclick=async()=>{
+  if(!$("result").value.trim()){
+    $("status").textContent="Generate or paste an application first.";
+    $("status").className="status error";
+    return;
+  }
+
+  $("progress").classList.add("active");
+  $("status").textContent="Reviewing application...";
+  try{
+    const r=await fetch(WORKER_URL+"/api/cv",{method:"POST",headers:{"content-type":"application/json"},body:JSON.stringify({
+      action:"review_application",
+      language:$("language").value,
+      targetRole:$("role").value,
+      tone,
+      application:$("result").value,
+      background:$("background").value,
+      jobAd:$("jobAd").value
+    })});
+    const d=await r.json();
+    if(!r.ok)throw new Error(d.error||"Could not review application.");
+
+    $("reviewScore").textContent=`${d.score??"–"} / 100`;
+    $("reviewVerdict").textContent=d.verdict||"Application review";
+    $("reviewOverview").textContent=d.overview||"";
+    $("reviewList").innerHTML=(d.feedback||[]).map(x=>`<div class="review-item"><h4>${x.title||"Suggestion"}</h4><p>${x.reason||""}</p></div>`).join("");
+    reviewedApplication=d.improvedApplication||"";
+    $("reviewBox").classList.add("active");
+    $("status").textContent="Application review ready.";
+    $("status").className="status ok";
+  }catch(err){
+    $("status").textContent=err.message;
+    $("status").className="status error";
+  }finally{$("progress").classList.remove("active");}
+};
+
+$("applyReviewedApplication").onclick=()=>{
+  if(reviewedApplication){
+    $("result").value=reviewedApplication;
+    generatedVersions.current=reviewedApplication;
+    updateMetrics();
+  }
+  $("reviewBox").classList.remove("active");
+};
+
+$("closeAppReview").onclick=()=>$("reviewBox").classList.remove("active");
+
 
 $("copy").onclick=()=>navigator.clipboard.writeText($("result").value);
 $("download").onclick=()=>{
@@ -245,6 +392,7 @@ $("download").onclick=()=>{
 };
 $("clear").onclick=()=>{["role","background","jobAd","result"].forEach(id=>$(id).value="");$("status").textContent="Cleared.";};
 loadHandoff();
+updateMetrics();
 </script>
 </body>
 </html>
