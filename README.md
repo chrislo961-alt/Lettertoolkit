@@ -1,54 +1,20 @@
-# LetterToolkit 4.0 SEO Edition
+# LetterToolkit 6.0
 
-Static website prepared for Cloudflare Pages. No build command is required.
+LetterToolkit 6.0 combines the word-tool platform, SEO word lists, Word Explorer, and LetterToolkit Writer.
 
-## Included
-- Unique titles, meta descriptions, canonical URLs, Open Graph, and Twitter metadata
-- WebSite, Organization, WebPage, WebApplication, FAQ, and breadcrumb structured data
-- Updated sitemap and robots file
-- Contact, Terms, expanded Privacy, and custom 404 pages
-- Publish-safe Google Analytics and AdSense integration scaffolding
-- Reserved ad placements that do not load ads until you add an approved publisher ID
+## Highlights
 
-## Publish
-Upload every file and folder to the root of the GitHub repository and commit to `main`. Cloudflare Pages will deploy automatically.
+- Word Unscrambler, Anagram Solver, Word Finder, Wordle Helper, Crossword Solver, Scrabble Helper, Random Word Generator, and Rhyme Finder
+- SEO word-list pages and 500+ Word Explorer pages
+- `/writer/` browser-based writing app with autosave, formatting, word count, dark mode, open/export tools, and PWA support
+- Google AdSense publisher script preserved
+- Search-engine sitemap updated with Writer
+- About, Contact, Privacy, Terms, robots.txt and structured metadata
 
-## Search Console
-1. Add `lettertoolkit.com` as a domain property.
-2. Complete DNS verification in Cloudflare.
-3. Submit `https://lettertoolkit.com/sitemap.xml`.
-4. Inspect and request indexing for the home page and major tool pages.
+## Deploy
 
-## Google Analytics 4
-Open `site-config.js` and add your measurement ID:
+Use GitHub Desktop: copy this folder into your local repository, commit the changes, and push to `main`. Cloudflare Pages will deploy automatically.
 
-```js
-googleAnalyticsId: "G-XXXXXXXXXX"
-```
+## Note
 
-The included loader only activates analytics when `lt-analytics-consent` is set to `granted`. Use a consent solution appropriate for the locations where you serve visitors before enabling analytics.
-
-## Google AdSense
-Apply using the live domain. After approval:
-1. Add your publisher value in `site-config.js`, such as `ca-pub-1234567890123456`.
-2. Replace each visual `.ad-slot` placeholder with the exact ad-unit markup supplied in your AdSense account, or enable Auto ads.
-3. Publish the `ads.txt` line supplied by AdSense at `/ads.txt`. Do not invent this value before approval.
-4. Configure a suitable consent management platform for visitors where consent is required.
-
-## Contact email
-The pages currently use `hello@lettertoolkit.com`. Create that mailbox/forwarder or replace it throughout the project.
-
-## Important
-Spelling-based rhyme results are not a pronunciation dictionary. Word validity also varies between games and publishers.
-
-
-## 4.0.1 hotfix
-- The homepage now opens directly on Word Unscrambler.
-- Shared assets use cache-busting query strings.
-- Dictionary loading works from both `/` and tool subpages.
-- The tool navigation no longer shows a visible scrollbar.
-
-
-## 4.1 SEO Word Lists
-
-Run `node generate-seo-pages.js` from the project root to rebuild 41 static word-list pages from `words.txt`. The generator also updates `sitemap.xml` and writes `seo-pages-report.json`.
+Writer exports Word-compatible `.doc`, HTML and TXT, and can print/save as PDF. Native `.docx` export is planned for a later release.
