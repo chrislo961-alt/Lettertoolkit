@@ -1,99 +1,20 @@
-# LetterToolkit CV Builder v3
+# LetterToolkit 6.0
 
-This package has two parts:
+LetterToolkit 6.0 combines the word-tool platform, SEO word lists, Word Explorer, and LetterToolkit Writer.
 
-- `frontend/` — static CV Builder UI
-- `worker/` — Cloudflare Worker AI backend
+## Highlights
 
-## What v3 adds
+- Word Unscrambler, Anagram Solver, Word Finder, Wordle Helper, Crossword Solver, Scrabble Helper, Random Word Generator, and Rhyme Finder
+- SEO word-list pages and 500+ Word Explorer pages
+- `/writer/` browser-based writing app with autosave, formatting, word count, dark mode, open/export tools, and PWA support
+- Google AdSense publisher script preserved
+- Search-engine sitemap updated with Writer
+- About, Contact, Privacy, Terms, robots.txt and structured metadata
 
-- Secure server-side AI calls
-- AI CV tailoring against a pasted job ad
-- AI cover letter generation
-- English / Swedish / Norwegian
-- Local autosave and PDF/TXT/JSON export
-- No API key in browser code
+## Deploy
 
-## Important
+Use GitHub Desktop: copy this folder into your local repository, commit the changes, and push to `main`. Cloudflare Pages will deploy automatically.
 
-This is production architecture starter code, not legal/privacy advice.
+## Note
 
-The Worker deliberately tells the model not to invent qualifications, dates, employers, achievements, certifications, or metrics. Users must still review every generated claim before using it.
-
-Do not send unnecessary sensitive personal information to the AI endpoint.
-
-## 1. Deploy the Worker
-
-Install Node.js first if needed.
-
-Open a terminal in `worker/`:
-
-```bash
-npm install
-npx wrangler login
-npx wrangler secret put OPENAI_API_KEY
-npm run deploy
-```
-
-Cloudflare will give you a Worker URL similar to:
-
-`https://lettertoolkit-cv-ai.<your-subdomain>.workers.dev`
-
-Cloudflare secrets are encrypted bindings and are the correct place for API keys. Do not put the key in `wrangler.toml` or frontend JavaScript.
-
-## 2. Connect the frontend
-
-Open:
-
-`frontend/index.html`
-
-Find:
-
-```js
-const WORKER_URL = "https://YOUR-WORKER.YOUR-SUBDOMAIN.workers.dev";
-```
-
-Replace it with your real Worker URL.
-
-Then upload `frontend/index.html` into your LetterToolkit project at:
-
-`/cv-builder/index.html`
-
-## 3. Optional custom API domain
-
-Later you can map the Worker to something like:
-
-`https://api.lettertoolkit.com`
-
-Then set:
-
-```js
-const WORKER_URL = "https://api.lettertoolkit.com";
-```
-
-## 4. OpenAI model
-
-`wrangler.toml` currently sets:
-
-`OPENAI_MODEL = "gpt-5"`
-
-You can change that environment variable later without exposing anything to users.
-
-The Worker uses the OpenAI Responses API at `/v1/responses`.
-
-## 5. Before public launch
-
-Recommended next steps:
-
-- Restrict CORS to `https://lettertoolkit.com` instead of `*`
-- Add rate limiting / Turnstile
-- Add request-size limits
-- Add clear privacy/retention disclosures
-- Decide whether requests are logged at all
-- Add robust PDF/DOCX parsing
-- Add true DOCX generation
-- Add explicit delete/retention handling if you ever store CV data
-
-## Privacy default
-
-This starter does not intentionally persist CV payloads in a database. The Worker receives text, forwards it to the AI provider, returns the result, and does not write the CV to KV/D1/R2.
+Writer exports Word-compatible `.doc`, HTML and TXT, and can print/save as PDF. Native `.docx` export is planned for a later release.
