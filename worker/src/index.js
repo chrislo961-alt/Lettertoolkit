@@ -398,6 +398,43 @@ ${jobAd}`;
         return json(request, result);
       }
 
+      if (body.action === "interview_prep") {
+        const language = safeText(body.language, 40) || "English";
+        const targetRole = safeText(body.targetRole, 120);
+        const background = safeText(body.background, 14000);
+        const jobAd = safeText(body.jobAd, 12000);
+
+        const prompt = `Act as an experienced recruiter preparing a candidate for an interview for "${targetRole}".
+Write in ${language}.
+
+Create likely interview questions based only on the job advertisement and candidate background.
+
+Rules:
+- Do not invent candidate achievements, experience or qualifications.
+- Include 6-10 useful questions.
+- Include a concise answer guide for each question.
+- Focus on how the candidate can answer truthfully using their existing background.
+- Include behavioral and role-specific questions where relevant.
+- Return JSON only.
+
+Exact JSON:
+{
+  "overview":"",
+  "questions":[
+    {"question":"","focus":"","answerGuide":""}
+  ]
+}
+
+CANDIDATE BACKGROUND:
+${background}
+
+JOB ADVERTISEMENT:
+${jobAd}`;
+
+        const result = await callResponses(env, prompt, 1800);
+        return json(request, result);
+      }
+
       if (body.action === "application_email") {
         const language = safeText(body.language, 40) || "English";
         const targetRole = safeText(body.targetRole, 120);
@@ -537,7 +574,7 @@ ${jobAd}`;
         return json(request, result);
       }
 
-      if (!["improve_cv", "cover_letter", "translate_cv", "review_cv", "review_application", "rewrite_application", "analyze_match", "application_email"].includes(body.action)) {
+      if (!["improve_cv", "cover_letter", "translate_cv", "review_cv", "review_application", "rewrite_application", "analyze_match", "application_email", "interview_prep"].includes(body.action)) {
         return json(request, { error: "Unsupported action." }, 400);
       }
 

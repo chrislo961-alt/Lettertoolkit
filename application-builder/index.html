@@ -91,6 +91,10 @@
     .seo-card{border:1px solid var(--line);border-radius:14px;padding:16px;background:#fbfcff}
     .faq details{border-top:1px solid var(--line);padding:12px 0}
     .faq summary{font-weight:800;cursor:pointer}
+    .interview-box{margin-top:14px;border:1px solid var(--line);border-radius:14px;padding:14px;background:#fff}
+    .question-card{border:1px solid var(--line);border-radius:11px;padding:11px;margin-top:9px;background:#fbfcff}
+    .question-card strong{display:block;margin-bottom:5px}
+    .question-card p{margin:0;color:var(--muted);white-space:pre-wrap}
     @media(max-width:900px){.workspace{grid-template-columns:1fr}.result-wrap{position:static}.grid{grid-template-columns:1fr}.full{grid-column:auto}.navlinks{display:none}}
   </style>
 
@@ -282,7 +286,21 @@
     </div>
   </section>
 
+  
   <section class="seo-section">
+    <h2>Interview preparation</h2>
+    <p class="small">Use the same CV and job advertisement to prepare for likely interview questions.</p>
+    <div class="row">
+      <button class="primary" id="generateInterview" type="button">Generate interview questions</button>
+      <button class="secondary" id="copyInterview" type="button">Copy interview prep</button>
+    </div>
+    <div id="interviewBox" class="interview-box" style="display:none">
+      <div id="interviewIntro" class="small"></div>
+      <div id="interviewQuestions"></div>
+    </div>
+  </section>
+
+<section class="seo-section">
     <h2>How to write a strong job application</h2>
     <div class="seo-grid">
       <div class="seo-card">
@@ -614,6 +632,53 @@ $("applyReviewedApplication").onclick=()=>{
 $("closeAppReview").onclick=()=>$("reviewBox").classList.remove("active");
 
 
+
+
+
+let interviewPrep=null;
+
+$("generateInterview").onclick=async()=>{
+  if(!$("background").value.trim()||!$("jobAd").value.trim()){
+    $("status").textContent="Add your CV/background and job advertisement first.";
+    $("status").className="status error";
+    return;
+  }
+  $("progress").classList.add("active");
+  $("status").textContent="Preparing interview questions...";
+  try{
+    const r=await fetch(WORKER_URL+"/api/cv",{method:"POST",headers:{"content-type":"application/json"},body:JSON.stringify({
+      action:"interview_prep",
+      language:$("language").value,
+      targetRole:$("role").value,
+      background:$("background").value,
+      jobAd:$("jobAd").value
+    })});
+    const d=await r.json();
+    if(!r.ok)throw new Error(d.error||"Could not prepare interview questions.");
+    interviewPrep=d;
+    $("interviewIntro").textContent=d.overview||"";
+    $("interviewQuestions").innerHTML=(d.questions||[]).map((q,i)=>`
+      <div class="question-card">
+        <strong>${i+1}. ${q.question||""}</strong>
+        <p><b>What to emphasize:</b> ${q.focus||""}</p>
+        <p style="margin-top:6px"><b>Suggested answer structure:</b> ${q.answerGuide||""}</p>
+      </div>`).join("");
+    $("interviewBox").style.display="block";
+    $("status").textContent="Interview preparation ready.";
+    $("status").className="status ok";
+  }catch(err){
+    $("status").textContent=err.message;
+    $("status").className="status error";
+  }finally{$("progress").classList.remove("active");}
+};
+
+$("copyInterview").onclick=async()=>{
+  if(!interviewPrep)return;
+  const text=(interviewPrep.questions||[]).map((q,i)=>`${i+1}. ${q.question}\nWhat to emphasize: ${q.focus}\nAnswer structure: ${q.answerGuide}`).join("\n\n");
+  await navigator.clipboard.writeText(text);
+  $("status").textContent="Interview preparation copied.";
+  $("status").className="status ok";
+};
 
 
 $("generateEmail").onclick=async()=>{

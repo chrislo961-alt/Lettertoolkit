@@ -1,30 +1,21 @@
-# LetterToolkit 6.17 – Application SEO + Templates
+# LetterToolkit 6.18 – Interview Prep
 
-Focus:
-- make Application Builder more useful
-- make the page stronger for organic search
+Extends the job application workflow beyond sending the application.
 
-## New
-- 4 application styles:
-  - Standard
-  - Concise
-  - Story-led
-  - Executive
-- AI receives the selected application style
-- improved title and meta description
-- canonical URL
-- SoftwareApplication structured data
-- FAQ structured data
-- useful how-to content on the page
-- FAQ section
-- existing drafts, job-match, AI review and final package remain
+New:
+- Interview Preparation section
+- AI-generated likely interview questions
+- Uses the same candidate background + job advertisement
+- 6–10 role-relevant questions
+- What to emphasize for each question
+- Suggested answer structure
+- Copy interview prep
+- Respects selected language
+- Explicitly prevents invented candidate facts
 
-## Install
-Replace:
-- `/application-builder/index.html`
-- `worker/src/index.js`
-
-Then from the `worker` folder in this ZIP:
-`npx.cmd wrangler deploy`
-
-Commit/push the site changes.
+Install:
+- Replace `/application-builder/index.html`
+- Replace `worker/src/index.js`
+- Deploy from the worker folder in this ZIP:
+  `npx.cmd wrangler deploy`
+- Commit/push site changes.
