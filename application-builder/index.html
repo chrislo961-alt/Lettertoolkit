@@ -95,6 +95,15 @@
     .question-card{border:1px solid var(--line);border-radius:11px;padding:11px;margin-top:9px;background:#fbfcff}
     .question-card strong{display:block;margin-bottom:5px}
     .question-card p{margin:0;color:var(--muted);white-space:pre-wrap}
+    .tracker{margin-top:28px;background:#fff;border:1px solid var(--line);border-radius:18px;padding:24px;box-shadow:var(--shadow)}
+    .tracker-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:10px}
+    .tracker-grid input,.tracker-grid select{width:100%}
+    .tracker-list{display:grid;gap:10px;margin-top:16px}
+    .tracker-item{border:1px solid var(--line);border-radius:12px;padding:12px;background:#fbfcff;display:grid;grid-template-columns:1fr auto;gap:12px;align-items:start}
+    .tracker-meta{display:flex;gap:8px;flex-wrap:wrap;margin-top:7px}
+    .tracker-tag{background:var(--soft);color:#3435a4;border-radius:999px;padding:5px 8px;font-size:.76rem}
+    .tracker-actions{display:flex;gap:6px;flex-wrap:wrap}
+    .tracker-empty{color:var(--muted);font-size:.9rem;padding:12px 0}
     @media(max-width:900px){.workspace{grid-template-columns:1fr}.result-wrap{position:static}.grid{grid-template-columns:1fr}.full{grid-column:auto}.navlinks{display:none}}
   </style>
 
@@ -287,7 +296,37 @@
   </section>
 
   
-  <section class="seo-section">
+  
+  <section class="tracker">
+    <h2>Application tracker</h2>
+    <p class="small">Keep track of where you applied. Everything is stored locally in your browser.</p>
+
+    <div class="tracker-grid">
+      <div><label for="trackCompany">Company</label><input id="trackCompany" placeholder="Company name"></div>
+      <div><label for="trackRole">Role</label><input id="trackRole" placeholder="Job title"></div>
+      <div><label for="trackStatus">Status</label>
+        <select id="trackStatus">
+          <option>Draft</option>
+          <option>Applied</option>
+          <option>Interview</option>
+          <option>Offer</option>
+          <option>Rejected</option>
+          <option>Closed</option>
+        </select>
+      </div>
+      <div><label for="trackDate">Date</label><input id="trackDate" type="date"></div>
+    </div>
+
+    <div class="row" style="margin-top:12px">
+      <button class="primary" id="saveTrackedJob" type="button">Save application</button>
+      <button class="secondary" id="useCurrentJob" type="button">Use current role</button>
+      <button class="secondary" id="exportTracker" type="button">Export tracker</button>
+    </div>
+
+    <div id="trackerList" class="tracker-list"></div>
+  </section>
+
+<section class="seo-section">
     <h2>Interview preparation</h2>
     <p class="small">Use the same CV and job advertisement to prepare for likely interview questions.</p>
     <div class="row">
@@ -633,6 +672,74 @@ $("closeAppReview").onclick=()=>$("reviewBox").classList.remove("active");
 
 
 
+
+
+
+const trackerKey="lt-job-tracker-v1";
+
+function getTrackedJobs(){
+  try{return JSON.parse(localStorage.getItem(trackerKey)||"[]");}catch{return [];}
+}
+function setTrackedJobs(items){
+  localStorage.setItem(trackerKey,JSON.stringify(items));
+}
+function renderTracker(){
+  const items=getTrackedJobs();
+  if(!items.length){
+    $("trackerList").innerHTML='<div class="tracker-empty">No saved applications yet.</div>';
+    return;
+  }
+  $("trackerList").innerHTML=items.map((item,i)=>`
+    <div class="tracker-item">
+      <div>
+        <strong>${item.role||"Untitled role"}</strong>
+        <div class="small">${item.company||"Unknown company"}</div>
+        <div class="tracker-meta">
+          <span class="tracker-tag">${item.status||"Draft"}</span>
+          <span class="tracker-tag">${item.date||"No date"}</span>
+        </div>
+      </div>
+      <div class="tracker-actions">
+        <button class="secondary" type="button" onclick="updateTrackedStatus(${i})">Change status</button>
+        <button class="secondary" type="button" onclick="deleteTrackedJob(${i})">Delete</button>
+      </div>
+    </div>`).join("");
+}
+$("saveTrackedJob").onclick=()=>{
+  const items=getTrackedJobs();
+  items.unshift({
+    company:$("trackCompany").value.trim(),
+    role:$("trackRole").value.trim(),
+    status:$("trackStatus").value,
+    date:$("trackDate").value,
+    createdAt:new Date().toISOString()
+  });
+  setTrackedJobs(items.slice(0,100));
+  renderTracker();
+};
+$("useCurrentJob").onclick=()=>{
+  $("trackRole").value=$("role").value||"";
+  const match=$("jobAd").value.match(/(?:company|employer|company name)\s*[:\-]\s*([^\n]+)/i);
+  if(match&&!$("trackCompany").value)$("trackCompany").value=match[1].trim();
+};
+window.updateTrackedStatus=(i)=>{
+  const items=getTrackedJobs();
+  const order=["Draft","Applied","Interview","Offer","Rejected","Closed"];
+  const current=items[i]?.status||"Draft";
+  items[i].status=order[(order.indexOf(current)+1)%order.length];
+  setTrackedJobs(items);renderTracker();
+};
+window.deleteTrackedJob=(i)=>{
+  const items=getTrackedJobs();items.splice(i,1);setTrackedJobs(items);renderTracker();
+};
+$("exportTracker").onclick=()=>{
+  const data=JSON.stringify(getTrackedJobs(),null,2);
+  const blob=new Blob([data],{type:"application/json"});
+  const url=URL.createObjectURL(blob);const a=document.createElement("a");
+  a.href=url;a.download="lettertoolkit-job-tracker.json";a.click();
+  setTimeout(()=>URL.revokeObjectURL(url),1000);
+};
+renderTracker();
 
 
 let interviewPrep=null;
