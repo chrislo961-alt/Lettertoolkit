@@ -116,6 +116,15 @@
     .star-card{border:1px solid var(--line);border-radius:10px;padding:9px;background:#fff}
     .star-card strong{display:block;font-size:.78rem;color:#3435a4}
     .star-card span{display:block;font-size:.78rem;color:var(--muted);margin-top:3px}
+    .offer-box{margin-top:28px;background:#fff;border:1px solid var(--line);border-radius:18px;padding:24px;box-shadow:var(--shadow)}
+    .offer-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+    .offer-grid textarea{min-height:160px}
+    .offer-result{display:none;margin-top:14px;border:1px solid #d9dcff;background:#f8f9ff;border-radius:12px;padding:14px}
+    .offer-result.active{display:block}
+    .offer-score{font-size:1.35rem;font-weight:850;color:var(--brand)}
+    .offer-list{display:grid;gap:8px;margin-top:10px}
+    .offer-item{border:1px solid var(--line);border-radius:10px;background:#fff;padding:10px}
+    .offer-item strong{display:block;margin-bottom:4px}
     @media(max-width:900px){.workspace{grid-template-columns:1fr}.result-wrap{position:static}.grid{grid-template-columns:1fr}.full{grid-column:auto}.navlinks{display:none}}
   </style>
 
@@ -336,6 +345,57 @@
     </div>
 
     <div id="trackerList" class="tracker-list"></div>
+  </section>
+
+
+  <section class="offer-box">
+    <h2>Offer & salary negotiation coach</h2>
+    <p class="small">Got an offer? Paste the details and get help reviewing the offer or drafting a professional negotiation message.</p>
+
+    <div class="offer-grid">
+      <div>
+        <label for="offerRole">Role</label>
+        <input id="offerRole" placeholder="Job title">
+      </div>
+      <div>
+        <label for="offerCompany">Company</label>
+        <input id="offerCompany" placeholder="Company name">
+      </div>
+      <div>
+        <label for="offerSalary">Offered salary</label>
+        <input id="offerSalary" placeholder="e.g. 42,000 SEK/month">
+      </div>
+      <div>
+        <label for="targetSalary">Your target</label>
+        <input id="targetSalary" placeholder="e.g. 46,000 SEK/month">
+      </div>
+      <div class="full">
+        <label for="offerDetails">Offer details</label>
+        <textarea id="offerDetails" placeholder="Paste benefits, bonus, probation period, remote work, notice period or other relevant terms..."></textarea>
+      </div>
+      <div class="full">
+        <label for="negotiationReason">Why you think the offer should improve</label>
+        <textarea id="negotiationReason" placeholder="Relevant experience, added responsibility, market level, competing offer, specialist skills..."></textarea>
+      </div>
+    </div>
+
+    <div class="row" style="margin-top:12px">
+      <button class="primary" id="analyzeOffer" type="button">Review offer</button>
+      <button class="secondary" id="generateNegotiation" type="button">Draft negotiation message</button>
+      <button class="secondary" id="copyNegotiation" type="button">Copy message</button>
+    </div>
+
+    <div id="offerResult" class="offer-result">
+      <div class="offer-score" id="offerScore">– / 100</div>
+      <div id="offerVerdict" style="font-weight:800;margin-top:4px"></div>
+      <div id="offerOverview" class="small" style="margin-top:4px"></div>
+      <div id="offerList" class="offer-list"></div>
+
+      <div style="margin-top:12px">
+        <label for="negotiationMessage">Negotiation message</label>
+        <textarea id="negotiationMessage" style="min-height:220px" placeholder="Your negotiation message will appear here."></textarea>
+      </div>
+    </div>
   </section>
 
 <section class="seo-section">
@@ -839,6 +899,58 @@ $("generateInterview").onclick=async()=>{
   }finally{$("progress").classList.remove("active");}
 };
 
+
+
+async function callOfferAction(action){
+  $("progress").classList.add("active");
+  $("status").textContent=action==="review_offer"?"Reviewing offer...":"Drafting negotiation message...";
+  try{
+    const r=await fetch(WORKER_URL+"/api/cv",{
+      method:"POST",
+      headers:{"content-type":"application/json"},
+      body:JSON.stringify({
+        action,
+        language:$("language").value,
+        role:$("offerRole").value||$("role").value,
+        company:$("offerCompany").value,
+        offeredSalary:$("offerSalary").value,
+        targetSalary:$("targetSalary").value,
+        offerDetails:$("offerDetails").value,
+        reason:$("negotiationReason").value,
+        background:$("background").value
+      })
+    });
+    const d=await r.json();
+    if(!r.ok)throw new Error(d.error||"Could not process offer.");
+
+    $("offerResult").classList.add("active");
+    if(d.score!=null)$("offerScore").textContent=`${d.score} / 100`;
+    if(d.verdict)$("offerVerdict").textContent=d.verdict;
+    if(d.overview)$("offerOverview").textContent=d.overview;
+    if(Array.isArray(d.points)){
+      $("offerList").innerHTML=d.points.map(x=>`<div class="offer-item"><strong>${x.title||"Point"}</strong><div class="small">${x.detail||""}</div></div>`).join("");
+    }
+    if(d.message)$("negotiationMessage").value=d.message;
+
+    $("status").textContent=action==="review_offer"?"Offer review ready.":"Negotiation message ready.";
+    $("status").className="status ok";
+  }catch(err){
+    $("status").textContent=err.message;
+    $("status").className="status error";
+  }finally{
+    $("progress").classList.remove("active");
+  }
+}
+
+$("analyzeOffer").onclick=()=>callOfferAction("review_offer");
+$("generateNegotiation").onclick=()=>callOfferAction("negotiate_offer");
+$("copyNegotiation").onclick=async()=>{
+  await navigator.clipboard.writeText($("negotiationMessage").value);
+  $("status").textContent="Negotiation message copied.";
+  $("status").className="status ok";
+};
+
+$("offerRole").value=$("role").value||"";
 
 let improvedInterviewAnswer="";
 

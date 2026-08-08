@@ -398,6 +398,86 @@ ${jobAd}`;
         return json(request, result);
       }
 
+      if (body.action === "review_offer") {
+        const language = safeText(body.language, 40) || "English";
+        const role = safeText(body.role, 160);
+        const company = safeText(body.company, 160);
+        const offeredSalary = safeText(body.offeredSalary, 160);
+        const targetSalary = safeText(body.targetSalary, 160);
+        const offerDetails = safeText(body.offerDetails, 10000);
+        const reason = safeText(body.reason, 6000);
+        const background = safeText(body.background, 12000);
+
+        const prompt = `Act as a cautious career coach reviewing a job offer.
+Write in ${language}.
+
+Role: ${role}
+Company: ${company}
+Offered salary: ${offeredSalary}
+Candidate target: ${targetSalary}
+
+Offer details:
+${offerDetails}
+
+Candidate's stated reasons for negotiating:
+${reason}
+
+Candidate background:
+${background}
+
+Rules:
+- Do not claim to know market salary unless market data is explicitly supplied.
+- Do not provide legal advice.
+- Focus on clarity, negotiation readiness, tradeoffs and questions the candidate may want to ask.
+- Score 0-100 for negotiation readiness, not for whether the offer is objectively "good".
+- Return JSON only.
+
+Exact JSON:
+{
+  "score":0,
+  "verdict":"",
+  "overview":"",
+  "points":[
+    {"title":"","detail":""}
+  ]
+}`;
+
+        const result = await callResponses(env, prompt, 1400);
+        return json(request, result);
+      }
+
+      if (body.action === "negotiate_offer") {
+        const language = safeText(body.language, 40) || "English";
+        const role = safeText(body.role, 160);
+        const company = safeText(body.company, 160);
+        const offeredSalary = safeText(body.offeredSalary, 160);
+        const targetSalary = safeText(body.targetSalary, 160);
+        const offerDetails = safeText(body.offerDetails, 10000);
+        const reason = safeText(body.reason, 6000);
+        const background = safeText(body.background, 12000);
+
+        const prompt = `Write a professional salary/offer negotiation message in ${language}.
+
+Role: ${role}
+Company: ${company}
+Offered salary: ${offeredSalary}
+Requested/target salary: ${targetSalary}
+Offer details: ${offerDetails}
+Candidate reasons: ${reason}
+Candidate background: ${background}
+
+Rules:
+- Keep it respectful, concise and collaborative.
+- Do not invent competing offers, market statistics, achievements or leverage.
+- If the target salary is missing, negotiate the overall package without making up a number.
+- Express appreciation for the offer.
+- Return JSON only:
+{"message":"..."}`;
+
+        const result = await callResponses(env, prompt, 1000);
+        return json(request, result);
+      }
+
       if (body.action === "coach_interview_answer") {
         const language = safeText(body.language, 40) || "English";
         const targetRole = safeText(body.targetRole, 120);
@@ -626,7 +706,7 @@ ${jobAd}`;
         return json(request, result);
       }
 
-      if (!["improve_cv", "cover_letter", "translate_cv", "review_cv", "review_application", "rewrite_application", "analyze_match", "application_email", "interview_prep", "coach_interview_answer"].includes(body.action)) {
+      if (!["improve_cv", "cover_letter", "translate_cv", "review_cv", "review_application", "rewrite_application", "analyze_match", "application_email", "interview_prep", "coach_interview_answer", "review_offer", "negotiate_offer"].includes(body.action)) {
         return json(request, { error: "Unsupported action." }, 400);
       }
 

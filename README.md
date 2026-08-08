@@ -1,25 +1,26 @@
-# LetterToolkit 6.20 – Interview Answer Coach
+# LetterToolkit 6.21 – Offer & Negotiation Coach
 
-Adds interactive interview practice to the Application Builder.
+Extends the job journey after interviews.
 
-## New
-- choose a generated interview question
-- write your own answer
-- choose STAR / Concise / Detailed answer mode
-- AI answer review
-- answer score 0–100
-- practical feedback
-- improved answer suggestion
-- one-click use improved answer
-- STAR helper cards
-- strictly grounded in the candidate's real background
+New:
+- job offer review
+- salary / package negotiation preparation
+- offered salary + target salary fields
+- benefits / terms notes
+- negotiation reason field
+- AI negotiation-readiness score
+- practical offer questions / points to consider
+- AI-generated negotiation message
+- copy negotiation message
+- selected language is respected
+- AI is forbidden from inventing market data, competing offers or achievements
 
-## Install
-Replace:
-- `/application-builder/index.html`
-- `worker/src/index.js`
+Important:
+The offer review is career guidance, not legal or financial advice.
 
-Then run from the `worker` folder in this ZIP:
-`npx.cmd wrangler deploy`
-
-Commit/push the changed site files.
+Install:
+- Replace `/application-builder/index.html`
+- Replace `worker/src/index.js`
+- Deploy from the `worker` folder in this ZIP:
+  `npx.cmd wrangler deploy`
+- Commit/push the changed site files.
