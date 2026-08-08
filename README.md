@@ -1,20 +1,23 @@
-# LetterToolkit 6.0
+# LetterToolkit CV Builder v1
 
-LetterToolkit 6.0 combines the word-tool platform, SEO word lists, Word Explorer, and LetterToolkit Writer.
+Static browser-based prototype for `/cv-builder/`.
 
-## Highlights
+## Included
+- Manual CV form
+- Instant preview
+- Local autosave via localStorage
+- Job-ad field
+- Basic local summary rewrite helper
+- English / Swedish / Norwegian selector
+- Classic / Compact templates
+- Export to TXT and HTML
+- Print / Save as PDF
 
-- Word Unscrambler, Anagram Solver, Word Finder, Wordle Helper, Crossword Solver, Scrabble Helper, Random Word Generator, and Rhyme Finder
-- SEO word-list pages and 500+ Word Explorer pages
-- `/writer/` browser-based writing app with autosave, formatting, word count, dark mode, open/export tools, and PWA support
-- Google AdSense publisher script preserved
-- Search-engine sitemap updated with Writer
-- About, Contact, Privacy, Terms, robots.txt and structured metadata
+## Not included yet
+- Real AI rewriting
+- PDF/DOCX parsing
+- DOCX export
+- LinkedIn import
+- File uploads
 
-## Deploy
-
-Use GitHub Desktop: copy this folder into your local repository, commit the changes, and push to `main`. Cloudflare Pages will deploy automatically.
-
-## Note
-
-Writer exports Word-compatible `.doc`, HTML and TXT, and can print/save as PDF. Native `.docx` export is planned for a later release.
+Those features should be added with a server-side backend. Do not expose AI API keys in browser JavaScript.
