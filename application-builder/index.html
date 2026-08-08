@@ -71,6 +71,15 @@
     .match-score{font-weight:850;color:var(--brand);font-size:1.1rem}
     .match-tags{display:flex;gap:6px;flex-wrap:wrap;margin-top:8px}
     .match-tag{background:var(--soft);color:#3435a4;border-radius:999px;padding:6px 9px;font-size:.78rem}
+    .package-box{margin-top:14px;border:1px solid var(--line);border-radius:14px;padding:14px;background:#fbfcff}
+    .package-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+    .package-grid textarea{min-height:140px}
+    .package-grid input{width:100%}
+    .checklist{display:grid;gap:8px;margin-top:10px}
+    .check{display:flex;align-items:flex-start;gap:8px;font-size:.88rem;color:var(--muted)}
+    .check.good{color:var(--ok)}
+    .check.warn{color:#b54708}
+    .final-actions{display:flex;gap:8px;flex-wrap:wrap;margin-top:12px}
     @media(max-width:900px){.workspace{grid-template-columns:1fr}.result-wrap{position:static}.grid{grid-template-columns:1fr}.full{grid-column:auto}.navlinks{display:none}}
   </style>
 </head>
@@ -185,6 +194,33 @@
             <button class="secondary" id="closeAppReview" type="button">Close review</button>
           </div>
         </div>
+        <div class="package-box">
+          <strong>Final application package</strong>
+          <div class="small" style="margin-top:4px">Generate the email that accompanies your CV and application.</div>
+
+          <div class="package-grid" style="margin-top:12px">
+            <div>
+              <label for="emailSubject">Email subject</label>
+              <input id="emailSubject" placeholder="Application – Role – Your Name">
+            </div>
+            <div>
+              <label for="recipientName">Recipient / company</label>
+              <input id="recipientName" placeholder="Hiring manager / Company">
+            </div>
+            <div class="full">
+              <label for="applicationEmail">Email message</label>
+              <textarea id="applicationEmail" placeholder="A concise email for sending your CV and application."></textarea>
+            </div>
+          </div>
+
+          <div class="final-actions">
+            <button class="secondary" id="generateEmail" type="button">Generate email with AI</button>
+            <button class="secondary" id="copyEmail" type="button">Copy email</button>
+            <button class="primary" id="downloadPackage" type="button">Download application package</button>
+          </div>
+
+          <div id="finalChecklist" class="checklist"></div>
+        </div>
       </div>
     </div>
   </section>
@@ -197,6 +233,7 @@ let selectedFile=null;
 let tone="professional";
 let generatedVersions={current:""};
 let reviewedApplication="";
+let generatedEmail="";
 
 document.querySelectorAll(".tone").forEach(btn=>btn.onclick=()=>{
   tone=btn.dataset.tone;
@@ -204,12 +241,24 @@ document.querySelectorAll(".tone").forEach(btn=>btn.onclick=()=>{
   updateMetrics();
 });
 
+function updateFinalChecklist(){
+  const checks=[
+    {ok:!!$("result").value.trim(),good:"Application text is ready",bad:"Application text is missing"},
+    {ok:!!$("role").value.trim(),good:"Target role is set",bad:"Target role is missing"},
+    {ok:!!$("jobAd").value.trim(),good:"Job advertisement is included",bad:"Job advertisement is missing"},
+    {ok:$("result").value.trim().split(/\s+/).filter(Boolean).length>=180,good:"Application has useful depth",bad:"Application may be too short"},
+    {ok:$("result").value.trim().split(/\s+/).filter(Boolean).length<=550,good:"Application length is reasonable",bad:"Application may be too long"}
+  ];
+  $("finalChecklist").innerHTML=checks.map(c=>`<div class="check ${c.ok?"good":"warn"}">${c.ok?"✓":"!"} ${c.ok?c.good:c.bad}</div>`).join("");
+}
+
 function updateMetrics(){
   const text=$("result").value.trim();
   const words=text?text.split(/\s+/).filter(Boolean).length:0;
   $("wordCount").textContent=`${words} words`;
   $("charCount").textContent=`${text.length} characters`;
   $("toneMetric").textContent=`${tone.charAt(0).toUpperCase()+tone.slice(1)} tone`;
+  updateFinalChecklist();
 }
 $("result").addEventListener("input",updateMetrics);
 
@@ -231,7 +280,10 @@ function currentDraft(){
     background:$("background").value,
     jobAd:$("jobAd").value,
     result:$("result").value,
-    tone
+    tone,
+    emailSubject:$("emailSubject").value,
+    applicationEmail:$("applicationEmail").value,
+    recipientName:$("recipientName").value
   };
 }
 function loadHandoff(){
@@ -455,11 +507,78 @@ $("closeAppReview").onclick=()=>$("reviewBox").classList.remove("active");
 
 
 
+
+$("generateEmail").onclick=async()=>{
+  if(!$("result").value.trim()){
+    $("status").textContent="Generate the application first.";
+    $("status").className="status error";
+    return;
+  }
+
+  $("progress").classList.add("active");
+  $("status").textContent="Generating application email...";
+  try{
+    const r=await fetch(WORKER_URL+"/api/cv",{method:"POST",headers:{"content-type":"application/json"},body:JSON.stringify({
+      action:"application_email",
+      language:$("language").value,
+      targetRole:$("role").value,
+      recipient:$("recipientName").value,
+      application:$("result").value,
+      background:$("background").value,
+      jobAd:$("jobAd").value
+    })});
+    const d=await r.json();
+    if(!r.ok)throw new Error(d.error||"Could not generate email.");
+    $("emailSubject").value=d.subject||"";
+    $("applicationEmail").value=d.email||"";
+    generatedEmail=d.email||"";
+    $("status").textContent="Application email ready.";
+    $("status").className="status ok";
+  }catch(err){
+    $("status").textContent=err.message;
+    $("status").className="status error";
+  }finally{$("progress").classList.remove("active");}
+};
+
+$("copyEmail").onclick=async()=>{
+  const text=`${$("emailSubject").value}\n\n${$("applicationEmail").value}`.trim();
+  await navigator.clipboard.writeText(text);
+  $("status").textContent="Email copied.";
+  $("status").className="status ok";
+};
+
+$("downloadPackage").onclick=()=>{
+  const packageText=`APPLICATION PACKAGE
+
+ROLE
+${$("role").value}
+
+EMAIL SUBJECT
+${$("emailSubject").value}
+
+EMAIL
+${$("applicationEmail").value}
+
+APPLICATION
+${$("result").value}
+
+---
+Generated with LetterToolkit. Review all content before sending.`;
+  const blob=new Blob([packageText],{type:"text/plain"});
+  const url=URL.createObjectURL(blob);
+  const a=document.createElement("a");
+  a.href=url;
+  a.download="application-package.txt";
+  a.click();
+  setTimeout(()=>URL.revokeObjectURL(url),1000);
+};
+
 $("saveDraft").onclick=()=>{
   const drafts=getDrafts();
   drafts.unshift(currentDraft());
   setDrafts(drafts.slice(0,20));
   refreshDrafts();
+updateFinalChecklist();
   $("status").textContent="Draft saved locally.";
   $("status").className="status ok";
 };
@@ -472,6 +591,9 @@ $("draftSelect").onchange=()=>{
   $("background").value=d.background||"";
   $("jobAd").value=d.jobAd||"";
   $("result").value=d.result||"";
+  $("emailSubject").value=d.emailSubject||"";
+  $("applicationEmail").value=d.applicationEmail||"";
+  $("recipientName").value=d.recipientName||"";
   tone=d.tone||"professional";
   document.querySelectorAll(".tone").forEach(b=>b.classList.toggle("active",b.dataset.tone===tone));
   updateMetrics();

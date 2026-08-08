@@ -390,6 +390,38 @@ ${jobAd}`;
         return json(request, result);
       }
 
+      if (body.action === "application_email") {
+        const language = safeText(body.language, 40) || "English";
+        const targetRole = safeText(body.targetRole, 120);
+        const recipient = safeText(body.recipient, 160);
+        const application = safeText(body.application, 14000);
+        const background = safeText(body.background, 10000);
+        const jobAd = safeText(body.jobAd, 10000);
+
+        const prompt = `Write a concise email in ${language} for sending a job application.
+Target role: ${targetRole}
+Recipient/company: ${recipient || "(not supplied)"}
+
+Rules:
+- Keep the email short, professional and natural.
+- Mention attached CV/application naturally.
+- Do not invent facts or names.
+- Return JSON only:
+{"subject":"...","email":"..."}
+
+APPLICATION:
+${application}
+
+BACKGROUND:
+${background}
+
+JOB ADVERTISEMENT:
+${jobAd}`;
+
+        const result = await callResponses(env, prompt, 900);
+        return json(request, result);
+      }
+
       if (body.action === "analyze_match") {
         const language = safeText(body.language, 40) || "English";
         const targetRole = safeText(body.targetRole, 120);
@@ -497,7 +529,7 @@ ${jobAd}`;
         return json(request, result);
       }
 
-      if (!["improve_cv", "cover_letter", "translate_cv", "review_cv", "review_application", "rewrite_application", "analyze_match"].includes(body.action)) {
+      if (!["improve_cv", "cover_letter", "translate_cv", "review_cv", "review_application", "rewrite_application", "analyze_match", "application_email"].includes(body.action)) {
         return json(request, { error: "Unsupported action." }, 400);
       }
 
