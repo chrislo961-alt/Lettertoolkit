@@ -1,21 +1,25 @@
-# LetterToolkit 6.18 – Interview Prep
+# LetterToolkit 6.20 – Interview Answer Coach
 
-Extends the job application workflow beyond sending the application.
+Adds interactive interview practice to the Application Builder.
 
-New:
-- Interview Preparation section
-- AI-generated likely interview questions
-- Uses the same candidate background + job advertisement
-- 6–10 role-relevant questions
-- What to emphasize for each question
-- Suggested answer structure
-- Copy interview prep
-- Respects selected language
-- Explicitly prevents invented candidate facts
+## New
+- choose a generated interview question
+- write your own answer
+- choose STAR / Concise / Detailed answer mode
+- AI answer review
+- answer score 0–100
+- practical feedback
+- improved answer suggestion
+- one-click use improved answer
+- STAR helper cards
+- strictly grounded in the candidate's real background
 
-Install:
-- Replace `/application-builder/index.html`
-- Replace `worker/src/index.js`
-- Deploy from the worker folder in this ZIP:
-  `npx.cmd wrangler deploy`
-- Commit/push site changes.
+## Install
+Replace:
+- `/application-builder/index.html`
+- `worker/src/index.js`
+
+Then run from the `worker` folder in this ZIP:
+`npx.cmd wrangler deploy`
+
+Commit/push the changed site files.

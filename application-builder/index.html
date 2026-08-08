@@ -104,6 +104,18 @@
     .tracker-tag{background:var(--soft);color:#3435a4;border-radius:999px;padding:5px 8px;font-size:.76rem}
     .tracker-actions{display:flex;gap:6px;flex-wrap:wrap}
     .tracker-empty{color:var(--muted);font-size:.9rem;padding:12px 0}
+    .coach-box{margin-top:18px;border:1px solid var(--line);border-radius:14px;padding:14px;background:#fbfcff}
+    .coach-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+    .coach-grid textarea{min-height:180px}
+    .coach-feedback{display:none;margin-top:12px;border:1px solid #d9dcff;background:#f8f9ff;border-radius:12px;padding:12px}
+    .coach-feedback.active{display:block}
+    .coach-score{font-size:1.35rem;font-weight:850;color:var(--brand)}
+    .coach-points{display:grid;gap:7px;margin-top:8px}
+    .coach-point{font-size:.88rem;color:var(--muted)}
+    .star-helper{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-top:10px}
+    .star-card{border:1px solid var(--line);border-radius:10px;padding:9px;background:#fff}
+    .star-card strong{display:block;font-size:.78rem;color:#3435a4}
+    .star-card span{display:block;font-size:.78rem;color:var(--muted);margin-top:3px}
     @media(max-width:900px){.workspace{grid-template-columns:1fr}.result-wrap{position:static}.grid{grid-template-columns:1fr}.full{grid-column:auto}.navlinks{display:none}}
   </style>
 
@@ -336,6 +348,53 @@
     <div id="interviewBox" class="interview-box" style="display:none">
       <div id="interviewIntro" class="small"></div>
       <div id="interviewQuestions"></div>
+
+      <div class="coach-box">
+        <h3 style="margin:0 0 6px">Interview Answer Coach</h3>
+        <div class="small">Choose one of the generated questions, write your own answer, and get feedback without inventing facts.</div>
+
+        <div class="coach-grid" style="margin-top:12px">
+          <div>
+            <label for="coachQuestion">Question</label>
+            <select id="coachQuestion"></select>
+          </div>
+          <div>
+            <label for="coachMode">Answer style</label>
+            <select id="coachMode">
+              <option value="star">STAR structure</option>
+              <option value="concise">Concise</option>
+              <option value="detailed">Detailed</option>
+            </select>
+          </div>
+          <div class="full">
+            <label for="coachAnswer">Your answer</label>
+            <textarea id="coachAnswer" placeholder="Write how you would answer the question in the interview..."></textarea>
+          </div>
+        </div>
+
+        <div class="star-helper">
+          <div class="star-card"><strong>S – Situation</strong><span>What was happening?</span></div>
+          <div class="star-card"><strong>T – Task</strong><span>What were you responsible for?</span></div>
+          <div class="star-card"><strong>A – Action</strong><span>What did you actually do?</span></div>
+          <div class="star-card"><strong>R – Result</strong><span>What happened afterward?</span></div>
+        </div>
+
+        <div class="row" style="margin-top:12px">
+          <button class="primary" id="reviewInterviewAnswer" type="button">Review my answer</button>
+          <button class="secondary" id="useImprovedAnswer" type="button">Use improved answer</button>
+        </div>
+
+        <div id="coachFeedback" class="coach-feedback">
+          <div class="coach-score" id="coachScore">– / 100</div>
+          <div id="coachVerdict" style="font-weight:800;margin-top:3px"></div>
+          <div id="coachOverview" class="small" style="margin-top:4px"></div>
+          <div id="coachPoints" class="coach-points"></div>
+          <div style="margin-top:10px">
+            <label for="coachImproved">Improved version</label>
+            <textarea id="coachImproved" style="min-height:180px"></textarea>
+          </div>
+        </div>
+      </div>
     </div>
   </section>
 
@@ -764,6 +823,7 @@ $("generateInterview").onclick=async()=>{
     if(!r.ok)throw new Error(d.error||"Could not prepare interview questions.");
     interviewPrep=d;
     $("interviewIntro").textContent=d.overview||"";
+    $("coachQuestion").innerHTML=(d.questions||[]).map((q,i)=>`<option value="${i}">${i+1}. ${q.question||""}</option>`).join("");
     $("interviewQuestions").innerHTML=(d.questions||[]).map((q,i)=>`
       <div class="question-card">
         <strong>${i+1}. ${q.question||""}</strong>
@@ -777,6 +837,70 @@ $("generateInterview").onclick=async()=>{
     $("status").textContent=err.message;
     $("status").className="status error";
   }finally{$("progress").classList.remove("active");}
+};
+
+
+let improvedInterviewAnswer="";
+
+$("reviewInterviewAnswer").onclick=async()=>{
+  if(!interviewPrep || !(interviewPrep.questions||[]).length){
+    $("status").textContent="Generate interview questions first.";
+    $("status").className="status error";
+    return;
+  }
+  if(!$("coachAnswer").value.trim()){
+    $("status").textContent="Write your answer first.";
+    $("status").className="status error";
+    return;
+  }
+
+  const idx=Number($("coachQuestion").value||0);
+  const q=(interviewPrep.questions||[])[idx]||{};
+
+  $("progress").classList.add("active");
+  $("status").textContent="Reviewing interview answer...";
+  try{
+    const r=await fetch(WORKER_URL+"/api/cv",{
+      method:"POST",
+      headers:{"content-type":"application/json"},
+      body:JSON.stringify({
+        action:"coach_interview_answer",
+        language:$("language").value,
+        targetRole:$("role").value,
+        mode:$("coachMode").value,
+        question:q.question||"",
+        focus:q.focus||"",
+        answer:$("coachAnswer").value,
+        background:$("background").value,
+        jobAd:$("jobAd").value
+      })
+    });
+    const d=await r.json();
+    if(!r.ok)throw new Error(d.error||"Could not review answer.");
+
+    improvedInterviewAnswer=d.improvedAnswer||"";
+    $("coachScore").textContent=`${d.score??"–"} / 100`;
+    $("coachVerdict").textContent=d.verdict||"Answer review";
+    $("coachOverview").textContent=d.overview||"";
+    $("coachPoints").innerHTML=(d.feedback||[]).map(x=>`<div class="coach-point">• ${x}</div>`).join("");
+    $("coachImproved").value=improvedInterviewAnswer;
+    $("coachFeedback").classList.add("active");
+    $("status").textContent="Interview answer review ready.";
+    $("status").className="status ok";
+  }catch(err){
+    $("status").textContent=err.message;
+    $("status").className="status error";
+  }finally{
+    $("progress").classList.remove("active");
+  }
+};
+
+$("useImprovedAnswer").onclick=()=>{
+  if(improvedInterviewAnswer){
+    $("coachAnswer").value=improvedInterviewAnswer;
+    $("status").textContent="Improved answer copied into your answer field.";
+    $("status").className="status ok";
+  }
 };
 
 $("copyInterview").onclick=async()=>{

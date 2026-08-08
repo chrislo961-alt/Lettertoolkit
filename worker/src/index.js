@@ -398,6 +398,58 @@ ${jobAd}`;
         return json(request, result);
       }
 
+      if (body.action === "coach_interview_answer") {
+        const language = safeText(body.language, 40) || "English";
+        const targetRole = safeText(body.targetRole, 120);
+        const mode = safeText(body.mode, 40) || "star";
+        const question = safeText(body.question, 2000);
+        const focus = safeText(body.focus, 3000);
+        const answer = safeText(body.answer, 12000);
+        const background = safeText(body.background, 14000);
+        const jobAd = safeText(body.jobAd, 12000);
+
+        const prompt = `Act as an experienced interview coach.
+Review the candidate's answer for an interview for "${targetRole}".
+Write in ${language}.
+
+Question:
+${question}
+
+What the recruiter is likely looking for:
+${focus}
+
+Candidate answer:
+${answer}
+
+Preferred answer style: ${mode}
+
+Candidate background:
+${background}
+
+Job advertisement:
+${jobAd}
+
+Rules:
+- Never invent candidate facts, employers, dates, achievements, qualifications or metrics.
+- Score the answer 0-100.
+- Feedback must be practical and concise.
+- If STAR mode is selected, improve Situation, Task, Action and Result structure only where supported by the candidate's answer/background.
+- The improved answer must remain truthful and natural.
+- Return JSON only.
+
+Exact JSON:
+{
+  "score":0,
+  "verdict":"",
+  "overview":"",
+  "feedback":[""],
+  "improvedAnswer":""
+}`;
+
+        const result = await callResponses(env, prompt, 1700);
+        return json(request, result);
+      }
+
       if (body.action === "interview_prep") {
         const language = safeText(body.language, 40) || "English";
         const targetRole = safeText(body.targetRole, 120);
@@ -574,7 +626,7 @@ ${jobAd}`;
         return json(request, result);
       }
 
-      if (!["improve_cv", "cover_letter", "translate_cv", "review_cv", "review_application", "rewrite_application", "analyze_match", "application_email", "interview_prep"].includes(body.action)) {
+      if (!["improve_cv", "cover_letter", "translate_cv", "review_cv", "review_application", "rewrite_application", "analyze_match", "application_email", "interview_prep", "coach_interview_answer"].includes(body.action)) {
         return json(request, { error: "Unsupported action." }, 400);
       }
 
