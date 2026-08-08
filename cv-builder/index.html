@@ -68,8 +68,25 @@
     .review-block{border:1px solid var(--line);border-radius:14px;padding:14px;background:#fbfcff}
     .review-block h3{font-size:.95rem;margin:0 0 8px}
     .footer-note{margin-top:22px;color:var(--muted);font-size:.82rem}
+
+    .ai-workspace{display:grid;grid-template-columns:minmax(0,.8fr) minmax(0,1.2fr);gap:18px;align-items:start}
+    .ai-input,.ai-results{min-width:0}
+    .job-ad{min-height:320px}
+    .result-tabs{display:flex;gap:8px;margin-bottom:12px;background:#f7f8fc;padding:6px;border-radius:12px}
+    .result-tab{flex:1;background:transparent;color:var(--muted);padding:10px 12px}
+    .result-tab.active{background:#fff;color:var(--text);box-shadow:0 2px 8px rgba(16,24,40,.08)}
+    .result-panel{display:none}
+    .result-panel.active{display:block}
+    .review-head{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:8px}
+    .review-head h3{margin:0}
+    .mini{padding:8px 11px;font-size:.82rem}
+    .review-block textarea{min-height:120px}
+    .review-block:nth-child(2) textarea{min-height:220px}
+    .cover-letter{min-height:470px}
+    .preview-design-grid{display:grid;grid-template-columns:minmax(0,.72fr) minmax(380px,1.28fr);gap:22px;align-items:start}
+
     @media(max-width:980px){
-      .layout{grid-template-columns:1fr}
+      .ai-workspace,.preview-design-grid{grid-template-columns:1fr}
       .preview-wrap{position:static}
       .steps{grid-template-columns:1fr 1fr}
       .navlinks{display:none}
@@ -78,6 +95,7 @@
       .grid{grid-template-columns:1fr}.full{grid-column:auto}
       .template-cards{grid-template-columns:1fr}
       .steps{grid-template-columns:1fr}
+      .job-ad,.cover-letter{min-height:260px}
       .panel{padding:18px}.preview{padding:22px}
     }
     @media print{
@@ -85,7 +103,6 @@
       body{background:#fff}
       main{padding:0}
       .shell{width:100%;margin:0}
-      .layout{display:block}
       .preview-wrap{position:static}
       .preview{border:0;box-shadow:none;border-radius:0;padding:18mm;min-height:auto}
     }
@@ -119,48 +136,79 @@
     <div class="step-pill"><strong>5</strong>Export</div>
   </div>
 
-  <section class="layout">
-    <div class="left stack">
-      <div class="panel">
-        <h2>1. Your CV</h2>
-        <p class="lead">Add the information you want included. Everything below autosaves locally in your browser.</p>
-        <div class="grid">
-          <div><label for="language">Language</label><select id="language"><option value="English">English</option><option value="Swedish">Swedish</option><option value="Norwegian">Norwegian</option></select></div>
-          <div><label for="role">Target role</label><input id="role" placeholder="Operations Manager"></div>
-          <div><label for="name">Full name</label><input id="name" placeholder="Alex Morgan"></div>
-          <div><label for="email">Email</label><input id="email" placeholder="alex@example.com"></div>
-          <div><label for="phone">Phone</label><input id="phone" placeholder="+46 ..."></div>
-          <div><label for="location">Location / LinkedIn</label><input id="location" placeholder="Stockholm · linkedin.com/in/..."></div>
-          <div class="full"><label for="summary">Professional profile</label><textarea id="summary" placeholder="A short summary of your background and strengths."></textarea></div>
-          <div class="full"><label for="experience">Experience</label><textarea id="experience" placeholder="Company | Role | Dates&#10;- Achievement&#10;- Responsibility"></textarea></div>
-          <div class="full"><label for="education">Education</label><textarea id="education" placeholder="School | Degree | Year"></textarea></div>
-          <div class="full"><label for="skills">Skills</label><textarea id="skills" placeholder="Excel, project management, customer operations..."></textarea></div>
+  <section class="stack">
+    <div class="panel">
+      <h2>1. Your CV</h2>
+      <p class="lead">Add the information you want included. Everything below autosaves locally in your browser.</p>
+      <div class="grid">
+        <div><label for="language">Language</label><select id="language"><option value="English">English</option><option value="Swedish">Swedish</option><option value="Norwegian">Norwegian</option></select></div>
+        <div><label for="role">Target role</label><input id="role" placeholder="Operations Manager"></div>
+        <div><label for="name">Full name</label><input id="name" placeholder="Alex Morgan"></div>
+        <div><label for="email">Email</label><input id="email" placeholder="alex@example.com"></div>
+        <div><label for="phone">Phone</label><input id="phone" placeholder="+46 ..."></div>
+        <div><label for="location">Location / LinkedIn</label><input id="location" placeholder="Stockholm · linkedin.com/in/..."></div>
+        <div class="full"><label for="summary">Professional profile</label><textarea id="summary" placeholder="A short summary of your background and strengths."></textarea></div>
+        <div class="full"><label for="experience">Experience</label><textarea id="experience" placeholder="Company | Role | Dates&#10;- Achievement&#10;- Responsibility"></textarea></div>
+        <div class="full"><label for="education">Education</label><textarea id="education" placeholder="School | Degree | Year"></textarea></div>
+        <div class="full"><label for="skills">Skills</label><textarea id="skills" placeholder="Excel, project management, customer operations..."></textarea></div>
+      </div>
+    </div>
+
+    <div class="panel">
+      <h2>2–3. AI workspace</h2>
+      <p class="lead">Paste the job ad on the left. Your generated CV suggestions and cover letter appear immediately on the right — no hunting further down the page.</p>
+
+      <div class="ai-workspace">
+        <div class="ai-input">
+          <label for="jobAd">Job advertisement</label>
+          <textarea id="jobAd" class="job-ad" placeholder="Paste the full job advertisement here..."></textarea>
+
+          <div class="row" style="margin-top:12px">
+            <button class="primary" id="aiImprove">Tailor my CV with AI</button>
+            <button class="secondary" id="aiLetter">Generate cover letter</button>
+          </div>
+          <div id="status" class="status">AI is connected securely through LetterToolkit's Cloudflare Worker.</div>
+
+          <div class="notice" style="margin-top:14px">
+            AI can improve wording, but it should never invent employers, dates, education, certifications, metrics or achievements you did not provide.
+          </div>
+        </div>
+
+        <div class="ai-results">
+          <div class="result-tabs" role="tablist" aria-label="AI results">
+            <button class="result-tab active" data-tab="cv-results" type="button">CV suggestions</button>
+            <button class="result-tab" data-tab="letter-results" type="button">Cover letter</button>
+          </div>
+
+          <div id="cv-results" class="result-panel active">
+            <div class="review-grid">
+              <div class="review-block">
+                <div class="review-head"><h3>Profile</h3><button class="tertiary mini" id="applySummary">Use this</button></div>
+                <textarea id="reviewSummary" placeholder="AI-tailored profile will appear here."></textarea>
+              </div>
+              <div class="review-block">
+                <div class="review-head"><h3>Experience</h3><button class="tertiary mini" id="applyExperience">Use this</button></div>
+                <textarea id="reviewExperience" placeholder="AI-tailored experience will appear here."></textarea>
+              </div>
+              <div class="review-block">
+                <div class="review-head"><h3>Skills</h3><button class="tertiary mini" id="applySkills">Use this</button></div>
+                <textarea id="reviewSkills" placeholder="AI-tailored skills will appear here."></textarea>
+              </div>
+            </div>
+          </div>
+
+          <div id="letter-results" class="result-panel">
+            <textarea id="coverLetter" class="cover-letter" placeholder="Your AI-generated cover letter will appear here."></textarea>
+            <div class="row" style="margin-top:10px">
+              <button class="secondary" id="copyLetter">Copy cover letter</button>
+              <button class="secondary" id="downloadLetter">Download TXT</button>
+            </div>
+          </div>
         </div>
       </div>
+    </div>
 
-      <div class="panel">
-        <h2>2. Target job</h2>
-        <p class="lead">Paste the job advertisement. The AI will use it only to tailor the CV and cover letter.</p>
-        <label for="jobAd">Job advertisement</label>
-        <textarea id="jobAd" placeholder="Paste the job ad here..."></textarea>
-        <div class="row" style="margin-top:12px">
-          <button class="primary" id="aiImprove">Tailor my CV with AI</button>
-          <button class="secondary" id="aiLetter">Generate cover letter</button>
-        </div>
-        <div id="status" class="status">AI is connected securely through LetterToolkit's Cloudflare Worker.</div>
-      </div>
-
-      <div class="panel">
-        <h2>3. Review AI suggestions</h2>
-        <p class="lead">Nothing is final until you approve it. Check every claim before you use it.</p>
-        <div class="review-grid">
-          <div class="review-block"><h3>Profile</h3><textarea id="reviewSummary" placeholder="AI-tailored profile will appear here."></textarea><div class="row" style="margin-top:8px"><button class="tertiary" id="applySummary">Use this profile</button></div></div>
-          <div class="review-block"><h3>Experience</h3><textarea id="reviewExperience" placeholder="AI-tailored experience will appear here."></textarea><div class="row" style="margin-top:8px"><button class="tertiary" id="applyExperience">Use this experience</button></div></div>
-          <div class="review-block"><h3>Skills</h3><textarea id="reviewSkills" placeholder="AI-tailored skills will appear here."></textarea><div class="row" style="margin-top:8px"><button class="tertiary" id="applySkills">Use these skills</button></div></div>
-        </div>
-        <div class="notice" style="margin-top:12px">AI can improve wording, but it should never invent employers, dates, education, certifications, metrics or achievements you did not provide.</div>
-      </div>
-
+    <div class="preview-design-grid">
       <div class="panel">
         <h2>4. Choose a design</h2>
         <p class="lead">Keep it simple for ATS systems or choose a more polished visual style.</p>
@@ -169,43 +217,31 @@
           <div class="template-card" data-template="compact"><div class="swatch compact"></div><strong>Compact</strong><div class="small">Dense and ATS-friendly</div></div>
           <div class="template-card" data-template="modern"><div class="swatch modern"></div><strong>Modern</strong><div class="small">Clean visual accent</div></div>
         </div>
-      </div>
 
-      <div class="panel">
-        <h2>5. Export</h2>
+        <h2 style="margin-top:26px">5. Export</h2>
         <p class="lead">Download your CV or save a local backup.</p>
         <div class="row">
           <button class="primary" onclick="window.print()">Print / Save as PDF</button>
           <button class="secondary" id="downloadTxt">Download CV TXT</button>
           <button class="secondary" id="backup">Backup JSON</button>
         </div>
+        <div class="footer-note">Privacy: CV text is sent to the AI endpoint only when you press an AI button. Avoid unnecessary sensitive data.</div>
       </div>
 
-      <div class="panel">
-        <h2>Cover letter</h2>
-        <textarea id="coverLetter" style="min-height:260px" placeholder="Generate a cover letter, then edit it before sending."></textarea>
-        <div class="row" style="margin-top:10px">
-          <button class="secondary" id="copyLetter">Copy</button>
-          <button class="secondary" id="downloadLetter">Download TXT</button>
-        </div>
+      <div class="preview-wrap">
+        <div class="preview-toolbar"><strong>Live preview</strong><button class="secondary" id="clearAll">Clear</button></div>
+        <article class="preview" id="preview">
+          <h1 class="cv-name" id="pName">Your Name</h1>
+          <div class="cv-role" id="pRole">Target Role</div>
+          <div class="meta" id="pMeta">email@example.com · +46 ... · Location</div>
+          <section class="cv-section"><h3>Profile</h3><div id="pSummary">Your profile appears here.</div></section>
+          <section class="cv-section"><h3>Experience</h3><div id="pExperience">Your experience appears here.</div></section>
+          <section class="cv-section"><h3>Education</h3><div id="pEducation">Your education appears here.</div></section>
+          <section class="cv-section"><h3>Skills</h3><div id="pSkills">Your skills appear here.</div></section>
+        </article>
       </div>
-
-      <div class="footer-note">Privacy: CV text is sent to the AI endpoint only when you press an AI button. Avoid unnecessary sensitive data.</div>
     </div>
-
-    <div class="preview-wrap">
-      <div class="preview-toolbar"><strong>Live preview</strong><button class="secondary" id="clearAll">Clear</button></div>
-      <article class="preview" id="preview">
-        <h1 class="cv-name" id="pName">Your Name</h1>
-        <div class="cv-role" id="pRole">Target Role</div>
-        <div class="meta" id="pMeta">email@example.com · +46 ... · Location</div>
-        <section class="cv-section"><h3>Profile</h3><div id="pSummary">Your profile appears here.</div></section>
-        <section class="cv-section"><h3>Experience</h3><div id="pExperience">Your experience appears here.</div></section>
-        <section class="cv-section"><h3>Education</h3><div id="pEducation">Your education appears here.</div></section>
-        <section class="cv-section"><h3>Skills</h3><div id="pSkills">Your skills appear here.</div></section>
-      </article>
-    </div>
-  </section>
+  </section></section>
 </main>
 
 <script>
@@ -247,6 +283,7 @@ $("aiImprove").onclick=async()=>{
     $("reviewExperience").value=d.experience||"";
     $("reviewSkills").value=d.skills||"";
     save();
+    showResultTab("cv-results");
     $("status").textContent="AI suggestions are ready. Review them before applying.";
     $("status").className="status ok";
   }catch(e){$("status").textContent=e.message;$("status").className="status error";}
@@ -257,6 +294,7 @@ $("aiLetter").onclick=async()=>{
   try{
     const d=await callAI("cover_letter");
     $("coverLetter").value=d.coverLetter||"";
+    showResultTab("letter-results");
     save();
     $("status").textContent="Cover letter generated. Edit it before sending.";
     $("status").className="status ok";
@@ -272,6 +310,18 @@ $("backup").onclick=()=>{const d={};ids.forEach(id=>d[id]=$(id).value);d.templat
 $("copyLetter").onclick=()=>navigator.clipboard.writeText($("coverLetter").value);
 $("downloadLetter").onclick=()=>dl("cover-letter.txt",$("coverLetter").value);
 $("clearAll").onclick=()=>{if(!confirm("Clear all locally saved CV data?"))return;localStorage.removeItem(key);ids.forEach(id=>$(id).value="");$("language").value="English";document.body.dataset.template="classic";document.querySelectorAll(".template-card").forEach(c=>c.classList.toggle("active",c.dataset.template==="classic"));render();};
+
+document.querySelectorAll(".result-tab").forEach(tab=>{
+  tab.addEventListener("click", ()=>{
+    document.querySelectorAll(".result-tab").forEach(t=>t.classList.toggle("active", t===tab));
+    document.querySelectorAll(".result-panel").forEach(p=>p.classList.toggle("active", p.id===tab.dataset.tab));
+  });
+});
+function showResultTab(id){
+  document.querySelectorAll(".result-tab").forEach(t=>t.classList.toggle("active", t.dataset.tab===id));
+  document.querySelectorAll(".result-panel").forEach(p=>p.classList.toggle("active", p.id===id));
+}
+
 ids.forEach(id=>$(id).addEventListener("input",render));
 load();
 </script>
