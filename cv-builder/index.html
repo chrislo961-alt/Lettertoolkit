@@ -162,6 +162,47 @@
     .review-item.accepted{opacity:.65}
     .review-item.rejected{opacity:.5}
 
+
+    .tool-nav-link{
+      display:inline-flex;align-items:center;gap:8px;padding:9px 13px;border-radius:11px;
+      border:1px solid var(--line);background:#fff;font-weight:750;color:var(--text)!important
+    }
+    .tool-nav-link.cv{border-color:#9b8cff}
+    .tool-nav-link.app{border-color:#f0b90b}
+    .tool-nav-link.active{box-shadow:0 4px 14px rgba(16,24,40,.08)}
+    .tool-switch{
+      margin-top:15px;display:flex;align-items:center;gap:14px;padding:14px 16px;border-radius:16px;
+      border:1px solid #e6e9f0;background:rgba(255,255,255,.82);box-shadow:0 12px 35px rgba(16,24,40,.07);
+      width:min(640px,100%)
+    }
+    .tool-switch.cv-to-app{border:2px solid #f0b90b;background:linear-gradient(135deg,#fffdf4,#fff)}
+    .tool-switch.app-to-cv{border:2px solid #7766ff;background:linear-gradient(135deg,#f7f5ff,#fff)}
+    .tool-switch-icon{
+      width:48px;height:48px;border-radius:50%;display:grid;place-items:center;flex:0 0 auto;font-size:23px;font-weight:900
+    }
+    .tool-switch.cv-to-app .tool-switch-icon{background:#ffca16;color:#151515}
+    .tool-switch.app-to-cv .tool-switch-icon{background:#5b4be8;color:#fff}
+    .tool-switch-copy{min-width:0}
+    .tool-switch-copy strong{display:block;font-size:1rem;line-height:1.2}
+    .tool-switch-copy a{display:inline-block;margin-top:3px;font-size:1.05rem;font-weight:850;text-decoration:none}
+    .tool-switch.cv-to-app .tool-switch-copy a{color:#5545dd}
+    .tool-switch.app-to-cv .tool-switch-copy a{color:#5545dd}
+    .hero{padding-top:12px}
+    .hero h1{max-width:900px}
+    @media(max-width:800px){
+      .tool-nav-link{padding:8px 10px;font-size:.86rem}
+      .tool-switch{width:100%}
+    }
+
+
+    .dual-tools-footer{margin:30px 0 10px;display:grid;grid-template-columns:1fr 1fr;gap:12px}
+    .dual-tool-card{padding:16px;border-radius:15px;background:#fff;border:1px solid var(--line);text-decoration:none;color:var(--text)}
+    .dual-tool-card strong{display:block;font-size:1rem}
+    .dual-tool-card span{display:block;color:var(--muted);font-size:.84rem;margin-top:4px}
+    .dual-tool-card.cv-card{border-color:#9b8cff}
+    .dual-tool-card.app-card{border-color:#f0b90b}
+    @media(max-width:700px){.dual-tools-footer{grid-template-columns:1fr}}
+
     @media(max-width:980px){
       .ai-workspace,.preview-design-grid{grid-template-columns:1fr}
       .preview-wrap{position:static}
@@ -195,7 +236,8 @@
     <nav class="navlinks">
       <a href="/">Home</a>
       <a href="/writer/">Writer</a>
-      <a href="/application-builder/">Application Builder</a>
+      <a class="tool-nav-link cv active" href="/cv-builder/">CV Builder</a>
+      <a class="tool-nav-link app" href="/application-builder/">Application Builder</a>
       <a href="/guides/">Guides</a>
       <a href="/about/">About</a>
     </nav>
@@ -207,8 +249,12 @@
     <div class="eyebrow">AI CV Builder</div>
     <h1>Build your CV with AI</h1>
     <p>Create, tailor and export a professional CV in minutes.</p>
-  <div class="row" style="margin-top:14px">
-      <a class="secondary" style="text-decoration:none;display:inline-block" href="/application-builder/">Only need a job application? Open Application Builder →</a>
+    <div class="tool-switch cv-to-app">
+      <div class="tool-switch-icon" aria-hidden="true">✎</div>
+      <div class="tool-switch-copy">
+        <strong>Only need a job application?</strong>
+        <a href="/application-builder/">Open Application Builder →</a>
+      </div>
     </div>
   </section>
 
@@ -388,6 +434,12 @@
       </div>
     </div>
   </section></section>
+
+  <section class="dual-tools-footer" aria-label="LetterToolkit career tools">
+    <a class="dual-tool-card cv-card" href="/cv-builder/"><strong>CV Builder</strong><span>Build, tailor, review and export your CV.</span></a>
+    <a class="dual-tool-card app-card" href="/application-builder/"><strong>Application Builder</strong><span>Create applications, interview prep and track your job search.</span></a>
+  </section>
+
 </main>
 
 <script>

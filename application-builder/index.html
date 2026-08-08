@@ -125,6 +125,47 @@
     .offer-list{display:grid;gap:8px;margin-top:10px}
     .offer-item{border:1px solid var(--line);border-radius:10px;background:#fff;padding:10px}
     .offer-item strong{display:block;margin-bottom:4px}
+
+    .tool-nav-link{
+      display:inline-flex;align-items:center;gap:8px;padding:9px 13px;border-radius:11px;
+      border:1px solid var(--line);background:#fff;font-weight:750;color:var(--text)!important
+    }
+    .tool-nav-link.cv{border-color:#9b8cff}
+    .tool-nav-link.app{border-color:#f0b90b}
+    .tool-nav-link.active{box-shadow:0 4px 14px rgba(16,24,40,.08)}
+    .tool-switch{
+      margin-top:15px;display:flex;align-items:center;gap:14px;padding:14px 16px;border-radius:16px;
+      border:1px solid #e6e9f0;background:rgba(255,255,255,.82);box-shadow:0 12px 35px rgba(16,24,40,.07);
+      width:min(640px,100%)
+    }
+    .tool-switch.cv-to-app{border:2px solid #f0b90b;background:linear-gradient(135deg,#fffdf4,#fff)}
+    .tool-switch.app-to-cv{border:2px solid #7766ff;background:linear-gradient(135deg,#f7f5ff,#fff)}
+    .tool-switch-icon{
+      width:48px;height:48px;border-radius:50%;display:grid;place-items:center;flex:0 0 auto;font-size:23px;font-weight:900
+    }
+    .tool-switch.cv-to-app .tool-switch-icon{background:#ffca16;color:#151515}
+    .tool-switch.app-to-cv .tool-switch-icon{background:#5b4be8;color:#fff}
+    .tool-switch-copy{min-width:0}
+    .tool-switch-copy strong{display:block;font-size:1rem;line-height:1.2}
+    .tool-switch-copy a{display:inline-block;margin-top:3px;font-size:1.05rem;font-weight:850;text-decoration:none}
+    .tool-switch.cv-to-app .tool-switch-copy a{color:#5545dd}
+    .tool-switch.app-to-cv .tool-switch-copy a{color:#5545dd}
+    .hero{padding-top:12px}
+    .hero h1{max-width:900px}
+    @media(max-width:800px){
+      .tool-nav-link{padding:8px 10px;font-size:.86rem}
+      .tool-switch{width:100%}
+    }
+
+
+    .dual-tools-footer{margin:30px 0 10px;display:grid;grid-template-columns:1fr 1fr;gap:12px}
+    .dual-tool-card{padding:16px;border-radius:15px;background:#fff;border:1px solid var(--line);text-decoration:none;color:var(--text)}
+    .dual-tool-card strong{display:block;font-size:1rem}
+    .dual-tool-card span{display:block;color:var(--muted);font-size:.84rem;margin-top:4px}
+    .dual-tool-card.cv-card{border-color:#9b8cff}
+    .dual-tool-card.app-card{border-color:#f0b90b}
+    @media(max-width:700px){.dual-tools-footer{grid-template-columns:1fr}}
+
     @media(max-width:900px){.workspace{grid-template-columns:1fr}.result-wrap{position:static}.grid{grid-template-columns:1fr}.full{grid-column:auto}.navlinks{display:none}}
   </style>
 
@@ -172,9 +213,11 @@
     <a class="brand" href="/"><span class="logo">LT</span><span>LetterToolkit</span></a>
     <nav class="navlinks">
       <a href="/">Home</a>
-      <a href="/cv-builder/">CV Builder</a>
       <a href="/writer/">Writer</a>
+      <a class="tool-nav-link cv" href="/cv-builder/">CV Builder</a>
+      <a class="tool-nav-link app active" href="/application-builder/">Application Builder</a>
       <a href="/guides/">Guides</a>
+      <a href="/about/">About</a>
     </nav>
   </div>
 </header>
@@ -184,9 +227,12 @@
     <div class="eyebrow">AI Application Builder</div>
     <h1>Write a tailored job application with AI</h1>
     <p>Upload or paste your CV, add the job advertisement, choose the tone, and generate a polished application you can edit before sending.</p><div class="small" style="margin-top:8px">Already built a CV here? Your saved CV can be carried over automatically from the CV Builder.</div>
-    <div class="modebar">
-      <a href="/cv-builder/">CV Builder</a>
-      <a class="active" href="/application-builder/">Application Builder</a>
+    <div class="tool-switch app-to-cv">
+      <div class="tool-switch-icon" aria-hidden="true">CV</div>
+      <div class="tool-switch-copy">
+        <strong>Need to build or improve your CV first?</strong>
+        <a href="/cv-builder/">Open CV Builder →</a>
+      </div>
     </div>
     <div class="draft-bar">
       <select id="draftSelect" class="draft-select"><option value="">Saved drafts</option></select>
@@ -498,6 +544,12 @@
         <p>No. Always review the final application for factual accuracy, tone and personal fit before sending it to an employer.</p>
       </details>
     </div>
+  </section>
+
+
+  <section class="dual-tools-footer" aria-label="LetterToolkit career tools">
+    <a class="dual-tool-card cv-card" href="/cv-builder/"><strong>CV Builder</strong><span>Build, tailor, review and export your CV.</span></a>
+    <a class="dual-tool-card app-card" href="/application-builder/"><strong>Application Builder</strong><span>Create applications, interview prep and track your job search.</span></a>
   </section>
 
 </main>
@@ -1124,48 +1176,21 @@ $("copy").onclick=()=>navigator.clipboard.writeText($("result").value);
 
 function applicationHtml(){
   const title=$("role").value||"Job application";
-  return `<!doctype html><html><head><meta charset="utf-8"><title>${title}</title>
-  <style>body{font-family:Arial,sans-serif;max-width:720px;margin:48px auto;line-height:1.6;color:#111;padding:0 24px}h1{font-size:24px;margin-bottom:24px}p{white-space:pre-wrap}</style>
-  <link rel="canonical" href="https://lettertoolkit.com/application-builder/">
-  <script type="application/ld+json">
-  {
-    "@context":"https://schema.org",
-    "@type":"SoftwareApplication",
-    "name":"LetterToolkit AI Application Builder",
-    "applicationCategory":"BusinessApplication",
-    "operatingSystem":"Web",
-    "url":"https://lettertoolkit.com/application-builder/",
-    "description":"AI-powered job application builder that helps users tailor applications to a job advertisement.",
-    "offers":{"@type":"Offer","price":"0","priceCurrency":"USD"}
-  }
-  </script>
-  <script type="application/ld+json">
-  {
-    "@context":"https://schema.org",
-    "@type":"FAQPage",
-    "mainEntity":[
-      {
-        "@type":"Question",
-        "name":"How does the AI job application builder work?",
-        "acceptedAnswer":{"@type":"Answer","text":"Add your background or CV, paste the job advertisement, choose a tone and language, then generate and review a tailored job application."}
-      },
-      {
-        "@type":"Question",
-        "name":"Can I use my existing CV?",
-        "acceptedAnswer":{"@type":"Answer","text":"Yes. You can upload or paste your existing CV information and use it as the factual basis for the application."}
-      },
-      {
-        "@type":"Question",
-        "name":"Can I write the application in Norwegian or Swedish?",
-        "acceptedAnswer":{"@type":"Answer","text":"Yes. The builder supports English, Norwegian and Swedish."}
-      }
-    ]
-  }
-  </script>
-
-</head>
-  <body><h1>${title}</h1><p>${$("result").value.replace(/&/g,"&amp;").replace(/</g,"&lt;")}</p></body></html>`;
+  const escHtml=s=>String(s||"")
+    .replace(/&/g,"&amp;")
+    .replace(/</g,"&lt;")
+    .replace(/>/g,"&gt;");
+  const body=escHtml($("result").value).replace(/\n/g,"<br>");
+  return "<!doctype html><html><head><meta charset='utf-8'><title>"
+    +escHtml(title)
+    +"</title><style>"
+    +"body{font-family:Arial,sans-serif;max-width:720px;margin:48px auto;line-height:1.6;color:#111;padding:0 24px}"
+    +"h1{font-size:24px;margin-bottom:24px}p{font-size:16px}"
+    +"</style></head><body><h1>"
+    +escHtml(title)
+    +"</h1><p>"+body+"</p></body></html>";
 }
+
 $("downloadPdf").onclick=()=>{
   const w=window.open("","_blank");
   w.document.write(applicationHtml()); w.document.close(); w.focus(); setTimeout(()=>w.print(),250);
