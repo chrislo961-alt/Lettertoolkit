@@ -1,25 +1,26 @@
-# LetterToolkit 6.12 – Language + Clean Preview
+# LetterToolkit 6.13 – AI Review
 
-Fixes the two issues seen after 6.11.
+Adds a controlled AI review workflow.
 
-## Clean preview
-- Empty PROFILE / EXPERIENCE / EDUCATION / SKILLS sections are hidden.
-- Placeholder text such as "Your profile appears here" is no longer shown in the CV or exported PDF.
-- Section headings change with selected CV language.
-
-## Language
-- New "Rewrite CV in selected language" button.
-- Selecting Norwegian, Swedish or English can rewrite the complete CV through AI.
-- Role, profile, experience, education and skills are returned in the selected language.
-- CV import now asks the AI to structure descriptive text in the selected language while preserving facts.
-- Employer names, dates and factual details must not be invented or altered.
+## New
+- AI Review CV button
+- CV score (0–100)
+- recruiter-style overview
+- up to 8 focused suggestions
+- current text vs suggested replacement
+- Accept / Reject per suggestion
+- Accept all
+- no CV field is changed until the user accepts
+- job advertisement is used for relevance when supplied
+- review is returned in the selected language
+- AI is explicitly forbidden from inventing facts
 
 ## Install
 Replace:
 - `/cv-builder/index.html`
-- your established Worker `/src/index.js`
+- the established Worker `/src/index.js`
 
 Then deploy from the established Worker folder:
 `npx.cmd wrangler deploy`
 
-Commit and push both changed files to GitHub.
+Commit and push both changed files.

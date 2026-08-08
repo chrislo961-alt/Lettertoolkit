@@ -90,6 +90,43 @@ Job advertisement:
 ${jobAd}
 `.trim();
 
+  if (body.action === "review_cv") {
+    return `Act as a senior CV reviewer and recruiter.
+Review this CV in ${language}. If a job advertisement is supplied, evaluate relevance to that job as well.
+
+Rules:
+- Never invent facts, employers, dates, education, achievements, metrics or skills.
+- Suggestions must preserve the candidate's factual meaning.
+- Prioritize clarity, impact, readability, ATS compatibility and relevance.
+- Keep the number of suggestions useful and focused (maximum 8).
+- "after" must contain replacement text that can safely replace the named field.
+- Allowed fields: role, summary, experience, education, skills.
+- Score is 0-100 and should reflect the CV as currently written.
+- Return JSON only.
+
+Exact JSON shape:
+{
+  "score": 0,
+  "verdict": "",
+  "overview": "",
+  "suggestions": [
+    {
+      "field": "summary",
+      "title": "",
+      "reason": "",
+      "before": "",
+      "after": ""
+    }
+  ]
+}
+
+CV:
+${cvText}
+
+JOB ADVERTISEMENT:
+${jobAd || "(none supplied)"}`;
+  }
+
   if (body.action === "translate_cv") {
     return `You are an expert CV editor and translator.
 Rewrite the complete CV in ${language}.
@@ -353,7 +390,7 @@ ${jobAd}`;
         return json(request, result);
       }
 
-      if (!["improve_cv", "cover_letter", "translate_cv"].includes(body.action)) {
+      if (!["improve_cv", "cover_letter", "translate_cv", "review_cv"].includes(body.action)) {
         return json(request, { error: "Unsupported action." }, 400);
       }
 

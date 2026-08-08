@@ -147,6 +147,21 @@
     .pdf-export-shell .cv-section{break-inside:avoid}
     .pdf-export-shell .cv-section h3{break-after:avoid}
 
+
+    .review-dashboard{display:none;margin-top:16px;border:1px solid var(--line);border-radius:16px;background:#fff;padding:16px}
+    .review-dashboard.active{display:block}
+    .review-score{display:flex;align-items:center;gap:12px;margin:10px 0 16px}
+    .score-circle{width:58px;height:58px;border-radius:50%;display:grid;place-items:center;border:5px solid #e4e7ec;font-weight:800;font-size:1.05rem}
+    .review-item{border:1px solid var(--line);border-radius:12px;padding:12px;margin-top:10px;background:#fbfcff}
+    .review-item h4{margin:0 0 5px}
+    .review-item .why{font-size:.84rem;color:var(--muted);margin-bottom:8px}
+    .review-before,.review-after{white-space:pre-wrap;font-size:.9rem;padding:9px;border-radius:9px;margin-top:7px}
+    .review-before{background:#fff;border:1px dashed #d0d5dd}
+    .review-after{background:#f5f7ff;border:1px solid #d9dcff}
+    .review-actions{display:flex;gap:8px;flex-wrap:wrap;margin-top:9px}
+    .review-item.accepted{opacity:.65}
+    .review-item.rejected{opacity:.5}
+
     @media(max-width:980px){
       .ai-workspace,.preview-design-grid{grid-template-columns:1fr}
       .preview-wrap{position:static}
@@ -260,6 +275,7 @@
 
           <div class="ai-actions">
             <button class="primary" id="aiImprove">Tailor my CV with AI</button>
+            <button class="secondary" id="aiReviewCv" type="button">AI Review CV</button>
             <button class="secondary" id="translateCv" type="button">Rewrite CV in selected language</button>
             <button class="secondary" id="aiLetter">Generate cover letter</button>
           </div>
@@ -311,6 +327,21 @@
       <div class="panel">
         <h2>4. Choose a design</h2>
         <p class="lead">Keep it simple for ATS systems or choose a more polished visual style.</p>
+        <div id="reviewDashboard" class="review-dashboard">
+          <div class="eyebrow">AI REVIEW</div>
+          <h3 style="margin:5px 0">Review suggestions before changing your CV</h3>
+          <div class="small">Nothing is changed automatically. Accept or reject each suggestion.</div>
+          <div class="review-score">
+            <div class="score-circle" id="reviewScore">–</div>
+            <div><strong id="reviewVerdict">Ready for review</strong><div class="small" id="reviewSummaryText"></div></div>
+          </div>
+          <div id="reviewItems"></div>
+          <div class="review-actions" style="margin-top:14px">
+            <button class="primary" id="acceptAllReview" type="button">Accept all</button>
+            <button class="secondary" id="closeReview" type="button">Close review</button>
+          </div>
+        </div>
+
         <div class="template-cards">
           <div class="template-card active" data-template="classic"><div class="swatch"></div><strong>Classic</strong><div class="small">Balanced and professional</div></div>
           <div class="template-card" data-template="compact"><div class="swatch compact"></div><strong>Compact</strong><div class="small">Dense and ATS-friendly</div></div>
@@ -487,6 +518,73 @@ $("translateCv").onclick=async()=>{
     setBusy(false);
   }
 };
+
+
+let currentReview=null;
+
+function reviewTarget(field){
+  const map={summary:"summary",experience:"experience",education:"education",skills:"skills",role:"role"};
+  return map[field]||null;
+}
+function renderAiReview(data){
+  currentReview=data;
+  $("reviewScore").textContent=String(data.score||"–");
+  $("reviewVerdict").textContent=data.verdict||"CV review";
+  $("reviewSummaryText").textContent=data.overview||"";
+  const items=Array.isArray(data.suggestions)?data.suggestions:[];
+  $("reviewItems").innerHTML=items.map((s,i)=>`
+    <div class="review-item" id="reviewItem${i}">
+      <h4>${esc(s.title||s.field||"Suggestion")}</h4>
+      <div class="why">${esc(s.reason||"")}</div>
+      <div class="small"><strong>Current</strong></div>
+      <div class="review-before">${esc(s.before||"")}</div>
+      <div class="small" style="margin-top:7px"><strong>Suggested</strong></div>
+      <div class="review-after">${esc(s.after||"")}</div>
+      <div class="review-actions">
+        <button class="primary" type="button" onclick="acceptReview(${i})">Accept</button>
+        <button class="secondary" type="button" onclick="rejectReview(${i})">Reject</button>
+      </div>
+    </div>`).join("") || `<div class="small">No major changes suggested.</div>`;
+  $("reviewDashboard").classList.add("active");
+  $("reviewDashboard").scrollIntoView({behavior:"smooth",block:"start"});
+}
+window.acceptReview=(i)=>{
+  if(!currentReview||!currentReview.suggestions||!currentReview.suggestions[i])return;
+  const s=currentReview.suggestions[i], target=reviewTarget(s.field);
+  if(target && $(target) && s.after){
+    $(target).value=s.after;
+    render();
+  }
+  const item=$(`reviewItem${i}`);
+  if(item){item.classList.add("accepted");item.querySelector(".review-actions").innerHTML="<strong>Accepted ✓</strong>";}
+};
+window.rejectReview=(i)=>{
+  const item=$(`reviewItem${i}`);
+  if(item){item.classList.add("rejected");item.querySelector(".review-actions").innerHTML="<strong>Rejected</strong>";}
+};
+$("acceptAllReview").onclick=()=>{
+  if(!currentReview||!Array.isArray(currentReview.suggestions))return;
+  currentReview.suggestions.forEach((_,i)=>window.acceptReview(i));
+};
+$("closeReview").onclick=()=>$("reviewDashboard").classList.remove("active");
+
+$("aiReviewCv").onclick=async()=>{
+  $("status").textContent="Reviewing CV...";
+  $("status").className="status";
+  setBusy(true,"Reviewing CV...");
+  try{
+    const d=await callAI("review_cv");
+    renderAiReview(d);
+    $("status").textContent="AI review ready. Nothing has been changed yet.";
+    $("status").className="status ok";
+  }catch(e){
+    $("status").textContent=e.message;
+    $("status").className="status error";
+  }finally{
+    setBusy(false);
+  }
+};
+
 
 $("aiLetter").onclick=async()=>{
   $("status").textContent="Generating cover letter...";
