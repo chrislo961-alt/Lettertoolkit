@@ -260,6 +260,7 @@
 
           <div class="ai-actions">
             <button class="primary" id="aiImprove">Tailor my CV with AI</button>
+            <button class="secondary" id="translateCv" type="button">Rewrite CV in selected language</button>
             <button class="secondary" id="aiLetter">Generate cover letter</button>
           </div>
           <div id="aiProgress" class="ai-progress"><span class="spinner"></span><span id="aiProgressText">Working...</span></div>
@@ -348,10 +349,10 @@
           <h1 class="cv-name" id="pName">Your Name</h1>
           <div class="cv-role" id="pRole">Target Role</div>
           <div class="meta" id="pMeta">email@example.com · +46 ... · Location</div>
-          <section class="cv-section"><h3>Profile</h3><div id="pSummary">Your profile appears here.</div></section>
-          <section class="cv-section"><h3>Experience</h3><div id="pExperience">Your experience appears here.</div></section>
-          <section class="cv-section"><h3>Education</h3><div id="pEducation">Your education appears here.</div></section>
-          <section class="cv-section"><h3>Skills</h3><div id="pSkills">Your skills appear here.</div></section>
+          <section class="cv-section" id="profileSection" style="display:none"><h3>Profile</h3><div id="pSummary"></div></section>
+          <section class="cv-section" id="experienceSection" style="display:none"><h3>Experience</h3><div id="pExperience"></div></section>
+          <section class="cv-section" id="educationSection" style="display:none"><h3>Education</h3><div id="pEducation"></div></section>
+          <section class="cv-section" id="skillsSection" style="display:none"><h3>Skills</h3><div id="pSkills"></div></section>
         </article>
       </div>
     </div>
@@ -367,14 +368,36 @@ const key="lt-cv-63";
 function esc(s=""){return s.replace(/[&<>"']/g,m=>({"&":"&amp;","<":"&lt;",">":"&gt;","\"":"&quot;","'":"&#039;"}[m]));}
 function format(text,fallback){const t=(text||"").trim();if(!t)return fallback;return t.split(/\n{2,}/).map(b=>`<div style="margin:10px 0">${b.split("\n").map(x=>esc(x)).join("<br>")}</div>`).join("");}
 function save(){const d={};ids.forEach(id=>d[id]=$(id).value);d.template=document.body.dataset.template||"classic";localStorage.setItem(key,JSON.stringify(d));}
+
+function uiLabels(language){
+  const map={
+    Norwegian:{profile:"PROFIL",experience:"ERFARING",education:"UTDANNING",skills:"FERDIGHETER",role:"Ønsket stilling"},
+    Swedish:{profile:"PROFIL",experience:"ERFARENHET",education:"UTBILDNING",skills:"KOMPETENSER",role:"Önskad roll"},
+    English:{profile:"PROFILE",experience:"EXPERIENCE",education:"EDUCATION",skills:"SKILLS",role:"Target Role"}
+  };
+  return map[language]||map.English;
+}
+
 function render(){
   $("pName").textContent=$("name").value||"Your Name";
-  $("pRole").textContent=$("role").value||"Target Role";
+  const labels=uiLabels($("language").value);
+  $("pRole").textContent=$("role").value||labels.role;
+  $("profileSection").querySelector("h3").textContent=labels.profile;
+  $("experienceSection").querySelector("h3").textContent=labels.experience;
+  $("educationSection").querySelector("h3").textContent=labels.education;
+  $("skillsSection").querySelector("h3").textContent=labels.skills;
   $("pMeta").textContent=[$("email").value,$("phone").value,$("location").value].filter(Boolean).join(" · ")||"email@example.com · +46 ... · Location";
-  $("pSummary").innerHTML=format($("summary").value,"Your profile appears here.");
-  $("pExperience").innerHTML=format($("experience").value,"Your experience appears here.");
-  $("pEducation").innerHTML=format($("education").value,"Your education appears here.");
-  $("pSkills").innerHTML=format($("skills").value,"Your skills appear here.");
+  const sections = [
+    ["pSummary","summary","profileSection"],
+    ["pExperience","experience","experienceSection"],
+    ["pEducation","education","educationSection"],
+    ["pSkills","skills","skillsSection"]
+  ];
+  sections.forEach(([previewId,inputId,sectionId])=>{
+    const value=$(inputId).value.trim();
+    $(previewId).innerHTML=value?format(value,""):"";
+    $(sectionId).style.display=value?"block":"none";
+  });
   const tpl=document.body.dataset.template||"classic";
   $("preview").classList.remove("template-minimal","template-executive","template-creative");
   $("preview").style.fontSize=tpl==="compact"?"14px":"16px";
@@ -432,6 +455,8 @@ $("aiImprove").onclick=async()=>{
     $("reviewSummary").value=d.summary||"";
     $("reviewExperience").value=d.experience||"";
     $("reviewSkills").value=d.skills||"";
+    if(d.education)$("education").value=d.education;
+    if(d.role)$("role").value=d.role;
     save();
     showResultTab("cv-results");
     refreshEmptyStates();
@@ -440,6 +465,29 @@ $("aiImprove").onclick=async()=>{
     $("status").className="status ok";
   }catch(e){setBusy(false);$("status").textContent=e.message;$("status").className="status error";}
 };
+
+$("translateCv").onclick=async()=>{
+  $("status").textContent=`Rewriting CV in ${$("language").value}...`;
+  $("status").className="status";
+  setBusy(true,`Rewriting CV in ${$("language").value}...`);
+  try{
+    const d=await callAI("translate_cv");
+    if(d.summary)$("summary").value=d.summary;
+    if(d.experience)$("experience").value=d.experience;
+    if(d.education)$("education").value=d.education;
+    if(d.skills)$("skills").value=d.skills;
+    if(d.role)$("role").value=d.role;
+    render();
+    $("status").textContent=`CV rewritten in ${$("language").value}. Review every field before export.`;
+    $("status").className="status ok";
+  }catch(e){
+    $("status").textContent=e.message;
+    $("status").className="status error";
+  }finally{
+    setBusy(false);
+  }
+};
+
 $("aiLetter").onclick=async()=>{
   $("status").textContent="Generating cover letter...";
   $("status").className="status";

@@ -28,6 +28,22 @@ function safeText(value, max = 12000) {
   return String(value || "").slice(0, max);
 }
 
+function normalizeFileData(fileData, mimeType, filename) {
+  const value = String(fileData || "");
+  if (value.startsWith("data:")) return value;
+
+  const lower = String(filename || "").toLowerCase();
+  let mime = String(mimeType || "").trim();
+  if (!mime) {
+    if (lower.endsWith(".pdf")) mime = "application/pdf";
+    else if (lower.endsWith(".docx")) mime = "application/vnd.openxmlformats-officedocument.wordprocessingml.document";
+    else if (lower.endsWith(".txt")) mime = "text/plain";
+    else if (lower.endsWith(".html") || lower.endsWith(".htm")) mime = "text/html";
+    else mime = "application/octet-stream";
+  }
+  return `data:${mime};base64,${value}`;
+}
+
 function extractOutputText(responseJson) {
   if (typeof responseJson.output_text === "string") return responseJson.output_text;
   for (const item of responseJson.output || []) {
@@ -74,6 +90,23 @@ Job advertisement:
 ${jobAd}
 `.trim();
 
+  if (body.action === "translate_cv") {
+    return `You are an expert CV editor and translator.
+Rewrite the complete CV in ${language}.
+
+Rules:
+- Preserve every factual detail.
+- Never invent employers, dates, achievements, responsibilities, education, certifications, tools or metrics.
+- Translate naturally rather than word-for-word.
+- Keep employer names and official product/company names unchanged unless they have a conventional localized form.
+- Preserve chronological order and all work history.
+- Return JSON only with this exact shape:
+{"role":"...","summary":"...","experience":"...","education":"...","skills":"..."}
+
+INPUT:
+${cvText}`;
+  }
+
   if (body.action === "cover_letter") {
     return `You are an expert CV and job-application editor.
 Write a concise, specific cover letter in ${language} based only on the facts provided.
@@ -99,19 +132,73 @@ Rules:
 - Rewrite experience into clear achievement-oriented bullets where the source supports it.
 - Keep skills relevant and deduplicate them.
 - Return JSON only with this exact shape:
-{"summary":"...","experience":"...","skills":"..."}
+{"role":"...","summary":"...","experience":"...","education":"...","skills":"..."}
 
 INPUT:
 ${cvText}`;
 }
 
 function importPrompt(language) {
-  return `Extract and structure this CV/resume into ${language || "English"}.
+  return `Extract every factual detail from this CV/resume and present the structured text in ${language || "English"}.
+
+Important:
+- Preserve facts exactly.
+- Translate descriptive CV text naturally into the requested language while preserving names, employers, dates and factual meaning.
+- Do not improve or embellish facts.
+- Do not invent missing details.
+- Read the entire document, including multiple pages, columns and bullet lists.
+- Capture ALL employment history, ALL education, languages and certifications.
+- Keep dates and employer names exactly as written when possible.
+
+Return JSON only with this exact shape:
+{
+  "rawText":"",
+  "name":"",
+  "role":"",
+  "email":"",
+  "phone":"",
+  "location":"",
+  "summary":"",
+  "experience":"",
+  "education":"",
+  "skills":"",
+  "languages":"",
+  "certifications":"",
+  "confidence":{
+    "name":"high|medium|low",
+    "role":"high|medium|low",
+    "email":"high|medium|low",
+    "phone":"high|medium|low",
+    "location":"high|medium|low",
+    "summary":"high|medium|low",
+    "experience":"high|medium|low",
+    "education":"high|medium|low",
+    "skills":"high|medium|low",
+    "languages":"high|medium|low",
+    "certifications":"high|medium|low"
+  }
+}
+
+Formatting:
+- experience: every role/employer in chronological sections with dates and bullet points.
+- education: every education entry with dates if present.
+- skills/languages/certifications: concise lists.
+- rawText: a faithful plain-text extraction of the CV content.`;
+}
+
+
+
+function structureImportedCvPrompt(extracted, language) {
+  return `You are validating and structuring an already-extracted CV.
+
+Language: ${language || "English"}
 
 Rules:
-- Preserve facts exactly.
-- Do not invent or improve facts during import.
-- If information is not present, return an empty string.
+- Use ONLY the facts in EXTRACTED DATA.
+- Never add employers, dates, roles, education, certifications, languages, achievements, metrics or technologies that are not present.
+- Preserve the full work history and full education history.
+- Improve structure only, not facts.
+- If something is uncertain, keep it empty rather than guessing.
 
 Return JSON only with this exact shape:
 {
@@ -123,16 +210,31 @@ Return JSON only with this exact shape:
   "summary":"",
   "experience":"",
   "education":"",
-  "skills":""
+  "skills":"",
+  "languages":"",
+  "certifications":"",
+  "confidence":{
+    "name":"high|medium|low",
+    "role":"high|medium|low",
+    "email":"high|medium|low",
+    "phone":"high|medium|low",
+    "location":"high|medium|low",
+    "summary":"high|medium|low",
+    "experience":"high|medium|low",
+    "education":"high|medium|low",
+    "skills":"high|medium|low",
+    "languages":"high|medium|low",
+    "certifications":"high|medium|low"
+  }
 }
 
-Formatting:
-- experience: readable plain text, with role/employer sections and bullet lines.
-- education: readable plain text.
-- skills: concise comma-separated list.`;
+EXTRACTED DATA:
+${JSON.stringify(extracted)}`;
 }
 
 async function callResponses(env, input, maxOutputTokens = 1600) {
+  const controller = new AbortController();
+  const timeout = setTimeout(() => controller.abort(), 90000);
   const apiResponse = await fetch("https://api.openai.com/v1/responses", {
     method: "POST",
     headers: {
@@ -145,7 +247,9 @@ async function callResponses(env, input, maxOutputTokens = 1600) {
       input,
       max_output_tokens: maxOutputTokens,
     }),
+    signal: controller.signal,
   });
+  clearTimeout(timeout);
 
   const apiJson = await apiResponse.json();
 
@@ -189,25 +293,67 @@ export default {
     try {
       if (body.action === "import_cv") {
         const filename = safeText(body.filename, 180);
-        const fileData = safeText(body.fileData, 8_500_000);
+        const rawFileData = safeText(body.fileData, 8_500_000);
+        const language = safeText(body.language, 40) || "English";
+        const fileData = normalizeFileData(rawFileData, safeText(body.mimeType, 120), filename);
 
         if (!filename || !fileData) {
           return json(request, { error: "Missing file." }, 400);
         }
 
-        const input = [{
+        // Pass 1: extract the complete document.
+        const extractInput = [{
           role: "user",
           content: [
             { type: "input_file", filename, file_data: fileData },
-            { type: "input_text", text: importPrompt(safeText(body.language, 40)) },
+            { type: "input_text", text: importPrompt(language) },
           ],
         }];
 
-        const result = await callResponses(env, input, 1800);
+        const extracted = await callResponses(env, extractInput, 2600);
+
+        // Pass 2: normalize and verify structure using only extracted facts.
+        const structured = await callResponses(
+          env,
+          structureImportedCvPrompt(extracted, language),
+          2200
+        );
+
+        return json(request, structured);
+      }
+
+      if (body.action === "job_application") {
+        const language = safeText(body.language, 40) || "English";
+        const targetRole = safeText(body.targetRole, 120);
+        const tone = safeText(body.tone, 40) || "professional";
+        const background = safeText(body.background, 14000);
+        const jobAd = safeText(body.jobAd, 12000);
+
+        const prompt = `You are an expert job-application writer.
+Write a tailored job application in ${language} for the target role "${targetRole}".
+
+Tone: ${tone}
+
+Rules:
+- Base the application only on the applicant background and job advertisement below.
+- Never invent employers, education, dates, certifications, achievements, tools, languages or metrics.
+- Make the application specific to the job rather than generic.
+- Avoid empty clichés.
+- Keep it concise and natural, around 250-450 words.
+- Return JSON only with this exact shape:
+{"application":"..."}
+
+APPLICANT BACKGROUND:
+${background}
+
+JOB ADVERTISEMENT:
+${jobAd}`;
+
+        const result = await callResponses(env, prompt, 1700);
         return json(request, result);
       }
 
-      if (!["improve_cv", "cover_letter"].includes(body.action)) {
+      if (!["improve_cv", "cover_letter", "translate_cv"].includes(body.action)) {
         return json(request, { error: "Unsupported action." }, 400);
       }
 
