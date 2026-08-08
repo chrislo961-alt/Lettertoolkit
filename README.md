@@ -1,26 +1,32 @@
-# LetterToolkit 6.21 – Offer & Negotiation Coach
+# LetterToolkit 6.23 – SEO Foundation
 
-Extends the job journey after interviews.
+This release adds a focused SEO content cluster around the CV and Application products.
 
-New:
-- job offer review
-- salary / package negotiation preparation
-- offered salary + target salary fields
-- benefits / terms notes
-- negotiation reason field
-- AI negotiation-readiness score
-- practical offer questions / points to consider
-- AI-generated negotiation message
-- copy negotiation message
-- selected language is respected
-- AI is forbidden from inventing market data, competing offers or achievements
+Pages:
+- /guides/
+- /how-to-write-a-cv/
+- /cv-examples/
+- /cv-template/
+- /how-to-write-a-job-application/
+- /job-application-examples/
+- /cover-letter/
+- /interview-questions/
+
+Technical SEO:
+- unique titles and descriptions
+- canonical URLs
+- Open Graph metadata
+- Article structured data
+- FAQ structured data
+- internal linking
+- sitemap.xml
+- robots.txt
 
 Important:
-The offer review is career guidance, not legal or financial advice.
+This package is designed to build organic traffic over time. No ZIP can guarantee traffic or rankings.
+The Worker is unchanged, so no deploy is needed for Worker.
 
 Install:
-- Replace `/application-builder/index.html`
-- Replace `worker/src/index.js`
-- Deploy from the `worker` folder in this ZIP:
-  `npx.cmd wrangler deploy`
-- Commit/push the changed site files.
+Copy the new folders plus sitemap.xml and robots.txt into the repository root.
+Keep your existing home page unless you intentionally want to replace it.
+Commit and push.

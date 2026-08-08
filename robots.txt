@@ -1,4 +1,3 @@
 User-agent: *
 Allow: /
-
 Sitemap: https://lettertoolkit.com/sitemap.xml
