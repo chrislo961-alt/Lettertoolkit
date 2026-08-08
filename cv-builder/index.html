@@ -176,6 +176,10 @@
         <div class="row" style="margin-top:10px">
           <button class="secondary" id="analyzeUpload" type="button" disabled>Analyze uploaded CV with AI</button>
         </div>
+        <div id="uploadProgress" class="ai-progress" style="margin-top:10px">
+          <span class="spinner"></span>
+          <span id="uploadProgressText">Preparing CV...</span>
+        </div>
         <div class="upload-meta" id="uploadMeta">Upload TXT, HTML, PDF or DOCX. PDF/DOCX are sent to the secure AI Worker only when you press Analyze.</div>
         <div id="importReview" class="import-review">
           <h3>Import review</h3>
@@ -446,11 +450,7 @@ function fileToBase64(file){
   return new Promise((resolve,reject)=>{
     const reader=new FileReader();
     reader.onerror=()=>reject(new Error("Could not read the file."));
-    reader.onload=()=>{
-      const result=String(reader.result||"");
-      const comma=result.indexOf(",");
-      resolve(comma>=0?result.slice(comma+1):result);
-    };
+    reader.onload=()=>resolve(String(reader.result||""));
     reader.readAsDataURL(file);
   });
 }
@@ -482,35 +482,58 @@ $("analyzeUpload").onclick=async()=>{
     return;
   }
 
-  setBusy(true,"Reading the complete CV...");
   $("analyzeUpload").disabled=true;
+  $("uploadProgress").classList.add("active");
+  $("uploadProgressText").textContent="Reading file… 0s";
+  $("uploadMeta").textContent="Your CV is being analyzed. Complex PDFs can take 15–45 seconds.";
   $("status").textContent="Extracting and structuring the CV...";
   $("status").className="status";
+
+  const started=Date.now();
+  const timer=setInterval(()=>{
+    const seconds=Math.floor((Date.now()-started)/1000);
+    $("uploadProgressText").textContent=`Analyzing complete CV… ${seconds}s`;
+  },1000);
+
+  const controller=new AbortController();
+  const timeout=setTimeout(()=>controller.abort(),90000);
 
   try{
     const fileData=await fileToBase64(selectedCvFile);
     const r=await fetch(WORKER_URL+"/api/cv",{
       method:"POST",
       headers:{"content-type":"application/json"},
+      signal:controller.signal,
       body:JSON.stringify({
         action:"import_cv",
         language:$("language").value,
         filename:selectedCvFile.name,
+        mimeType:selectedCvFile.type||"",
         fileData
       })
     });
-    const d=await r.json();
-    if(!r.ok)throw new Error(d.error||"Could not analyze CV.");
+
+    let d;
+    try{ d=await r.json(); }
+    catch{ throw new Error(`Server returned ${r.status} without a readable response.`); }
+
+    if(!r.ok)throw new Error(d.error||`Could not analyze CV (${r.status}).`);
 
     renderImportReview(d);
     $("uploadMeta").textContent=`${selectedCvFile.name} analyzed. Review the extracted data below.`;
     $("status").textContent="Import ready for review.";
     $("status").className="status ok";
   }catch(err){
-    $("status").textContent=err.message;
+    const msg=err && err.name==="AbortError"
+      ? "CV analysis took too long. Please try again, or use a smaller PDF."
+      : (err.message||"Could not analyze CV.");
+    $("uploadMeta").textContent=msg;
+    $("status").textContent=msg;
     $("status").className="status error";
   }finally{
-    setBusy(false);
+    clearInterval(timer);
+    clearTimeout(timeout);
+    $("uploadProgress").classList.remove("active");
     $("analyzeUpload").disabled=!selectedCvFile;
   }
 };
