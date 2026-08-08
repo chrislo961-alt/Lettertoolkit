@@ -1,20 +1,47 @@
-# LetterToolkit 6.0
+# LetterToolkit 6.7 – CV + Application Suite
 
-LetterToolkit 6.0 combines the word-tool platform, SEO word lists, Word Explorer, and LetterToolkit Writer.
+This release creates two separate user-facing tools:
 
-## Highlights
+- `/cv-builder/`
+- `/application-builder/`
 
-- Word Unscrambler, Anagram Solver, Word Finder, Wordle Helper, Crossword Solver, Scrabble Helper, Random Word Generator, and Rhyme Finder
-- SEO word-list pages and 500+ Word Explorer pages
-- `/writer/` browser-based writing app with autosave, formatting, word count, dark mode, open/export tools, and PWA support
-- Google AdSense publisher script preserved
-- Search-engine sitemap updated with Writer
-- About, Contact, Privacy, Terms, robots.txt and structured metadata
+## CV Builder
+More compact hero and workflow so the tool starts higher on the screen.
+Includes a direct "Create application" handoff.
 
-## Deploy
+## Application Builder
+Dedicated job-application page for users who only need an application.
+Flow:
+1. Upload or paste CV/background
+2. Paste job advertisement
+3. Choose language and tone
+4. Generate application
+5. Edit, copy, download
 
-Use GitHub Desktop: copy this folder into your local repository, commit the changes, and push to `main`. Cloudflare Pages will deploy automatically.
+The Application Builder can receive CV data from the CV Builder through localStorage.
 
-## Note
+## Worker
+Adds a new action:
+`job_application`
 
-Writer exports Word-compatible `.doc`, HTML and TXT, and can print/save as PDF. Native `.docx` export is planned for a later release.
+Replace:
+- `worker/src/index.js`
+- `worker/wrangler.toml`
+
+Then deploy from your existing working Worker folder:
+
+```powershell
+npx.cmd wrangler deploy
+```
+
+Your existing Cloudflare `OPENAI_API_KEY` secret remains attached.
+
+## GitHub/site install
+Copy these folders into the repository root:
+- `cv-builder`
+- `application-builder`
+
+Replace the existing `cv-builder` folder.
+Add the new `application-builder` folder.
+
+For SEO, add `/application-builder/` to your sitemap when you next update the main site sitemap.
