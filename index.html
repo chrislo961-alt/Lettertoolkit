@@ -1,100 +1,423 @@
 <!doctype html>
 <html lang="en">
 <head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>LetterToolkit CV Builder</title>
-  <meta name="description" content="Build a polished, job-tailored CV in your browser. Edit experience, paste a job ad, choose a layout, and export." />
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>LetterToolkit CV Builder v2</title>
+  <meta name="description" content="Build, tailor and export a professional CV. Upload an existing CV, paste a job ad, improve your profile and generate a cover letter draft.">
+  <meta name="robots" content="index,follow">
   <style>
-    :root{--bg:#f6f7fb;--card:#fff;--ink:#172033;--muted:#667085;--line:#dfe3ea;--brand:#2457d6;--soft:#eef3ff;--radius:16px}
-    *{box-sizing:border-box}body{margin:0;font-family:Inter,system-ui,-apple-system,Segoe UI,Roboto,sans-serif;background:var(--bg);color:var(--ink)}
-    .shell{width:min(1180px,calc(100% - 28px));margin:auto}.top{position:sticky;top:0;background:rgba(255,255,255,.95);backdrop-filter:blur(10px);border-bottom:1px solid var(--line);z-index:5}
-    .topin{height:68px;display:flex;align-items:center;justify-content:space-between}.brand{display:flex;gap:10px;align-items:center;font-weight:800}.mark{width:38px;height:38px;border-radius:10px;background:var(--brand);color:#fff;display:grid;place-items:center;font-size:.82rem}
-    main{padding:34px 0 64px}.hero{display:grid;grid-template-columns:1.1fr .9fr;gap:28px;align-items:start}.hero h1{font-size:clamp(2.3rem,6vw,4.4rem);line-height:1;letter-spacing:-.05em;margin:.2em 0}.hero p{color:var(--muted);font-size:1.06rem}
-    .pill{display:inline-flex;padding:7px 11px;border-radius:999px;background:var(--soft);color:var(--brand);font-weight:800;font-size:.82rem}
-    .card{background:var(--card);border:1px solid var(--line);border-radius:var(--radius);box-shadow:0 16px 42px rgba(18,35,70,.08);padding:22px}
-    .grid{display:grid;grid-template-columns:1fr 1fr;gap:18px;margin-top:24px}.field{display:grid;gap:7px}.field label{font-weight:700;font-size:.92rem}.field input,.field textarea,.field select{width:100%;padding:12px 13px;border:1px solid var(--line);border-radius:11px;background:#fff;color:var(--ink);font:inherit}.field textarea{min-height:120px;resize:vertical}
-    .full{grid-column:1/-1}.actions{display:flex;flex-wrap:wrap;gap:10px;margin-top:18px}.btn{border:0;border-radius:11px;padding:11px 15px;font-weight:800;cursor:pointer}.btn.primary{background:var(--brand);color:#fff}.btn.secondary{background:#eef1f6;color:#1f2937}.btn.ghost{background:transparent;border:1px solid var(--line)}
-    .workspace{display:grid;grid-template-columns:1fr 1fr;gap:24px;margin-top:28px}.preview{background:#fff;border:1px solid var(--line);border-radius:16px;padding:28px;min-height:900px}.preview h2{margin:0 0 4px}.muted{color:var(--muted)}.section{margin-top:22px}.section h3{font-size:1rem;text-transform:uppercase;letter-spacing:.06em;color:#344054;border-bottom:1px solid var(--line);padding-bottom:6px}.entry{margin-top:12px}.entry strong{display:block}.bullets{margin:8px 0 0 18px;padding:0}
-    .notice{padding:12px 14px;border-radius:12px;background:#fff8e7;border:1px solid #f2d98d;color:#6b5519;font-size:.92rem}.two{display:grid;grid-template-columns:1fr 1fr;gap:12px}.small{font-size:.88rem;color:var(--muted)}
-    @media(max-width:900px){.hero,.workspace,.grid,.two{grid-template-columns:1fr}.full{grid-column:auto}.preview{min-height:auto}.topin{height:auto;padding:12px 0;gap:10px;align-items:flex-start;flex-direction:column}}
-    @media print{body{background:#fff}.top,.editor-pane,.hero-copy,.actions,.notice{display:none!important}.workspace{display:block;margin:0}.preview{border:0;box-shadow:none;padding:0;min-height:0}.shell{width:100%}main{padding:0}}
+    :root{
+      --bg:#f5f7fb;--card:#fff;--text:#172033;--muted:#667085;--line:#dfe5ef;--brand:#2563eb;
+      --brand2:#1d4ed8;--soft:#eef4ff;--danger:#b42318;--ok:#067647;--radius:16px;
+      --shadow:0 16px 45px rgba(24,39,75,.12)
+    }
+    *{box-sizing:border-box}
+    body{margin:0;font-family:Inter,ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;background:var(--bg);color:var(--text)}
+    .shell{width:min(1200px,calc(100% - 28px));margin:auto}
+    header{background:#fff;border-bottom:1px solid var(--line);position:sticky;top:0;z-index:10}
+    .header{display:flex;align-items:center;justify-content:space-between;gap:20px;min-height:68px}
+    .brand{display:flex;gap:10px;align-items:center;font-weight:800}
+    .logo{width:38px;height:38px;border-radius:11px;background:var(--brand);color:white;display:grid;place-items:center;font-size:.82rem}
+    main{padding:34px 0 60px}
+    .hero{display:grid;grid-template-columns:1.05fr .95fr;gap:28px;align-items:start}
+    .intro h1{font-size:clamp(2.3rem,5vw,4rem);letter-spacing:-.04em;margin:.1em 0}
+    .intro p{color:var(--muted);font-size:1.05rem;max-width:720px}
+    .badges{display:flex;flex-wrap:wrap;gap:10px;margin-top:18px}
+    .badge{background:var(--soft);color:#1e3a8a;padding:8px 12px;border-radius:999px;font-weight:700;font-size:.88rem}
+    .panel{background:var(--card);border:1px solid var(--line);border-radius:var(--radius);box-shadow:var(--shadow);padding:22px}
+    .grid{display:grid;grid-template-columns:1fr 1fr;gap:18px;margin-top:22px}
+    .full{grid-column:1/-1}
+    label{font-weight:750;font-size:.9rem;display:block;margin-bottom:7px}
+    input,textarea,select{width:100%;border:1px solid var(--line);border-radius:12px;padding:12px 13px;font:inherit;background:#fff;color:var(--text)}
+    textarea{min-height:120px;resize:vertical}
+    input:focus,textarea:focus,select:focus,button:focus-visible{outline:3px solid rgba(37,99,235,.18);outline-offset:2px}
+    .row{display:flex;gap:10px;flex-wrap:wrap}
+    button,.button{border:0;border-radius:12px;padding:11px 15px;font:inherit;font-weight:800;cursor:pointer}
+    .primary{background:var(--brand);color:#fff}
+    .primary:hover{background:var(--brand2)}
+    .secondary{background:#fff;border:1px solid var(--line);color:var(--text)}
+    .ghost{background:transparent;color:var(--brand);padding-left:0}
+    .notice{padding:12px 14px;border-radius:12px;background:var(--soft);color:#24457c;margin-top:14px;font-size:.92rem}
+    .status{font-size:.92rem;color:var(--muted);margin-top:10px}
+    .status.error{color:var(--danger)}
+    .status.ok{color:var(--ok)}
+    .preview-wrap{position:sticky;top:88px}
+    .preview-toolbar{display:flex;justify-content:space-between;gap:10px;align-items:center;margin-bottom:12px}
+    .preview{background:#fff;border:1px solid var(--line);border-radius:var(--radius);box-shadow:var(--shadow);padding:34px;min-height:780px}
+    .cv-name{font-size:2rem;font-weight:850;letter-spacing:-.03em;margin:0}
+    .cv-title{font-size:1.05rem;color:var(--brand);font-weight:800;margin-top:6px}
+    .cv-meta{display:flex;flex-wrap:wrap;gap:12px;color:var(--muted);font-size:.9rem;margin:10px 0 22px}
+    .cv-section{margin-top:26px}
+    .cv-section h3{font-size:.92rem;text-transform:uppercase;letter-spacing:.08em;color:var(--muted);border-bottom:1px solid var(--line);padding-bottom:7px}
+    .entry{margin:14px 0}
+    .entry-title{font-weight:800}
+    .entry-sub{color:var(--muted);font-size:.92rem}
+    .small{font-size:.85rem;color:var(--muted)}
+    .upload{border:1.5px dashed var(--line);border-radius:14px;padding:18px;background:#fbfcff}
+    .file-name{font-weight:750;margin-top:8px}
+    details{border-top:1px solid var(--line);padding:14px 0}
+    summary{cursor:pointer;font-weight:800}
+    footer{padding:28px 0;color:var(--muted);font-size:.9rem}
+    @media(max-width:920px){
+      .hero{grid-template-columns:1fr}
+      .preview-wrap{position:static}
+    }
+    @media print{
+      header,.intro,.editor-column,.preview-toolbar,footer{display:none!important}
+      body{background:#fff}
+      main{padding:0}
+      .shell{width:100%;margin:0}
+      .hero{display:block}
+      .preview-wrap{position:static}
+      .preview{box-shadow:none;border:0;border-radius:0;min-height:auto;padding:22mm 18mm}
+    }
   </style>
 </head>
 <body>
-<header class="top"><div class="shell topin"><div class="brand"><span class="mark">LT</span><span>LetterToolkit CV Builder</span></div><div class="small">Private by default • Browser-based prototype</div></div></header>
+<header>
+  <div class="shell header">
+    <div class="brand"><span class="logo">LT</span><span>LetterToolkit CV Builder</span></div>
+    <div class="small">v2 · local-first prototype</div>
+  </div>
+</header>
+
 <main class="shell">
-  <section class="hero">
-    <div class="hero-copy"><span class="pill">CV Builder v1</span><h1>Turn your experience into a polished CV.</h1><p>Build a clean CV, tailor it to a job ad, preview the result instantly, and export it. This v1 keeps your data in the browser and does not send it anywhere.</p></div>
-    <div class="card"><strong>What this version does</strong><p class="muted">Manual CV building, instant preview, job-ad input, basic rewrite helpers, autosave, TXT/HTML export and print-to-PDF.</p><div class="notice">AI rewriting is intentionally a placeholder in v1. A real AI backend should be added server-side so API keys and CV data are handled safely.</div></div>
+  <section class="intro">
+    <p class="small">CV Builder v2</p>
+    <h1>Turn your experience into a polished CV.</h1>
+    <p>Upload an existing CV or start from scratch, paste a job ad, tailor your profile, draft a cover letter, and export a clean application package.</p>
+    <div class="badges">
+      <span class="badge">Upload TXT / HTML / DOCX*</span>
+      <span class="badge">Job-tailored suggestions</span>
+      <span class="badge">Cover letter draft</span>
+      <span class="badge">PDF via print</span>
+      <span class="badge">Autosave</span>
+    </div>
+    <div class="notice"><strong>*DOCX import:</strong> this prototype reads plain text extracted by the browser only when possible. Robust PDF/DOCX parsing and true AI rewriting need a secure backend and are intentionally not faked in this version.</div>
   </section>
 
-  <section class="workspace">
-    <div class="editor-pane card">
-      <h2>CV details</h2>
-      <div class="grid">
-        <div class="field"><label for="name">Full name</label><input id="name" placeholder="Alex Morgan"></div>
-        <div class="field"><label for="title">Professional title</label><input id="title" placeholder="Sales Manager"></div>
-        <div class="field"><label for="email">Email</label><input id="email" type="email" placeholder="alex@example.com"></div>
-        <div class="field"><label for="phone">Phone</label><input id="phone" placeholder="+46 ..."></div>
-        <div class="field full"><label for="location">Location</label><input id="location" placeholder="Stockholm, Sweden"></div>
-        <div class="field full"><label for="summary">Professional summary</label><textarea id="summary" placeholder="A concise 3–5 line summary of your experience and strengths."></textarea></div>
-        <div class="field full"><label for="experience">Experience</label><textarea id="experience" placeholder="One role per block. Example:\nSales Manager | Example AB | 2022–Present\nLed a team of 8...\nImproved retention by..."></textarea></div>
-        <div class="field full"><label for="education">Education</label><textarea id="education" placeholder="Degree | School | Year"></textarea></div>
-        <div class="field full"><label for="skills">Skills</label><textarea id="skills" placeholder="Negotiation, CRM, Leadership, Excel"></textarea></div>
-        <div class="field full"><label for="jobad">Target job ad</label><textarea id="jobad" placeholder="Paste the job description here. In a later version AI can tailor your CV to it."></textarea></div>
-        <div class="field"><label for="language">CV language</label><select id="language"><option>English</option><option>Swedish</option><option>Norwegian</option></select></div>
-        <div class="field"><label for="template">Template</label><select id="template"><option value="classic">Classic</option><option value="compact">Compact</option></select></div>
+  <section class="hero">
+    <div class="editor-column">
+      <div class="panel">
+        <h2>1. Import or start fresh</h2>
+        <div class="upload">
+          <input id="cv-file" type="file" accept=".txt,.html,.htm,.docx,.pdf">
+          <div class="file-name" id="file-name">No file selected</div>
+          <div class="small">TXT and HTML are imported directly. PDF/DOCX are stored only in your browser session and require backend parsing for reliable extraction.</div>
+        </div>
+
+        <div class="grid">
+          <div>
+            <label for="language">CV language</label>
+            <select id="language">
+              <option value="en">English</option>
+              <option value="sv">Swedish</option>
+              <option value="no">Norwegian</option>
+            </select>
+          </div>
+          <div>
+            <label for="template">Template</label>
+            <select id="template">
+              <option value="classic">Classic</option>
+              <option value="compact">Compact</option>
+              <option value="modern">Modern</option>
+            </select>
+          </div>
+
+          <div>
+            <label for="name">Full name</label>
+            <input id="name" placeholder="Alex Morgan">
+          </div>
+          <div>
+            <label for="role">Professional title</label>
+            <input id="role" placeholder="Operations Manager">
+          </div>
+          <div>
+            <label for="email">Email</label>
+            <input id="email" type="email" placeholder="alex@example.com">
+          </div>
+          <div>
+            <label for="phone">Phone</label>
+            <input id="phone" placeholder="+46 ...">
+          </div>
+          <div class="full">
+            <label for="location">Location / LinkedIn / website</label>
+            <input id="location" placeholder="Stockholm · linkedin.com/in/...">
+          </div>
+
+          <div class="full">
+            <label for="summary">Professional profile</label>
+            <textarea id="summary" placeholder="3–5 lines summarizing your experience, strengths and target role."></textarea>
+          </div>
+
+          <div class="full">
+            <label for="experience">Experience</label>
+            <textarea id="experience" placeholder="Company | Role | 2022–2026&#10;- Led ...&#10;- Improved ..."></textarea>
+          </div>
+
+          <div class="full">
+            <label for="education">Education</label>
+            <textarea id="education" placeholder="School | Degree | Year"></textarea>
+          </div>
+
+          <div class="full">
+            <label for="skills">Skills</label>
+            <textarea id="skills" placeholder="Project management, Excel, customer operations, Swedish, English..."></textarea>
+          </div>
+        </div>
       </div>
-      <div class="actions">
-        <button class="btn primary" id="refresh">Refresh preview</button>
-        <button class="btn secondary" id="improve">Improve summary</button>
-        <button class="btn ghost" id="saveHtml">Export HTML</button>
-        <button class="btn ghost" id="saveTxt">Export TXT</button>
-        <button class="btn ghost" id="printPdf">Print / Save PDF</button>
-        <button class="btn ghost" id="clear">Clear</button>
+
+      <div class="panel" style="margin-top:18px">
+        <h2>2. Tailor it to a job</h2>
+        <label for="job-ad">Paste the job advertisement</label>
+        <textarea id="job-ad" placeholder="Paste the role description here..."></textarea>
+        <div class="row" style="margin-top:12px">
+          <button class="primary" id="analyze-job">Analyze job ad</button>
+          <button class="secondary" id="improve-summary">Improve profile locally</button>
+          <button class="secondary" id="draft-letter">Draft cover letter</button>
+        </div>
+        <div id="job-status" class="status">Local analysis only. No data leaves your browser.</div>
+        <div id="keywords" class="notice" hidden></div>
       </div>
-      <p class="small" id="status">Autosave enabled.</p>
+
+      <div class="panel" style="margin-top:18px">
+        <h2>3. Cover letter</h2>
+        <label for="cover-letter">Draft</label>
+        <textarea id="cover-letter" style="min-height:260px" placeholder="Generate a draft from the job ad and CV details, then edit it yourself."></textarea>
+        <div class="row" style="margin-top:12px">
+          <button class="secondary" id="copy-letter">Copy cover letter</button>
+          <button class="secondary" id="download-letter">Download TXT</button>
+        </div>
+      </div>
+
+      <div class="panel" style="margin-top:18px">
+        <h2>4. Export</h2>
+        <div class="row">
+          <button class="primary" id="print-pdf">Print / Save as PDF</button>
+          <button class="secondary" id="download-html">Download HTML CV</button>
+          <button class="secondary" id="download-txt">Download TXT CV</button>
+          <button class="secondary" id="download-data">Backup JSON</button>
+        </div>
+        <p class="small">A true .docx export can be added in the production version with a proper document-generation library or backend.</p>
+      </div>
+
+      <div class="panel" style="margin-top:18px">
+        <h2>Privacy & production notes</h2>
+        <details open>
+          <summary>Does this upload my CV?</summary>
+          <p class="small">No. This prototype processes supported files in the browser and autosaves form fields to localStorage. No server is used.</p>
+        </details>
+        <details>
+          <summary>Where does real AI fit?</summary>
+          <p class="small">Production AI should run through a server-side API route so credentials stay secret and CV data can be handled with clear retention/deletion rules.</p>
+        </details>
+      </div>
     </div>
 
-    <article class="preview" id="preview" aria-live="polite">
-      <h2 id="pName">Your Name</h2>
-      <div class="muted" id="pTitle">Professional Title</div>
-      <div class="small" id="pContact"></div>
-      <section class="section"><h3>Profile</h3><p id="pSummary">Your professional summary will appear here.</p></section>
-      <section class="section"><h3>Experience</h3><div id="pExperience"></div></section>
-      <section class="section"><h3>Education</h3><div id="pEducation"></div></section>
-      <section class="section"><h3>Skills</h3><div id="pSkills"></div></section>
-    </article>
+    <div class="preview-wrap">
+      <div class="preview-toolbar">
+        <strong>Live preview</strong>
+        <button class="secondary" id="clear-all">Clear</button>
+      </div>
+      <article class="preview" id="preview">
+        <h1 class="cv-name" id="p-name">Your Name</h1>
+        <div class="cv-title" id="p-role">Professional Title</div>
+        <div class="cv-meta" id="p-meta">email@example.com · +46 ... · Location</div>
+
+        <section class="cv-section">
+          <h3>Profile</h3>
+          <div id="p-summary">Your professional profile will appear here.</div>
+        </section>
+
+        <section class="cv-section">
+          <h3>Experience</h3>
+          <div id="p-experience">Add your work experience.</div>
+        </section>
+
+        <section class="cv-section">
+          <h3>Education</h3>
+          <div id="p-education">Add your education.</div>
+        </section>
+
+        <section class="cv-section">
+          <h3>Skills</h3>
+          <div id="p-skills">Add your key skills.</div>
+        </section>
+      </article>
+    </div>
   </section>
 </main>
+
+<footer>
+  <div class="shell">LetterToolkit CV Builder v2 · prototype · local-first by design</div>
+</footer>
+
 <script>
-const ids=['name','title','email','phone','location','summary','experience','education','skills','jobad','language','template'];
-const els=Object.fromEntries(ids.map(id=>[id,document.getElementById(id)]));
-const status=document.getElementById('status');
-function esc(s=''){return s.replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]))}
-function linesToHtml(text){return esc(text).split(/\n+/).filter(Boolean).map((line,i)=> i===0?`<div class="entry"><strong>${line}</strong></div>`:`<div>${line}</div>`).join('')||'<div class="muted">Add details to see them here.</div>'}
-function render(){
- document.getElementById('pName').textContent=els.name.value||'Your Name';
- document.getElementById('pTitle').textContent=els.title.value||'Professional Title';
- document.getElementById('pContact').textContent=[els.email.value,els.phone.value,els.location.value].filter(Boolean).join(' • ');
- document.getElementById('pSummary').textContent=els.summary.value||'Your professional summary will appear here.';
- document.getElementById('pExperience').innerHTML=linesToHtml(els.experience.value);
- document.getElementById('pEducation').innerHTML=linesToHtml(els.education.value);
- document.getElementById('pSkills').textContent=els.skills.value||'Add your strongest, most relevant skills.';
- document.getElementById('preview').style.fontSize=els.template.value==='compact'?'.92rem':'1rem';
- localStorage.setItem('lettertoolkit_cv_v1',JSON.stringify(Object.fromEntries(ids.map(id=>[id,els[id].value]))));
- status.textContent='Saved locally at '+new Date().toLocaleTimeString();
+const $ = (id) => document.getElementById(id);
+const fields = ["language","template","name","role","email","phone","location","summary","experience","education","skills","job-ad","cover-letter"];
+const storageKey = "lettertoolkit-cv-v2";
+
+function escapeHtml(s=""){
+  return s.replace(/[&<>"']/g, m => ({"&":"&amp;","<":"&lt;",">":"&gt;","\"":"&quot;","'":"&#039;"}[m]));
 }
-function load(){try{const d=JSON.parse(localStorage.getItem('lettertoolkit_cv_v1')||'{}');ids.forEach(id=>{if(d[id]!=null)els[id].value=d[id]});}catch{} render()}
-ids.forEach(id=>els[id].addEventListener('input',render));
-document.getElementById('refresh').onclick=render;
-document.getElementById('improve').onclick=()=>{const base=els.summary.value.trim();const role=els.title.value.trim();const job=els.jobad.value.trim();els.summary.value=base?base.replace(/\s+/g,' ').replace(/^./,c=>c.toUpperCase()):(role?`Results-focused ${role} with a practical, collaborative approach and a track record of delivering measurable outcomes.`:'Results-focused professional with a practical, collaborative approach and a track record of delivering measurable outcomes.'); if(job) els.summary.value+=' Tailored toward the requirements in the target role.'; render(); status.textContent='Basic local rewrite applied. Connect an AI backend later for true job-specific rewriting.'};
-function download(name,type,content){const a=document.createElement('a');a.href=URL.createObjectURL(new Blob([content],{type}));a.download=name;a.click();URL.revokeObjectURL(a.href)}
-document.getElementById('saveTxt').onclick=()=>download('cv.txt','text/plain',`${els.name.value}\n${els.title.value}\n${els.email.value} ${els.phone.value} ${els.location.value}\n\nPROFILE\n${els.summary.value}\n\nEXPERIENCE\n${els.experience.value}\n\nEDUCATION\n${els.education.value}\n\nSKILLS\n${els.skills.value}`);
-document.getElementById('saveHtml').onclick=()=>download('cv.html','text/html','<!doctype html><meta charset="utf-8"><title>CV</title>'+document.getElementById('preview').outerHTML);
-document.getElementById('printPdf').onclick=()=>window.print();
-document.getElementById('clear').onclick=()=>{if(confirm('Clear the saved CV from this browser?')){localStorage.removeItem('lettertoolkit_cv_v1');ids.forEach(id=>els[id].value='');render();}};
+
+function linesToHtml(text, fallback){
+  const value = (text || "").trim();
+  if(!value) return fallback;
+  return value.split(/\n{2,}/).map(block => {
+    const lines = block.split("\n").filter(Boolean);
+    if(lines.some(l => /^[-•]/.test(l.trim()))){
+      const items = lines.filter(l => /^[-•]/.test(l.trim())).map(l => `<li>${escapeHtml(l.replace(/^[-•]\s*/, ""))}</li>`).join("");
+      const heading = lines.filter(l => !/^[-•]/.test(l.trim())).map(l => `<div class="entry-title">${escapeHtml(l)}</div>`).join("");
+      return `<div class="entry">${heading}<ul>${items}</ul></div>`;
+    }
+    return `<div class="entry">${lines.map(l => escapeHtml(l)).join("<br>")}</div>`;
+  }).join("");
+}
+
+function render(){
+  $("p-name").textContent = $("name").value.trim() || "Your Name";
+  $("p-role").textContent = $("role").value.trim() || "Professional Title";
+  const meta = [$("email").value.trim(), $("phone").value.trim(), $("location").value.trim()].filter(Boolean);
+  $("p-meta").textContent = meta.length ? meta.join(" · ") : "email@example.com · +46 ... · Location";
+  $("p-summary").innerHTML = linesToHtml($("summary").value, "Your professional profile will appear here.");
+  $("p-experience").innerHTML = linesToHtml($("experience").value, "Add your work experience.");
+  $("p-education").innerHTML = linesToHtml($("education").value, "Add your education.");
+  $("p-skills").innerHTML = linesToHtml($("skills").value, "Add your key skills.");
+
+  const tpl = $("template").value;
+  const preview = $("preview");
+  preview.style.fontSize = tpl === "compact" ? "14px" : "16px";
+  preview.style.borderTop = tpl === "modern" ? "8px solid #2563eb" : "1px solid #dfe5ef";
+  save();
+}
+
+function save(){
+  const data = {};
+  fields.forEach(id => data[id] = $(id).value);
+  localStorage.setItem(storageKey, JSON.stringify(data));
+}
+
+function load(){
+  try{
+    const data = JSON.parse(localStorage.getItem(storageKey) || "{}");
+    fields.forEach(id => { if(data[id] != null) $(id).value = data[id]; });
+  }catch{}
+  render();
+}
+
+function download(name, content, type="text/plain"){
+  const blob = new Blob([content], {type});
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement("a");
+  a.href = url; a.download = name; a.click();
+  setTimeout(() => URL.revokeObjectURL(url), 1000);
+}
+
+function getCvText(){
+  return `${$("name").value}\n${$("role").value}\n${$("email").value} | ${$("phone").value} | ${$("location").value}\n\nPROFILE\n${$("summary").value}\n\nEXPERIENCE\n${$("experience").value}\n\nEDUCATION\n${$("education").value}\n\nSKILLS\n${$("skills").value}`.trim();
+}
+
+function extractKeywords(text){
+  const stop = new Set("the and for with that this from your you our are will have has into about role team work working who what where when how required preferred experience skills skill years year able ability strong good excellent position candidate job responsibilities requirements a an to of in on at as by or is be we they it".split(" "));
+  const words = (text.toLowerCase().match(/[a-zåäöæøéü]{4,}/g) || []).filter(w => !stop.has(w));
+  const counts = {};
+  words.forEach(w => counts[w] = (counts[w] || 0) + 1);
+  return Object.entries(counts).sort((a,b)=>b[1]-a[1]).slice(0,12).map(([w])=>w);
+}
+
+$("analyze-job").addEventListener("click", ()=>{
+  const text = $("job-ad").value.trim();
+  if(!text){ $("job-status").textContent = "Paste a job advertisement first."; $("job-status").className="status error"; return; }
+  const keys = extractKeywords(text);
+  $("keywords").hidden = false;
+  $("keywords").innerHTML = `<strong>Likely keywords:</strong> ${keys.map(escapeHtml).join(", ")}<br><span class="small">Use only skills and claims that are true for you.</span>`;
+  $("job-status").textContent = "Job ad analyzed locally.";
+  $("job-status").className = "status ok";
+});
+
+$("improve-summary").addEventListener("click", ()=>{
+  const role = $("role").value.trim() || "professional";
+  const skills = $("skills").value.split(/[,;\n]/).map(s=>s.trim()).filter(Boolean).slice(0,4);
+  const exp = $("experience").value.trim();
+  const years = (exp.match(/\b(19|20)\d{2}\b/g) || []).length >= 2 ? "experienced" : "";
+  const lang = $("language").value;
+  let text;
+  if(lang==="sv"){
+    text = `${years ? "Erfaren " : ""}${role} med fokus på ${skills.length ? skills.join(", ") : "resultat, kvalitet och samarbete"}. Van att omsätta mål till konkreta leveranser och bidra med struktur, ansvar och tydlig kommunikation.`;
+  }else if(lang==="no"){
+    text = `${years ? "Erfaren " : ""}${role} med fokus på ${skills.length ? skills.join(", ") : "resultater, kvalitet og samarbeid"}. Vant til å omsette mål til konkrete leveranser og bidra med struktur, ansvar og tydelig kommunikasjon.`;
+  }else{
+    text = `${years ? "Experienced " : ""}${role} focused on ${skills.length ? skills.join(", ") : "results, quality and collaboration"}. Skilled at turning goals into practical delivery while bringing structure, ownership and clear communication.`;
+  }
+  $("summary").value = text;
+  render();
+});
+
+$("draft-letter").addEventListener("click", ()=>{
+  const name = $("name").value.trim() || "Applicant";
+  const role = $("role").value.trim() || "the role";
+  const ad = $("job-ad").value.trim();
+  const keys = extractKeywords(ad).slice(0,5);
+  const strengths = $("skills").value.split(/[,;\n]/).map(s=>s.trim()).filter(Boolean).slice(0,4);
+  const lang = $("language").value;
+  let letter;
+  if(lang==="sv"){
+    letter = `Hej,\n\nJag söker tjänsten som ${role}. Min bakgrund och erfarenhet gör att jag tror att jag kan bidra med ${strengths.length ? strengths.join(", ") : "struktur, samarbete och ett starkt resultatfokus"}.\n\nDet som särskilt fångade mitt intresse i annonsen är ${keys.length ? keys.join(", ") : "ansvaret och möjligheten att bidra till verksamhetens mål"}. Jag uppskattar roller där jag får ta ansvar, samarbeta nära andra och omsätta behov till praktiska lösningar.\n\nJag berättar gärna mer om min erfarenhet och hur den kan passa ert behov.\n\nVänliga hälsningar,\n${name}`;
+  }else if(lang==="no"){
+    letter = `Hei,\n\nJeg søker stillingen som ${role}. Bakgrunnen og erfaringen min gjør at jeg tror jeg kan bidra med ${strengths.length ? strengths.join(", ") : "struktur, samarbeid og sterkt resultatfokus"}.\n\nDet som særlig fanget interessen min i annonsen er ${keys.length ? keys.join(", ") : "ansvaret og muligheten til å bidra til virksomhetens mål"}. Jeg trives i roller der jeg får ta ansvar, samarbeide tett med andre og gjøre behov om til praktiske løsninger.\n\nJeg forteller gjerne mer om erfaringen min og hvordan den kan passe deres behov.\n\nVennlig hilsen,\n${name}`;
+  }else{
+    letter = `Dear Hiring Team,\n\nI am applying for the ${role} position. My background and experience would allow me to contribute through ${strengths.length ? strengths.join(", ") : "structured delivery, collaboration and a strong focus on results"}.\n\nWhat particularly stood out to me in the job description was ${keys.length ? keys.join(", ") : "the responsibility and opportunity to contribute to the team's goals"}. I enjoy roles where I can take ownership, work closely with others and turn needs into practical solutions.\n\nI would welcome the opportunity to discuss how my experience could support your team.\n\nKind regards,\n${name}`;
+  }
+  $("cover-letter").value = letter;
+  save();
+});
+
+$("copy-letter").addEventListener("click", async ()=>{
+  await navigator.clipboard.writeText($("cover-letter").value);
+  $("job-status").textContent = "Cover letter copied.";
+  $("job-status").className = "status ok";
+});
+$("download-letter").addEventListener("click", ()=> download("cover-letter.txt", $("cover-letter").value));
+$("print-pdf").addEventListener("click", ()=> window.print());
+$("download-txt").addEventListener("click", ()=> download("cv.txt", getCvText()));
+$("download-html").addEventListener("click", ()=> {
+  const html = `<!doctype html><html><head><meta charset="utf-8"><title>${escapeHtml($("name").value || "CV")}</title></head><body>${$("preview").innerHTML}</body></html>`;
+  download("cv.html", html, "text/html");
+});
+$("download-data").addEventListener("click", ()=> {
+  const data = {}; fields.forEach(id => data[id] = $(id).value);
+  download("cv-backup.json", JSON.stringify(data,null,2), "application/json");
+});
+$("clear-all").addEventListener("click", ()=>{
+  if(!confirm("Clear all locally saved CV data?")) return;
+  localStorage.removeItem(storageKey);
+  fields.forEach(id => $(id).value = "");
+  $("language").value = "en"; $("template").value="classic";
+  render();
+});
+
+$("cv-file").addEventListener("change", async (e)=>{
+  const file = e.target.files[0];
+  if(!file) return;
+  $("file-name").textContent = file.name;
+  const ext = file.name.split(".").pop().toLowerCase();
+  if(ext==="txt" || ext==="html" || ext==="htm"){
+    const text = await file.text();
+    const clean = ext==="txt" ? text : text.replace(/<[^>]*>/g, " ").replace(/\s+/g, " ").trim();
+    $("experience").value = clean;
+    render();
+    $("job-status").textContent = "Imported supported file locally. Review and organize the text into the right fields.";
+    $("job-status").className = "status ok";
+  }else{
+    $("job-status").textContent = `${ext.toUpperCase()} selected. Reliable parsing for this file type requires the production backend.`;
+    $("job-status").className = "status";
+  }
+});
+
+fields.forEach(id => $(id).addEventListener("input", render));
+$("template").addEventListener("change", render);
 load();
 </script>
 </body>
