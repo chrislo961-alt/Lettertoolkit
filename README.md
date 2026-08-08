@@ -1,33 +1,22 @@
-# LetterToolkit 6.14 – Application Builder Pro
+# LetterToolkit 6.15 – Application Drafts + Job Match
 
-Focuses on making the dedicated job application page a polished product.
+Adds product-completion features to the dedicated Application Builder.
 
-## New on Application Builder
-- word count and character count
-- visible tone indicator
-- alternate versions:
-  - Shorter
-  - Warmer
-  - More direct
-- AI Review application
-- application score 0–100
-- recruiter-style feedback
-- improved application version
-- one-click "Use improved version"
-- existing CV handoff, upload, language and tone controls remain
-
-## Worker
-Adds:
-- `rewrite_application`
-- `review_application`
+## New
+- local saved drafts (up to 20)
+- restore/delete drafts
+- AI job-match score before generating
+- relevant keyword suggestions
+- PDF print/export for application
+- Word-compatible document export
+- existing alternate versions and AI review remain
 
 ## Install
-Copy/replace in the repository:
-- `application-builder/index.html`
-- `cv-builder/index.html` may remain unchanged if already on 6.13
+Replace:
+- `/application-builder/index.html`
 - `worker/src/index.js`
 
-Deploy from the `worker` folder in THIS new ZIP:
+Then from the `worker` folder in this ZIP:
 `npx.cmd wrangler deploy`
 
-Then commit/push the changed site files.
+Commit and push the changed site files.

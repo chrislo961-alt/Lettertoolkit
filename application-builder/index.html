@@ -64,6 +64,13 @@
     .version-row{display:flex;gap:8px;flex-wrap:wrap;margin-top:10px}
     .version-btn{background:#fff;border:1px solid var(--line);color:var(--text)}
     .version-btn.active{background:var(--soft);border-color:#cfd3ff;color:#3435a4}
+    .draft-bar{display:flex;gap:8px;flex-wrap:wrap;margin-top:12px}
+    .draft-select{width:auto;min-width:180px}
+    .export-card{margin-top:14px;border-top:1px solid var(--line);padding-top:14px}
+    .match-box{margin-top:14px;border:1px solid var(--line);border-radius:12px;padding:12px;background:#fbfcff}
+    .match-score{font-weight:850;color:var(--brand);font-size:1.1rem}
+    .match-tags{display:flex;gap:6px;flex-wrap:wrap;margin-top:8px}
+    .match-tag{background:var(--soft);color:#3435a4;border-radius:999px;padding:6px 9px;font-size:.78rem}
     @media(max-width:900px){.workspace{grid-template-columns:1fr}.result-wrap{position:static}.grid{grid-template-columns:1fr}.full{grid-column:auto}.navlinks{display:none}}
   </style>
 </head>
@@ -88,6 +95,11 @@
     <div class="modebar">
       <a href="/cv-builder/">CV Builder</a>
       <a class="active" href="/application-builder/">Application Builder</a>
+    </div>
+    <div class="draft-bar">
+      <select id="draftSelect" class="draft-select"><option value="">Saved drafts</option></select>
+      <button class="secondary" id="saveDraft" type="button">Save draft</button>
+      <button class="secondary" id="deleteDraft" type="button">Delete selected</button>
     </div>
   </section>
 
@@ -121,11 +133,17 @@
       </div>
 
       <div class="row" style="margin-top:18px">
+        <button class="secondary" id="analyzeMatch" type="button">Analyze job match</button>
         <button class="primary" id="generate">Generate application</button>
         <button class="secondary" id="clear">Clear</button>
       </div>
 
-      <div id="progress" class="progress"><span class="spinner"></span><span>Writing your application...</span></div>
+      <div id="progress" class="progress"><span class="spinner"></span><span>Working...</span></div>
+      <div id="matchBox" class="match-box" style="display:none">
+        <div class="match-score" id="matchScore">–</div>
+        <div id="matchSummary" class="small" style="margin-top:4px"></div>
+        <div id="matchTags" class="match-tags"></div>
+      </div>
       <div id="status" class="status">Your application will appear immediately on the right.</div>
 
       <div class="notice" style="margin-top:14px">Review every claim before sending. The AI should improve wording, not invent employers, education, certifications or achievements.</div>
@@ -137,6 +155,8 @@
         <div class="row">
           <button class="secondary" id="copy">Copy</button>
           <button class="secondary" id="download">Download TXT</button>
+          <button class="secondary" id="downloadPdf" type="button">Download PDF</button>
+          <button class="secondary" id="downloadDocx" type="button">Download DOCX</button>
         </div>
       </div>
       <div class="panel">
@@ -193,6 +213,27 @@ function updateMetrics(){
 }
 $("result").addEventListener("input",updateMetrics);
 
+const draftKey="lt-application-drafts-v1";
+
+function getDrafts(){
+  try{return JSON.parse(localStorage.getItem(draftKey)||"[]");}catch{return [];}
+}
+function setDrafts(d){localStorage.setItem(draftKey,JSON.stringify(d));}
+function refreshDrafts(){
+  const drafts=getDrafts();
+  $("draftSelect").innerHTML='<option value="">Saved drafts</option>'+drafts.map((d,i)=>`<option value="${i}">${d.name}</option>`).join("");
+}
+function currentDraft(){
+  return {
+    name: (($("role").value||"Application")+" - "+new Date().toLocaleString()).slice(0,80),
+    language:$("language").value,
+    role:$("role").value,
+    background:$("background").value,
+    jobAd:$("jobAd").value,
+    result:$("result").value,
+    tone
+  };
+}
 function loadHandoff(){
   try{
     const d=JSON.parse(localStorage.getItem("lt-application-handoff")||"{}");
@@ -253,6 +294,35 @@ $("analyzeUpload").onclick=async()=>{
       d.skills&&`Skills:\n${d.skills}`
     ].filter(Boolean).join("\n\n");
     $("status").textContent="CV analyzed. Review the information, then generate your application.";
+    $("status").className="status ok";
+  }catch(err){
+    $("status").textContent=err.message;$("status").className="status error";
+  }finally{$("progress").classList.remove("active");}
+};
+
+
+$("analyzeMatch").onclick=async()=>{
+  if(!$("background").value.trim()||!$("jobAd").value.trim()){
+    $("status").textContent="Add your background/CV and the job advertisement first.";
+    $("status").className="status error"; return;
+  }
+  $("progress").classList.add("active");
+  $("status").textContent="Analyzing job match...";
+  try{
+    const r=await fetch(WORKER_URL+"/api/cv",{method:"POST",headers:{"content-type":"application/json"},body:JSON.stringify({
+      action:"analyze_match",
+      language:$("language").value,
+      targetRole:$("role").value,
+      background:$("background").value,
+      jobAd:$("jobAd").value
+    })});
+    const d=await r.json();
+    if(!r.ok)throw new Error(d.error||"Could not analyze match.");
+    $("matchScore").textContent=`${d.score??"–"} / 100 match`;
+    $("matchSummary").textContent=d.summary||"";
+    $("matchTags").innerHTML=(d.keywords||[]).map(k=>`<span class="match-tag">${k}</span>`).join("");
+    $("matchBox").style.display="block";
+    $("status").textContent="Job match analysis ready.";
     $("status").className="status ok";
   }catch(err){
     $("status").textContent=err.message;$("status").className="status error";
@@ -384,7 +454,52 @@ $("applyReviewedApplication").onclick=()=>{
 $("closeAppReview").onclick=()=>$("reviewBox").classList.remove("active");
 
 
+
+$("saveDraft").onclick=()=>{
+  const drafts=getDrafts();
+  drafts.unshift(currentDraft());
+  setDrafts(drafts.slice(0,20));
+  refreshDrafts();
+  $("status").textContent="Draft saved locally.";
+  $("status").className="status ok";
+};
+$("draftSelect").onchange=()=>{
+  const idx=Number($("draftSelect").value);
+  const d=getDrafts()[idx];
+  if(!d)return;
+  $("language").value=d.language||"English";
+  $("role").value=d.role||"";
+  $("background").value=d.background||"";
+  $("jobAd").value=d.jobAd||"";
+  $("result").value=d.result||"";
+  tone=d.tone||"professional";
+  document.querySelectorAll(".tone").forEach(b=>b.classList.toggle("active",b.dataset.tone===tone));
+  updateMetrics();
+};
+$("deleteDraft").onclick=()=>{
+  const idx=Number($("draftSelect").value);
+  if(Number.isNaN(idx))return;
+  const drafts=getDrafts(); drafts.splice(idx,1); setDrafts(drafts); refreshDrafts();
+};
+
 $("copy").onclick=()=>navigator.clipboard.writeText($("result").value);
+
+function applicationHtml(){
+  const title=$("role").value||"Job application";
+  return `<!doctype html><html><head><meta charset="utf-8"><title>${title}</title>
+  <style>body{font-family:Arial,sans-serif;max-width:720px;margin:48px auto;line-height:1.6;color:#111;padding:0 24px}h1{font-size:24px;margin-bottom:24px}p{white-space:pre-wrap}</style></head>
+  <body><h1>${title}</h1><p>${$("result").value.replace(/&/g,"&amp;").replace(/</g,"&lt;")}</p></body></html>`;
+}
+$("downloadPdf").onclick=()=>{
+  const w=window.open("","_blank");
+  w.document.write(applicationHtml()); w.document.close(); w.focus(); setTimeout(()=>w.print(),250);
+};
+$("downloadDocx").onclick=()=>{
+  const blob=new Blob([applicationHtml()],{type:"application/msword"});
+  const url=URL.createObjectURL(blob); const a=document.createElement("a");
+  a.href=url;a.download="job-application.doc";a.click();setTimeout(()=>URL.revokeObjectURL(url),1000);
+};
+
 $("download").onclick=()=>{
   const b=new Blob([$("result").value],{type:"text/plain"});
   const u=URL.createObjectURL(b);const a=document.createElement("a");
@@ -393,6 +508,7 @@ $("download").onclick=()=>{
 $("clear").onclick=()=>{["role","background","jobAd","result"].forEach(id=>$(id).value="");$("status").textContent="Cleared.";};
 loadHandoff();
 updateMetrics();
+refreshDrafts();
 </script>
 </body>
 </html>

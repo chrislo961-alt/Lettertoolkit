@@ -390,6 +390,40 @@ ${jobAd}`;
         return json(request, result);
       }
 
+      if (body.action === "analyze_match") {
+        const language = safeText(body.language, 40) || "English";
+        const targetRole = safeText(body.targetRole, 120);
+        const background = safeText(body.background, 14000);
+        const jobAd = safeText(body.jobAd, 12000);
+
+        const prompt = `Act as a recruiter.
+Compare the applicant background with the job advertisement for "${targetRole}".
+
+Return JSON only with:
+{
+  "score":0,
+  "summary":"",
+  "keywords":[""],
+  "strengths":[""],
+  "gaps":[""]
+}
+
+Rules:
+- Score 0-100.
+- Do not invent experience or qualifications.
+- "keywords" should contain 4-10 relevant terms from the job ad that the applicant can truthfully emphasize.
+- Keep summary concise and in ${language}.
+
+APPLICANT BACKGROUND:
+${background}
+
+JOB ADVERTISEMENT:
+${jobAd}`;
+
+        const result = await callResponses(env, prompt, 1300);
+        return json(request, result);
+      }
+
       if (body.action === "rewrite_application") {
         const language = safeText(body.language, 40) || "English";
         const targetRole = safeText(body.targetRole, 120);
@@ -463,7 +497,7 @@ ${jobAd}`;
         return json(request, result);
       }
 
-      if (!["improve_cv", "cover_letter", "translate_cv", "review_cv", "review_application", "rewrite_application"].includes(body.action)) {
+      if (!["improve_cv", "cover_letter", "translate_cv", "review_cv", "review_application", "rewrite_application", "analyze_match"].includes(body.action)) {
         return json(request, { error: "Unsupported action." }, 400);
       }
 
