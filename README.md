@@ -1,27 +1,30 @@
-# LetterToolkit 6.16 – Final Application Package
+# LetterToolkit 6.17 – Application SEO + Templates
 
-Adds the final step around sending an application.
+Focus:
+- make Application Builder more useful
+- make the page stronger for organic search
 
 ## New
-- AI-generated email subject
-- AI-generated recruiter/hiring-manager email
-- recipient/company field
-- copy email
-- download a complete application package
-- final readiness checklist
-- email data is saved in local drafts
-- all previous Application Builder features remain
-
-## Worker
-Adds:
-`application_email`
+- 4 application styles:
+  - Standard
+  - Concise
+  - Story-led
+  - Executive
+- AI receives the selected application style
+- improved title and meta description
+- canonical URL
+- SoftwareApplication structured data
+- FAQ structured data
+- useful how-to content on the page
+- FAQ section
+- existing drafts, job-match, AI review and final package remain
 
 ## Install
 Replace:
 - `/application-builder/index.html`
 - `worker/src/index.js`
 
-Then deploy from the `worker` folder in this ZIP:
+Then from the `worker` folder in this ZIP:
 `npx.cmd wrangler deploy`
 
 Commit/push the site changes.

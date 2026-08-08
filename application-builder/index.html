@@ -3,8 +3,8 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>AI Job Application Builder | LetterToolkit</title>
-  <meta name="description" content="Create a tailored job application with AI. Upload or paste your CV, add the job advertisement, choose tone and language, then generate and edit your application.">
+  <title>AI Job Application Builder – Write a Better Job Application | LetterToolkit</title>
+  <meta name="description" content="Create a tailored job application with AI. Upload your CV, paste the job ad, choose tone and language, then generate, review and export a professional application.">
   <style>
     :root{
       --bg:#f4f7fb;--card:#fff;--text:#101828;--muted:#667085;--line:#dfe5ef;--brand:#5b5ce2;
@@ -80,8 +80,57 @@
     .check.good{color:var(--ok)}
     .check.warn{color:#b54708}
     .final-actions{display:flex;gap:8px;flex-wrap:wrap;margin-top:12px}
+    .template-strip{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-top:14px}
+    .app-template{border:1px solid var(--line);background:#fff;border-radius:12px;padding:12px;cursor:pointer}
+    .app-template.active{border-color:var(--brand);background:var(--soft)}
+    .app-template strong{display:block}
+    .app-template span{display:block;font-size:.78rem;color:var(--muted);margin-top:4px}
+    .seo-section{margin-top:28px;background:#fff;border:1px solid var(--line);border-radius:18px;padding:24px;box-shadow:var(--shadow)}
+    .seo-section h2{margin-top:0}
+    .seo-grid{display:grid;grid-template-columns:1fr 1fr;gap:18px}
+    .seo-card{border:1px solid var(--line);border-radius:14px;padding:16px;background:#fbfcff}
+    .faq details{border-top:1px solid var(--line);padding:12px 0}
+    .faq summary{font-weight:800;cursor:pointer}
     @media(max-width:900px){.workspace{grid-template-columns:1fr}.result-wrap{position:static}.grid{grid-template-columns:1fr}.full{grid-column:auto}.navlinks{display:none}}
   </style>
+
+  <link rel="canonical" href="https://lettertoolkit.com/application-builder/">
+  <script type="application/ld+json">
+  {
+    "@context":"https://schema.org",
+    "@type":"SoftwareApplication",
+    "name":"LetterToolkit AI Application Builder",
+    "applicationCategory":"BusinessApplication",
+    "operatingSystem":"Web",
+    "url":"https://lettertoolkit.com/application-builder/",
+    "description":"AI-powered job application builder that helps users tailor applications to a job advertisement.",
+    "offers":{"@type":"Offer","price":"0","priceCurrency":"USD"}
+  }
+  </script>
+  <script type="application/ld+json">
+  {
+    "@context":"https://schema.org",
+    "@type":"FAQPage",
+    "mainEntity":[
+      {
+        "@type":"Question",
+        "name":"How does the AI job application builder work?",
+        "acceptedAnswer":{"@type":"Answer","text":"Add your background or CV, paste the job advertisement, choose a tone and language, then generate and review a tailored job application."}
+      },
+      {
+        "@type":"Question",
+        "name":"Can I use my existing CV?",
+        "acceptedAnswer":{"@type":"Answer","text":"Yes. You can upload or paste your existing CV information and use it as the factual basis for the application."}
+      },
+      {
+        "@type":"Question",
+        "name":"Can I write the application in Norwegian or Swedish?",
+        "acceptedAnswer":{"@type":"Answer","text":"Yes. The builder supports English, Norwegian and Swedish."}
+      }
+    ]
+  }
+  </script>
+
 </head>
 <body>
 <header>
@@ -139,6 +188,14 @@
         <button class="tone" data-tone="warm">Warm</button>
         <button class="tone" data-tone="direct">Direct</button>
         <button class="tone" data-tone="confident">Confident</button>
+      </div>
+
+      <h2 style="margin-top:24px">4. Application style</h2>
+      <div class="template-strip">
+        <button class="app-template active" data-style="standard" type="button"><strong>Standard</strong><span>Balanced and professional</span></button>
+        <button class="app-template" data-style="concise" type="button"><strong>Concise</strong><span>Short and focused</span></button>
+        <button class="app-template" data-style="story" type="button"><strong>Story-led</strong><span>More personal narrative</span></button>
+        <button class="app-template" data-style="executive" type="button"><strong>Executive</strong><span>Senior and direct</span></button>
       </div>
 
       <div class="row" style="margin-top:18px">
@@ -224,6 +281,49 @@
       </div>
     </div>
   </section>
+
+  <section class="seo-section">
+    <h2>How to write a strong job application</h2>
+    <div class="seo-grid">
+      <div class="seo-card">
+        <strong>Match the job, not a generic template</strong>
+        <p>Use the job advertisement as the reference point. Highlight experience and skills that are actually relevant to the role.</p>
+      </div>
+      <div class="seo-card">
+        <strong>Keep every claim factual</strong>
+        <p>A strong application does not need invented achievements. Clear examples and accurate experience are more credible.</p>
+      </div>
+      <div class="seo-card">
+        <strong>Be specific</strong>
+        <p>Replace broad phrases with concrete responsibilities, tools, environments or outcomes you can genuinely support.</p>
+      </div>
+      <div class="seo-card">
+        <strong>Review before sending</strong>
+        <p>Use the AI review, then read the final text yourself. The application should still sound like you.</p>
+      </div>
+    </div>
+
+    <div class="faq" style="margin-top:20px">
+      <h2>Frequently asked questions</h2>
+      <details open>
+        <summary>How does the AI application builder work?</summary>
+        <p>Add your CV or background, paste the job advertisement and choose a tone. LetterToolkit generates a draft based on the information you provide.</p>
+      </details>
+      <details>
+        <summary>Can I use an existing CV?</summary>
+        <p>Yes. Upload or paste your existing CV information and use it as the factual basis for the application.</p>
+      </details>
+      <details>
+        <summary>Which languages are supported?</summary>
+        <p>The current version supports English, Norwegian and Swedish.</p>
+      </details>
+      <details>
+        <summary>Should I send the AI text without editing it?</summary>
+        <p>No. Always review the final application for factual accuracy, tone and personal fit before sending it to an employer.</p>
+      </details>
+    </div>
+  </section>
+
 </main>
 
 <script>
@@ -231,9 +331,16 @@ const WORKER_URL="https://lettertoolkit-cv-ai.chrislo961.workers.dev";
 const $=id=>document.getElementById(id);
 let selectedFile=null;
 let tone="professional";
+let applicationStyle="standard";
 let generatedVersions={current:""};
 let reviewedApplication="";
 let generatedEmail="";
+
+
+document.querySelectorAll(".app-template").forEach(btn=>btn.onclick=()=>{
+  applicationStyle=btn.dataset.style;
+  document.querySelectorAll(".app-template").forEach(b=>b.classList.toggle("active",b===btn));
+});
 
 document.querySelectorAll(".tone").forEach(btn=>btn.onclick=()=>{
   tone=btn.dataset.tone;
@@ -395,6 +502,7 @@ $("generate").onclick=async()=>{
       language:$("language").value,
       targetRole:$("role").value,
       tone,
+      applicationStyle,
       background:$("background").value,
       jobAd:$("jobAd").value
     })});
@@ -609,7 +717,45 @@ $("copy").onclick=()=>navigator.clipboard.writeText($("result").value);
 function applicationHtml(){
   const title=$("role").value||"Job application";
   return `<!doctype html><html><head><meta charset="utf-8"><title>${title}</title>
-  <style>body{font-family:Arial,sans-serif;max-width:720px;margin:48px auto;line-height:1.6;color:#111;padding:0 24px}h1{font-size:24px;margin-bottom:24px}p{white-space:pre-wrap}</style></head>
+  <style>body{font-family:Arial,sans-serif;max-width:720px;margin:48px auto;line-height:1.6;color:#111;padding:0 24px}h1{font-size:24px;margin-bottom:24px}p{white-space:pre-wrap}</style>
+  <link rel="canonical" href="https://lettertoolkit.com/application-builder/">
+  <script type="application/ld+json">
+  {
+    "@context":"https://schema.org",
+    "@type":"SoftwareApplication",
+    "name":"LetterToolkit AI Application Builder",
+    "applicationCategory":"BusinessApplication",
+    "operatingSystem":"Web",
+    "url":"https://lettertoolkit.com/application-builder/",
+    "description":"AI-powered job application builder that helps users tailor applications to a job advertisement.",
+    "offers":{"@type":"Offer","price":"0","priceCurrency":"USD"}
+  }
+  </script>
+  <script type="application/ld+json">
+  {
+    "@context":"https://schema.org",
+    "@type":"FAQPage",
+    "mainEntity":[
+      {
+        "@type":"Question",
+        "name":"How does the AI job application builder work?",
+        "acceptedAnswer":{"@type":"Answer","text":"Add your background or CV, paste the job advertisement, choose a tone and language, then generate and review a tailored job application."}
+      },
+      {
+        "@type":"Question",
+        "name":"Can I use my existing CV?",
+        "acceptedAnswer":{"@type":"Answer","text":"Yes. You can upload or paste your existing CV information and use it as the factual basis for the application."}
+      },
+      {
+        "@type":"Question",
+        "name":"Can I write the application in Norwegian or Swedish?",
+        "acceptedAnswer":{"@type":"Answer","text":"Yes. The builder supports English, Norwegian and Swedish."}
+      }
+    ]
+  }
+  </script>
+
+</head>
   <body><h1>${title}</h1><p>${$("result").value.replace(/&/g,"&amp;").replace(/</g,"&lt;")}</p></body></html>`;
 }
 $("downloadPdf").onclick=()=>{

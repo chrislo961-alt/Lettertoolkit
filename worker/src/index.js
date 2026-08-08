@@ -363,6 +363,7 @@ export default {
         const language = safeText(body.language, 40) || "English";
         const targetRole = safeText(body.targetRole, 120);
         const tone = safeText(body.tone, 40) || "professional";
+        const applicationStyle = safeText(body.applicationStyle, 40) || "standard";
         const background = safeText(body.background, 14000);
         const jobAd = safeText(body.jobAd, 12000);
 
@@ -370,6 +371,13 @@ export default {
 Write a tailored job application in ${language} for the target role "${targetRole}".
 
 Tone: ${tone}
+Application style: ${applicationStyle}
+
+Style guidance:
+- standard: balanced and professional.
+- concise: shorter and tightly focused.
+- story: more personal narrative, while remaining professional.
+- executive: direct, senior, strategic tone.
 
 Rules:
 - Base the application only on the applicant background and job advertisement below.
