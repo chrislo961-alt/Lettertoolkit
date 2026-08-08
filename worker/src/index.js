@@ -106,12 +106,70 @@ ${cvText}`;
 }
 
 function importPrompt(language) {
-  return `Extract and structure this CV/resume into ${language || "English"}.
+  return `Extract every factual detail from this CV/resume into ${language || "English"}.
+
+Important:
+- Preserve facts exactly.
+- Do not improve wording yet.
+- Do not invent missing details.
+- Read the entire document, including multiple pages, columns and bullet lists.
+- Capture ALL employment history, ALL education, languages and certifications.
+- Keep dates and employer names exactly as written when possible.
+
+Return JSON only with this exact shape:
+{
+  "rawText":"",
+  "name":"",
+  "role":"",
+  "email":"",
+  "phone":"",
+  "location":"",
+  "summary":"",
+  "experience":"",
+  "education":"",
+  "skills":"",
+  "languages":"",
+  "certifications":"",
+  "confidence":{
+    "name":"high|medium|low",
+    "role":"high|medium|low",
+    "email":"high|medium|low",
+    "phone":"high|medium|low",
+    "location":"high|medium|low",
+    "summary":"high|medium|low",
+    "experience":"high|medium|low",
+    "education":"high|medium|low",
+    "skills":"high|medium|low",
+    "languages":"high|medium|low",
+    "certifications":"high|medium|low"
+  }
+}
+
+Formatting:
+- experience: every role/employer in chronological sections with dates and bullet points.
+- education: every education entry with dates if present.
+- skills/languages/certifications: concise lists.
+- rawText: a faithful plain-text extraction of the CV content.`;
+}
+
+Formatting:
+- experience: readable plain text, with role/employer sections and bullet lines.
+- education: readable plain text.
+- skills: concise comma-separated list.`;
+}
+
+
+function structureImportedCvPrompt(extracted, language) {
+  return `You are validating and structuring an already-extracted CV.
+
+Language: ${language || "English"}
 
 Rules:
-- Preserve facts exactly.
-- Do not invent or improve facts during import.
-- If information is not present, return an empty string.
+- Use ONLY the facts in EXTRACTED DATA.
+- Never add employers, dates, roles, education, certifications, languages, achievements, metrics or technologies that are not present.
+- Preserve the full work history and full education history.
+- Improve structure only, not facts.
+- If something is uncertain, keep it empty rather than guessing.
 
 Return JSON only with this exact shape:
 {
@@ -123,16 +181,31 @@ Return JSON only with this exact shape:
   "summary":"",
   "experience":"",
   "education":"",
-  "skills":""
+  "skills":"",
+  "languages":"",
+  "certifications":"",
+  "confidence":{
+    "name":"high|medium|low",
+    "role":"high|medium|low",
+    "email":"high|medium|low",
+    "phone":"high|medium|low",
+    "location":"high|medium|low",
+    "summary":"high|medium|low",
+    "experience":"high|medium|low",
+    "education":"high|medium|low",
+    "skills":"high|medium|low",
+    "languages":"high|medium|low",
+    "certifications":"high|medium|low"
+  }
 }
 
-Formatting:
-- experience: readable plain text, with role/employer sections and bullet lines.
-- education: readable plain text.
-- skills: concise comma-separated list.`;
+EXTRACTED DATA:
+${JSON.stringify(extracted)}`;
 }
 
 async function callResponses(env, input, maxOutputTokens = 1600) {
+  const controller = new AbortController();
+  const timeout = setTimeout(() => controller.abort(), 90000);
   const apiResponse = await fetch("https://api.openai.com/v1/responses", {
     method: "POST",
     headers: {
@@ -145,7 +218,9 @@ async function callResponses(env, input, maxOutputTokens = 1600) {
       input,
       max_output_tokens: maxOutputTokens,
     }),
+    signal: controller.signal,
   });
+  clearTimeout(timeout);
 
   const apiJson = await apiResponse.json();
 
@@ -190,21 +265,31 @@ export default {
       if (body.action === "import_cv") {
         const filename = safeText(body.filename, 180);
         const fileData = safeText(body.fileData, 8_500_000);
+        const language = safeText(body.language, 40) || "English";
 
         if (!filename || !fileData) {
           return json(request, { error: "Missing file." }, 400);
         }
 
-        const input = [{
+        // Pass 1: extract the complete document.
+        const extractInput = [{
           role: "user",
           content: [
             { type: "input_file", filename, file_data: fileData },
-            { type: "input_text", text: importPrompt(safeText(body.language, 40)) },
+            { type: "input_text", text: importPrompt(language) },
           ],
         }];
 
-        const result = await callResponses(env, input, 1800);
-        return json(request, result);
+        const extracted = await callResponses(env, extractInput, 2600);
+
+        // Pass 2: normalize and verify structure using only extracted facts.
+        const structured = await callResponses(
+          env,
+          structureImportedCvPrompt(extracted, language),
+          2200
+        );
+
+        return json(request, structured);
       }
 
       if (body.action === "job_application") {

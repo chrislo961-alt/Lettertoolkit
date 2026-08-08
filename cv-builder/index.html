@@ -94,6 +94,15 @@
     .upload-box{border:1.5px dashed var(--line);border-radius:14px;padding:16px;background:#fbfcff;margin-bottom:16px}
     .upload-box input{padding:9px;background:#fff}
     .upload-meta{margin-top:8px;font-size:.84rem;color:var(--muted)}
+    .import-review{display:none;margin-top:14px;border:1px solid var(--line);border-radius:14px;background:#fff;padding:14px}
+    .import-review.active{display:block}
+    .import-review h3{margin:0 0 10px;font-size:1rem}
+    .import-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+    .import-field{background:#fbfcff;border:1px solid var(--line);border-radius:10px;padding:10px}
+    .import-field strong{display:block;font-size:.78rem;color:var(--muted);text-transform:uppercase;letter-spacing:.06em;margin-bottom:4px}
+    .import-field.full{grid-column:1/-1}
+    .import-actions{display:flex;gap:8px;flex-wrap:wrap;margin-top:10px}
+    .confidence{font-size:.78rem;color:var(--muted);margin-top:4px}
     .quick-tools{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-top:12px}
     .quick-tool{background:#fff;border:1px solid var(--line);border-radius:12px;padding:11px;text-align:left;font-weight:750}
     .quick-tool span{display:block;font-size:.78rem;color:var(--muted);font-weight:500;margin-top:3px}
@@ -168,6 +177,15 @@
           <button class="secondary" id="analyzeUpload" type="button" disabled>Analyze uploaded CV with AI</button>
         </div>
         <div class="upload-meta" id="uploadMeta">Upload TXT, HTML, PDF or DOCX. PDF/DOCX are sent to the secure AI Worker only when you press Analyze.</div>
+        <div id="importReview" class="import-review">
+          <h3>Import review</h3>
+          <div class="small">Check what was extracted before adding it to your CV.</div>
+          <div id="importGrid" class="import-grid" style="margin-top:10px"></div>
+          <div class="import-actions">
+            <button class="primary" id="applyImport" type="button">Use extracted data</button>
+            <button class="secondary" id="cancelImport" type="button">Discard</button>
+          </div>
+        </div>
       </div>
       <div class="grid">
         <div><label for="language">Language</label><select id="language"><option value="English">English</option><option value="Swedish">Swedish</option><option value="Norwegian">Norwegian</option></select></div>
@@ -437,22 +455,40 @@ function fileToBase64(file){
   });
 }
 
+let pendingImport=null;
+
+function renderImportReview(data){
+  pendingImport=data;
+  const fields=[
+    ["name","Name"],["role","Role"],["email","Email"],["phone","Phone"],
+    ["location","Location / LinkedIn"],["summary","Profile"],["experience","Experience"],
+    ["education","Education"],["skills","Skills"],["languages","Languages"],["certifications","Certifications"]
+  ];
+  $("importGrid").innerHTML=fields.map(([k,label])=>{
+    const val=(data[k]||"").trim();
+    const conf=data.confidence&&data.confidence[k] ? `<div class="confidence">Confidence: ${data.confidence[k]}</div>` : "";
+    return `<div class="import-field ${["summary","experience","education","skills","languages","certifications"].includes(k)?"full":""}">
+      <strong>${label}</strong>
+      <div>${val?esc(val).replace(/\n/g,"<br>"):"<span class='small'>Not found</span>"}</div>${conf}
+    </div>`;
+  }).join("");
+  $("importReview").classList.add("active");
+}
+
 $("analyzeUpload").onclick=async()=>{
   if(!selectedCvFile)return;
-
   if(selectedCvFile.size>6*1024*1024){
     $("uploadMeta").textContent="Please use a CV smaller than 6 MB.";
     return;
   }
 
-  setBusy(true,"Reading and structuring your CV...");
+  setBusy(true,"Reading the complete CV...");
   $("analyzeUpload").disabled=true;
-  $("status").textContent="Analyzing uploaded CV...";
+  $("status").textContent="Extracting and structuring the CV...";
   $("status").className="status";
 
   try{
     const fileData=await fileToBase64(selectedCvFile);
-
     const r=await fetch(WORKER_URL+"/api/cv",{
       method:"POST",
       headers:{"content-type":"application/json"},
@@ -463,23 +499,12 @@ $("analyzeUpload").onclick=async()=>{
         fileData
       })
     });
-
     const d=await r.json();
     if(!r.ok)throw new Error(d.error||"Could not analyze CV.");
 
-    if(d.name)$("name").value=d.name;
-    if(d.role)$("role").value=d.role;
-    if(d.email)$("email").value=d.email;
-    if(d.phone)$("phone").value=d.phone;
-    if(d.location)$("location").value=d.location;
-    if(d.summary)$("summary").value=d.summary;
-    if(d.experience)$("experience").value=d.experience;
-    if(d.education)$("education").value=d.education;
-    if(d.skills)$("skills").value=d.skills;
-
-    render();
-    $("uploadMeta").textContent=`${selectedCvFile.name} analyzed. Review every field before continuing.`;
-    $("status").textContent="CV imported and structured. Review the details before tailoring it to a job.";
+    renderImportReview(d);
+    $("uploadMeta").textContent=`${selectedCvFile.name} analyzed. Review the extracted data below.`;
+    $("status").textContent="Import ready for review.";
     $("status").className="status ok";
   }catch(err){
     $("status").textContent=err.message;
@@ -488,6 +513,34 @@ $("analyzeUpload").onclick=async()=>{
     setBusy(false);
     $("analyzeUpload").disabled=!selectedCvFile;
   }
+};
+
+$("applyImport").onclick=()=>{
+  if(!pendingImport)return;
+  const d=pendingImport;
+  if(d.name)$("name").value=d.name;
+  if(d.role)$("role").value=d.role;
+  if(d.email)$("email").value=d.email;
+  if(d.phone)$("phone").value=d.phone;
+  if(d.location)$("location").value=d.location;
+  if(d.summary)$("summary").value=d.summary;
+  if(d.experience)$("experience").value=d.experience;
+  if(d.education)$("education").value=d.education;
+
+  const extraSkills=[d.skills,d.languages&&`Languages: ${d.languages}`,d.certifications&&`Certifications: ${d.certifications}`].filter(Boolean).join("\n");
+  if(extraSkills)$("skills").value=extraSkills;
+
+  render();
+  $("importReview").classList.remove("active");
+  $("status").textContent="Imported CV data applied. Review the fields before tailoring.";
+  $("status").className="status ok";
+};
+
+$("cancelImport").onclick=()=>{
+  pendingImport=null;
+  $("importReview").classList.remove("active");
+  $("status").textContent="Import discarded.";
+  $("status").className="status";
 };
 
 document.querySelectorAll(".template-card").forEach(card=>card.onclick=()=>{document.body.dataset.template=card.dataset.template;document.querySelectorAll(".template-card").forEach(c=>c.classList.toggle("active",c===card));render();});

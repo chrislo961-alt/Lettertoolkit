@@ -1,47 +1,54 @@
-# LetterToolkit 6.7 – CV + Application Suite
+# LetterToolkit 6.8 – Production CV + Application Suite
 
-This release creates two separate user-facing tools:
-
-- `/cv-builder/`
-- `/application-builder/`
+This release focuses on completeness instead of adding more unrelated features.
 
 ## CV Builder
-More compact hero and workflow so the tool starts higher on the screen.
-Includes a direct "Create application" handoff.
+- Compact tool-first layout
+- TXT / HTML / PDF / DOCX import
+- Two-stage AI import for complex multi-page CVs
+- Extracts all employment history and education
+- Languages and certifications included
+- Import Review before data is applied
+- Confidence indicators on extracted fields
+- Existing AI tailoring, design and export remain
+- Direct handoff to Application Builder
 
 ## Application Builder
-Dedicated job-application page for users who only need an application.
-Flow:
-1. Upload or paste CV/background
-2. Paste job advertisement
-3. Choose language and tone
-4. Generate application
-5. Edit, copy, download
-
-The Application Builder can receive CV data from the CV Builder through localStorage.
+- Dedicated page for job applications
+- CV/background + job advertisement + tone + language
+- AI-generated application
+- Edit, copy and download
+- Can receive data directly from CV Builder
 
 ## Worker
-Adds a new action:
-`job_application`
+- Existing improve_cv
+- existing cover_letter
+- existing job_application
+- improved import_cv:
+  1. complete factual document extraction
+  2. second AI pass to validate and normalize the structure
+- no database storage
+- 6 MB frontend upload limit
+- Worker request protection
+- CORS restricted to LetterToolkit
+- 90-second upstream timeout guard
+- keeps the existing Cloudflare OPENAI_API_KEY secret
 
-Replace:
-- `worker/src/index.js`
-- `worker/wrangler.toml`
+## Install
+You can copy the extracted package into the repository root and replace matching files.
 
-Then deploy from your existing working Worker folder:
+For the website:
+- replace `cv-builder`
+- replace/add `application-builder`
+
+For the AI Worker:
+- use `worker/src/index.js`
+- use `worker/wrangler.toml`
+
+Then from the Worker folder run:
 
 ```powershell
 npx.cmd wrangler deploy
 ```
 
-Your existing Cloudflare `OPENAI_API_KEY` secret remains attached.
-
-## GitHub/site install
-Copy these folders into the repository root:
-- `cv-builder`
-- `application-builder`
-
-Replace the existing `cv-builder` folder.
-Add the new `application-builder` folder.
-
-For SEO, add `/application-builder/` to your sitemap when you next update the main site sitemap.
+No new API secret is required.
