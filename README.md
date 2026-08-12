@@ -1,25 +1,32 @@
-# LetterToolkit 6.22 – Professional Layout + Application JS Hotfix
+# LetterToolkit 6.23 – SEO Foundation
 
-This release focuses on presentation and stability.
+This release adds a focused SEO content cluster around the CV and Application products.
 
-## Fixed
-- Removes the raw JavaScript that was appearing at the bottom of Application Builder.
-- Rebuilt the application export HTML so embedded SEO scripts cannot break the page.
-- JavaScript syntax for both builder pages was checked before packaging.
+Pages:
+- /guides/
+- /how-to-write-a-cv/
+- /cv-examples/
+- /cv-template/
+- /how-to-write-a-job-application/
+- /job-application-examples/
+- /cover-letter/
+- /interview-questions/
 
-## Visual overhaul
-- CV Builder and Application Builder are both clearly visible in the top navigation.
-- The current tool is visually highlighted.
-- CV Builder gets a prominent gold Application Builder callout.
-- Application Builder gets a prominent purple CV Builder callout.
-- Both pages use the same visual system and cross-linking.
-- Both pages include a compact two-tool footer area.
+Technical SEO:
+- unique titles and descriptions
+- canonical URLs
+- Open Graph metadata
+- Article structured data
+- FAQ structured data
+- internal linking
+- sitemap.xml
+- robots.txt
 
-## Install
-Replace only:
-- `/cv-builder/index.html`
-- `/application-builder/index.html`
+Important:
+This package is designed to build organic traffic over time. No ZIP can guarantee traffic or rankings.
+The Worker is unchanged, so no deploy is needed for Worker.
 
-The Worker is unchanged from 6.21, so NO PowerShell deploy is required for this release.
-
-Commit and push the two HTML files.
+Install:
+Copy the new folders plus sitemap.xml and robots.txt into the repository root.
+Keep your existing home page unless you intentionally want to replace it.
+Commit and push.
