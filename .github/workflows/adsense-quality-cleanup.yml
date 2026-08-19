@@ -1,0 +1,33 @@
+name: AdSense quality cleanup
+
+on:
+  push:
+    paths:
+      - scripts/adsense-quality-cleanup.cjs
+
+permissions:
+  contents: write
+
+jobs:
+  cleanup:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: main
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Prune thin programmatic pages from AdSense surface
+        run: node scripts/adsense-quality-cleanup.cjs
+      - name: Commit cleanup
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add .
+          if git diff --cached --quiet; then
+            echo "No changes to commit"
+          else
+            git commit -m "Reduce low-value AdSense surface"
+            git push origin HEAD:main
+          fi
