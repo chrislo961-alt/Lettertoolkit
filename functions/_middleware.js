@@ -73,6 +73,30 @@ export async function onRequest(context) {
       },
     });
 
+  if (url.pathname === '/' || url.pathname === '') {
+    rewriter = rewriter.on('head', {
+      element(element) {
+        element.append(
+          '<meta property="og:type" content="website">' +
+            '<meta property="og:site_name" content="LetterToolkit">' +
+            '<meta property="og:title" content="LetterToolkit – Free Word Tools, Writing Tools & Practical Guides">' +
+            '<meta property="og:description" content="Free browser-based tools for unscrambling words, anagrams, word patterns, crosswords and writing, supported by original practical guides.">' +
+            '<meta property="og:url" content="https://lettertoolkit.com/">' +
+            '<script type="application/ld+json">{"@context":"https://schema.org","@type":"WebSite","name":"LetterToolkit","url":"https://lettertoolkit.com/","description":"Free browser-based word, puzzle and writing tools with practical guides."}</script>',
+          { html: true },
+        );
+      },
+    });
+  }
+
+  if (url.pathname === '/frontend/' || url.pathname === '/frontend') {
+    rewriter = rewriter.on('head', {
+      element(element) {
+        element.append('<meta name="robots" content="noindex,follow">', { html: true });
+      },
+    });
+  }
+
   if (url.pathname === '/cv-builder/' || url.pathname === '/cv-builder') {
     rewriter = rewriter
       .on('head', {
