@@ -18,8 +18,12 @@ const manifest = JSON.stringify({
 
 export async function onRequest(context) {
   const url = new URL(context.request.url);
+  const isApexHost = url.hostname === 'lettertoolkit.com';
+  const isWwwHost = url.hostname === 'www.lettertoolkit.com';
 
-  if (url.protocol !== 'https:' || url.hostname === 'www.lettertoolkit.com') {
+  // Enforce the public canonical host without interfering with local Pages
+  // previews used by CI and development.
+  if (isWwwHost || (isApexHost && url.protocol !== 'https:')) {
     url.protocol = 'https:';
     url.hostname = 'lettertoolkit.com';
     return Response.redirect(url.toString(), 301);
