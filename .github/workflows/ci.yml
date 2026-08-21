@@ -1,0 +1,124 @@
+name: CI
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+
+permissions:
+  contents: read
+
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+
+      - name: Validate sitemap and indexable route coverage
+        run: |
+          node --input-type=module <<'NODE'
+          import fs from 'node:fs';
+          import path from 'node:path';
+
+          const xml=fs.readFileSync('sitemap.xml','utf8');
+          const urls=[...xml.matchAll(/<loc>([^<]+)<\/loc>/g)].map(m=>m[1]);
+          if(new Set(urls).size!==urls.length) throw new Error('Duplicate sitemap URLs');
+          const sitemapPaths=new Set(urls.map(u=>new URL(u).pathname));
+          if(urls.length!==44) throw new Error(`Expected 44 curated sitemap URLs, got ${urls.length}`);
+
+          const runtimeNoindex=new Set(['/frontend/']);
+          function walk(dir){return fs.readdirSync(dir,{withFileTypes:true}).flatMap(e=>{if(['.git','node_modules'].includes(e.name))return[];const p=path.join(dir,e.name);return e.isDirectory()?walk(p):[p]})}
+          const files=walk('.').filter(f=>f==='index.html'||f.endsWith(`${path.sep}index.html`));
+          const indexable=[];
+          for(const file of files){
+            const html=fs.readFileSync(file,'utf8');
+            const robots=html.match(/<meta[^>]+name=["']robots["'][^>]+content=["']([^"']*)["']/i)?.[1]||'';
+            const route=file==='index.html'?'/':`/${path.dirname(file).split(path.sep).join('/')}/`;
+            if(!/noindex/i.test(robots) && !runtimeNoindex.has(route)) indexable.push(route);
+          }
+          const outside=indexable.filter(route=>!sitemapPaths.has(route));
+          const stale=[...sitemapPaths].filter(route=>!indexable.includes(route));
+          console.log(`HTML routes: ${files.length}; indexable: ${indexable.length}; sitemap: ${urls.length}; outside sitemap: ${outside.length}; stale sitemap entries: ${stale.length}`);
+          if(outside.length){
+            console.log('Indexable outside sitemap:\n'+outside.join('\n'));
+            throw new Error('Indexable HTML routes exist outside the curated sitemap');
+          }
+          if(stale.length){
+            console.log('Sitemap entries not backed by an intentional indexable route:\n'+stale.join('\n'));
+            throw new Error('Sitemap contains a non-indexable or missing route');
+          }
+          NODE
+
+      - name: Start Cloudflare Pages preview
+        run: |
+          npx --yes wrangler@4 pages dev . --port 8788 --ip 127.0.0.1 > /tmp/wrangler.log 2>&1 &
+          echo $! > /tmp/wrangler.pid
+          for i in $(seq 1 45); do
+            if curl -fsS http://127.0.0.1:8788/ >/tmp/home.html; then exit 0; fi
+            sleep 1
+          done
+          cat /tmp/wrangler.log
+          exit 1
+
+      - name: Verify edge endpoints, headers and metadata
+        run: |
+          set -e
+          curl -fsSI http://127.0.0.1:8788/ > /tmp/headers.txt
+          grep -qi '^strict-transport-security: max-age=31536000; includeSubDomains' /tmp/headers.txt
+          grep -qi '^x-content-type-options: nosniff' /tmp/headers.txt
+          grep -qi '^referrer-policy: strict-origin-when-cross-origin' /tmp/headers.txt
+          grep -qi '^permissions-policy: camera=(), microphone=(), geolocation=()' /tmp/headers.txt
+          grep -qi '^x-frame-options: SAMEORIGIN' /tmp/headers.txt
+
+          test "$(curl -sS -o /dev/null -w '%{http_code}' http://127.0.0.1:8788/favicon.ico)" = "302"
+          curl -fsS http://127.0.0.1:8788/manifest.webmanifest | grep -q 'LetterToolkit'
+          curl -fsS http://127.0.0.1:8788/ > /tmp/home-transformed.html
+          curl -fsS http://127.0.0.1:8788/cv-builder/ > /tmp/cv.html
+          curl -fsS http://127.0.0.1:8788/frontend/ > /tmp/frontend.html
+
+          node --input-type=module <<'NODE'
+          import fs from 'node:fs';
+          const home=fs.readFileSync('/tmp/home-transformed.html','utf8');
+          const cv=fs.readFileSync('/tmp/cv.html','utf8');
+          const frontend=fs.readFileSync('/tmp/frontend.html','utf8');
+          const h1=(cv.match(/<h1\b/gi)||[]).length;
+          const canon=(cv.match(/<link[^>]+rel=["']canonical["']/gi)||[]).length;
+          if(h1!==1) throw new Error(`CV Builder has ${h1} H1 elements after edge transform`);
+          if(canon!==1) throw new Error(`CV Builder has ${canon} canonical links after edge transform`);
+          if(!/SoftwareApplication/.test(cv)) throw new Error('CV Builder structured data missing');
+          if(!/manifest\.webmanifest/.test(home)) throw new Error('Manifest link missing from transformed homepage');
+          if(!/property=["']og:title["']/.test(home) || !/"@type":"WebSite"/.test(home)) throw new Error('Homepage Open Graph or WebSite JSON-LD missing');
+          if(!/site-config\.js[^>]*defer/i.test(home)) throw new Error('site-config.js is not deferred');
+          if(!/integrations\.js[^>]*defer/i.test(home)) throw new Error('integrations.js is not deferred');
+          if(!/name=["']robots["'][^>]+content=["']noindex,follow["']/i.test(frontend)) throw new Error('Legacy /frontend/ route is not runtime noindex');
+          NODE
+
+      - name: Test homepage dark mode in Chrome
+        run: |
+          npm install --no-save playwright-core@1.55.0
+          node --input-type=module <<'NODE'
+          import {chromium} from 'playwright-core';
+          const browser=await chromium.launch({executablePath:'/usr/bin/google-chrome',headless:true,args:['--no-sandbox','--disable-gpu']});
+          const context=await browser.newContext({viewport:{width:1365,height:900}});
+          const page=await context.newPage();
+          const errors=[];
+          page.on('pageerror',e=>errors.push(e.message));
+          await page.goto('http://127.0.0.1:8788/',{waitUntil:'domcontentloaded'});
+          const before=await page.evaluate(()=>getComputedStyle(document.body).backgroundColor);
+          await page.click('#themeToggle');
+          const after=await page.evaluate(()=>({theme:document.documentElement.dataset.theme,stored:localStorage.getItem('lt-theme'),label:document.querySelector('#themeToggle')?.textContent,bg:getComputedStyle(document.body).backgroundColor}));
+          if(after.theme!=='dark'||after.stored!=='dark'||after.label!=='Light mode'||after.bg===before) throw new Error(`Dark mode failed: ${JSON.stringify(after)}`);
+          await page.reload({waitUntil:'domcontentloaded'});
+          const persisted=await page.evaluate(()=>document.documentElement.dataset.theme);
+          if(persisted!=='dark') throw new Error('Dark mode did not persist after reload');
+          if(errors.length) throw new Error(`Homepage JS errors: ${errors.join(' | ')}`);
+          await browser.close();
+          NODE
+
+      - name: Stop preview
+        if: always()
+        run: kill "$(cat /tmp/wrangler.pid 2>/dev/null)" 2>/dev/null || true
