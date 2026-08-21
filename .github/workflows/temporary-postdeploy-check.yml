@@ -1,0 +1,72 @@
+name: Temporary LetterToolkit post-deploy verification
+
+on:
+  pull_request:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  live:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - name: Wait for Pages deployment
+        run: sleep 45
+      - name: Verify live endpoints and metadata
+        run: |
+          set -e
+          curl -fsS -D /tmp/headers.txt https://lettertoolkit.com/ -o /tmp/home.html
+          grep -qi '^strict-transport-security: max-age=31536000; includeSubDomains' /tmp/headers.txt
+          grep -qi '^x-frame-options: SAMEORIGIN' /tmp/headers.txt
+          grep -qi '^x-content-type-options: nosniff' /tmp/headers.txt
+          grep -qi '^referrer-policy: strict-origin-when-cross-origin' /tmp/headers.txt
+          grep -qi '^permissions-policy: camera=(), microphone=(), geolocation=()' /tmp/headers.txt
+          grep -q 'property="og:title"' /tmp/home.html
+          grep -q '"@type":"WebSite"' /tmp/home.html
+          grep -q 'manifest.webmanifest' /tmp/home.html
+          test "$(curl -sS -o /dev/null -w '%{http_code}' https://lettertoolkit.com/favicon.ico)" = "302"
+          curl -fsS https://lettertoolkit.com/manifest.webmanifest | grep -q 'LetterToolkit'
+          curl -fsS https://lettertoolkit.com/sitemap.xml > /tmp/sitemap.xml
+          test "$(grep -c '<loc>' /tmp/sitemap.xml)" = "44"
+          curl -fsS https://lettertoolkit.com/cv-builder/ > /tmp/cv.html
+          node --input-type=module <<'NODE'
+          import fs from 'node:fs';
+          const html=fs.readFileSync('/tmp/cv.html','utf8');
+          const h1=(html.match(/<h1\b/gi)||[]).length;
+          const canon=(html.match(/<link[^>]+rel=["']canonical["']/gi)||[]).length;
+          if(h1!==1) throw new Error(`Live CV Builder H1 count: ${h1}`);
+          if(canon!==1) throw new Error(`Live CV Builder canonical count: ${canon}`);
+          if(!/SoftwareApplication/.test(html)) throw new Error('Live CV Builder schema missing');
+          NODE
+      - name: Verify live dark mode in Chrome
+        run: |
+          npm install --no-save playwright-core@1.55.0
+          node --input-type=module <<'NODE'
+          import { chromium } from 'playwright-core';
+          const browser=await chromium.launch({executablePath:'/usr/bin/google-chrome',headless:true,args:['--no-sandbox','--disable-gpu','--disable-dev-shm-usage']});
+          const context=await browser.newContext({viewport:{width:390,height:844}});
+          const page=await context.newPage();
+          const errors=[];
+          page.on('pageerror',e=>errors.push(e.message));
+          const response=await page.goto('https://lettertoolkit.com/',{waitUntil:'domcontentloaded',timeout:60000});
+          if(response?.status()!==200) throw new Error(`Homepage HTTP ${response?.status()}`);
+          const before=await page.evaluate(()=>({bg:getComputedStyle(document.body).backgroundColor,width:document.documentElement.clientWidth,scroll:document.documentElement.scrollWidth}));
+          await page.click('#themeToggle');
+          await page.waitForTimeout(250);
+          const after=await page.evaluate(()=>({theme:document.documentElement.dataset.theme,stored:localStorage.getItem('lt-theme'),label:document.querySelector('#themeToggle')?.textContent,bg:getComputedStyle(document.body).backgroundColor,width:document.documentElement.clientWidth,scroll:document.documentElement.scrollWidth}));
+          console.log('before',before,'after',after,'errors',errors);
+          if(after.theme!=='dark'||after.stored!=='dark'||after.label!=='Light mode'||after.bg===before.bg) throw new Error('Live homepage dark mode failed');
+          if(after.scroll>after.width+1) throw new Error(`Live mobile overflow ${after.scroll-after.width}px`);
+          await page.reload({waitUntil:'domcontentloaded'});
+          const persisted=await page.evaluate(()=>document.documentElement.dataset.theme);
+          if(persisted!=='dark') throw new Error('Live dark mode did not persist');
+          if(errors.length) throw new Error(`Live page errors: ${errors.join(' | ')}`);
+          await browser.close();
+          NODE
