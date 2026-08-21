@@ -28,8 +28,9 @@ jobs:
           const urls=[...xml.matchAll(/<loc>([^<]+)<\/loc>/g)].map(m=>m[1]);
           if(new Set(urls).size!==urls.length) throw new Error('Duplicate sitemap URLs');
           const sitemapPaths=new Set(urls.map(u=>new URL(u).pathname));
-          if(urls.length!==28) throw new Error(`Expected 28 curated sitemap URLs, got ${urls.length}`);
+          if(urls.length!==44) throw new Error(`Expected 44 curated sitemap URLs, got ${urls.length}`);
 
+          const runtimeNoindex=new Set(['/frontend/']);
           function walk(dir){return fs.readdirSync(dir,{withFileTypes:true}).flatMap(e=>{if(['.git','node_modules'].includes(e.name))return[];const p=path.join(dir,e.name);return e.isDirectory()?walk(p):[p]})}
           const files=walk('.').filter(f=>f==='index.html'||f.endsWith(`${path.sep}index.html`));
           const indexable=[];
@@ -37,13 +38,18 @@ jobs:
             const html=fs.readFileSync(file,'utf8');
             const robots=html.match(/<meta[^>]+name=["']robots["'][^>]+content=["']([^"']*)["']/i)?.[1]||'';
             const route=file==='index.html'?'/':`/${path.dirname(file).split(path.sep).join('/')}/`;
-            if(!/noindex/i.test(robots)) indexable.push(route);
+            if(!/noindex/i.test(robots) && !runtimeNoindex.has(route)) indexable.push(route);
           }
           const outside=indexable.filter(route=>!sitemapPaths.has(route));
-          console.log(`HTML routes: ${files.length}; indexable: ${indexable.length}; sitemap: ${urls.length}; indexable outside sitemap: ${outside.length}`);
+          const stale=[...sitemapPaths].filter(route=>!indexable.includes(route));
+          console.log(`HTML routes: ${files.length}; indexable: ${indexable.length}; sitemap: ${urls.length}; outside sitemap: ${outside.length}; stale sitemap entries: ${stale.length}`);
           if(outside.length){
-            console.log(outside.join('\n'));
+            console.log('Indexable outside sitemap:\n'+outside.join('\n'));
             throw new Error('Indexable HTML routes exist outside the curated sitemap');
+          }
+          if(stale.length){
+            console.log('Sitemap entries not backed by an intentional indexable route:\n'+stale.join('\n'));
+            throw new Error('Sitemap contains a non-indexable or missing route');
           }
           NODE
 
@@ -58,7 +64,7 @@ jobs:
           cat /tmp/wrangler.log
           exit 1
 
-      - name: Verify edge endpoints, headers and CV metadata
+      - name: Verify edge endpoints, headers and metadata
         run: |
           set -e
           curl -fsSI http://127.0.0.1:8788/ > /tmp/headers.txt
@@ -70,19 +76,25 @@ jobs:
 
           test "$(curl -sS -o /dev/null -w '%{http_code}' http://127.0.0.1:8788/favicon.ico)" = "302"
           curl -fsS http://127.0.0.1:8788/manifest.webmanifest | grep -q 'LetterToolkit'
+          curl -fsS http://127.0.0.1:8788/ > /tmp/home-transformed.html
           curl -fsS http://127.0.0.1:8788/cv-builder/ > /tmp/cv.html
+          curl -fsS http://127.0.0.1:8788/frontend/ > /tmp/frontend.html
 
           node --input-type=module <<'NODE'
           import fs from 'node:fs';
-          const html=fs.readFileSync('/tmp/cv.html','utf8');
-          const h1=(html.match(/<h1\b/gi)||[]).length;
-          const canon=(html.match(/<link[^>]+rel=["']canonical["']/gi)||[]).length;
+          const home=fs.readFileSync('/tmp/home-transformed.html','utf8');
+          const cv=fs.readFileSync('/tmp/cv.html','utf8');
+          const frontend=fs.readFileSync('/tmp/frontend.html','utf8');
+          const h1=(cv.match(/<h1\b/gi)||[]).length;
+          const canon=(cv.match(/<link[^>]+rel=["']canonical["']/gi)||[]).length;
           if(h1!==1) throw new Error(`CV Builder has ${h1} H1 elements after edge transform`);
           if(canon!==1) throw new Error(`CV Builder has ${canon} canonical links after edge transform`);
-          if(!/SoftwareApplication/.test(html)) throw new Error('CV Builder structured data missing');
-          if(!/manifest\.webmanifest/.test(html)) throw new Error('Manifest link missing from transformed HTML');
-          if(!/site-config\.js[^>]*defer/i.test(html)) throw new Error('site-config.js is not deferred');
-          if(!/integrations\.js[^>]*defer/i.test(html)) throw new Error('integrations.js is not deferred');
+          if(!/SoftwareApplication/.test(cv)) throw new Error('CV Builder structured data missing');
+          if(!/manifest\.webmanifest/.test(home)) throw new Error('Manifest link missing from transformed homepage');
+          if(!/property=["']og:title["']/.test(home) || !/"@type":"WebSite"/.test(home)) throw new Error('Homepage Open Graph or WebSite JSON-LD missing');
+          if(!/site-config\.js[^>]*defer/i.test(home)) throw new Error('site-config.js is not deferred');
+          if(!/integrations\.js[^>]*defer/i.test(home)) throw new Error('integrations.js is not deferred');
+          if(!/name=["']robots["'][^>]+content=["']noindex,follow["']/i.test(frontend)) throw new Error('Legacy /frontend/ route is not runtime noindex');
           NODE
 
       - name: Test homepage dark mode in Chrome
