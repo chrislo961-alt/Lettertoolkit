@@ -24,11 +24,13 @@ jobs:
           import fs from 'node:fs';
           import path from 'node:path';
 
-          const xml=fs.readFileSync('sitemap.xml','utf8');
-          const urls=[...xml.matchAll(/<loc>([^<]+)<\/loc>/g)].map(m=>m[1]);
+          const indexXml=fs.readFileSync('sitemap.xml','utf8');
+          const sitemapFiles=[...indexXml.matchAll(/<loc>https:\/\/lettertoolkit\.com\/(sitemap-[^<]+\.xml)<\/loc>/g)].map(m=>m[1]);
+          if(sitemapFiles.length!==5) throw new Error(`Expected 5 child sitemaps, got ${sitemapFiles.length}`);
+          const urls=sitemapFiles.flatMap(file=>[...fs.readFileSync(file,'utf8').matchAll(/<loc>([^<]+)<\/loc>/g)].map(m=>m[1]));
           if(new Set(urls).size!==urls.length) throw new Error('Duplicate sitemap URLs');
           const sitemapPaths=new Set(urls.map(u=>new URL(u).pathname));
-          if(urls.length!==44) throw new Error(`Expected 44 curated sitemap URLs, got ${urls.length}`);
+          if(urls.length<80) throw new Error(`Expected expanded curated sitemap coverage, got ${urls.length}`);
 
           const runtimeNoindex=new Set(['/frontend/']);
           function walk(dir){return fs.readdirSync(dir,{withFileTypes:true}).flatMap(e=>{if(['.git','node_modules'].includes(e.name))return[];const p=path.join(dir,e.name);return e.isDirectory()?walk(p):[p]})}
