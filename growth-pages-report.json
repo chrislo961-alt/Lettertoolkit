@@ -1,0 +1,175 @@
+{
+  "generatedAt": "2026-08-23T08:05:35.237Z",
+  "dictionaryFiveLetterWords": 15921,
+  "patternPages": [
+    {
+      "slug": "5-letter-words-starting-with-st",
+      "count": 215
+    },
+    {
+      "slug": "5-letter-words-starting-with-cr",
+      "count": 124
+    },
+    {
+      "slug": "5-letter-words-starting-with-br",
+      "count": 137
+    },
+    {
+      "slug": "5-letter-words-starting-with-tr",
+      "count": 128
+    },
+    {
+      "slug": "5-letter-words-starting-with-ch",
+      "count": 190
+    },
+    {
+      "slug": "5-letter-words-starting-with-sh",
+      "count": 182
+    },
+    {
+      "slug": "5-letter-words-starting-with-cl",
+      "count": 113
+    },
+    {
+      "slug": "5-letter-words-starting-with-sp",
+      "count": 153
+    },
+    {
+      "slug": "5-letter-words-starting-with-gr",
+      "count": 120
+    },
+    {
+      "slug": "5-letter-words-starting-with-fl",
+      "count": 118
+    },
+    {
+      "slug": "5-letter-words-ending-in-er",
+      "count": 523
+    },
+    {
+      "slug": "5-letter-words-ending-in-ly",
+      "count": 185
+    },
+    {
+      "slug": "5-letter-words-ending-in-le",
+      "count": 179
+    },
+    {
+      "slug": "5-letter-words-ending-in-se",
+      "count": 182
+    },
+    {
+      "slug": "5-letter-words-ending-in-te",
+      "count": 157
+    },
+    {
+      "slug": "5-letter-words-ending-in-nd",
+      "count": 54
+    },
+    {
+      "slug": "5-letter-words-ending-in-ch",
+      "count": 171
+    },
+    {
+      "slug": "5-letter-words-ending-in-sh",
+      "count": 74
+    },
+    {
+      "slug": "5-letter-words-ending-in-ck",
+      "count": 102
+    },
+    {
+      "slug": "5-letter-words-ending-in-nt",
+      "count": 113
+    },
+    {
+      "slug": "5-letter-words-containing-ou",
+      "count": 281
+    },
+    {
+      "slug": "5-letter-words-containing-ea",
+      "count": 357
+    },
+    {
+      "slug": "5-letter-words-containing-ai",
+      "count": 309
+    },
+    {
+      "slug": "5-letter-words-containing-ie",
+      "count": 257
+    },
+    {
+      "slug": "5-letter-words-containing-oo",
+      "count": 336
+    },
+    {
+      "slug": "5-letter-words-containing-ar",
+      "count": 886
+    },
+    {
+      "slug": "5-letter-words-containing-or",
+      "count": 518
+    },
+    {
+      "slug": "5-letter-words-containing-th",
+      "count": 283
+    },
+    {
+      "slug": "5-letter-words-containing-ch",
+      "count": 473
+    },
+    {
+      "slug": "5-letter-words-containing-qu",
+      "count": 122
+    }
+  ],
+  "themePages": [
+    {
+      "slug": "5-letter-words-with-double-letters",
+      "count": 2082
+    },
+    {
+      "slug": "5-letter-words-with-no-repeated-letters",
+      "count": 10176
+    },
+    {
+      "slug": "5-letter-words-with-3-vowels",
+      "count": 2074
+    },
+    {
+      "slug": "5-letter-words-with-4-vowels",
+      "count": 54
+    },
+    {
+      "slug": "5-letter-words-without-aeiou",
+      "count": 54
+    },
+    {
+      "slug": "5-letter-words-with-q",
+      "count": 139
+    },
+    {
+      "slug": "high-scoring-5-letter-words",
+      "count": 910
+    },
+    {
+      "slug": "5-letter-palindromes",
+      "count": 41
+    },
+    {
+      "slug": "5-letter-words-starting-and-ending-with-s",
+      "count": 299
+    },
+    {
+      "slug": "5-letter-words-with-y-as-the-only-vowel",
+      "count": 46
+    }
+  ],
+  "sitemaps": {
+    "static": 6,
+    "tools": 13,
+    "guides": 10,
+    "wordLists": 48,
+    "words": 1
+  }
+}
