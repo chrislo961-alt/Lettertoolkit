@@ -1,94 +1,36 @@
-const editor = document.getElementById('editor');
-const titleInput = document.getElementById('docTitle');
-const saveStatus = document.getElementById('saveStatus');
-const fileInput = document.getElementById('fileInput');
-const downloadMenu = document.getElementById('downloadMenu');
-let saveTimer;
-let deferredPrompt;
-
-const STORAGE_KEY='lettertoolkit-writer-v1';
-
-function exec(cmd,value=null){
-  editor.focus();
-  document.execCommand(cmd,false,value);
-  scheduleSave();
-  updateStats();
-}
-
-document.querySelectorAll('[data-cmd]').forEach(btn=>btn.addEventListener('click',()=>exec(btn.dataset.cmd)));
-document.getElementById('blockFormat').addEventListener('change',e=>exec('formatBlock',e.target.value));
-document.getElementById('undoBtn').addEventListener('click',()=>exec('undo'));
-document.getElementById('redoBtn').addEventListener('click',()=>exec('redo'));
-
-function getPlainText(){return editor.innerText.replace(/\u00a0/g,' ').trim();}
-function updateStats(){
-  const text=getPlainText();
-  const words=text?text.split(/\s+/).filter(Boolean).length:0;
-  const chars=text.length;
-  const paras=editor.querySelectorAll('p,h1,h2,h3,blockquote,li').length || (text?1:0);
-  document.getElementById('wordCount').textContent=words;
-  document.getElementById('charCount').textContent=chars;
-  document.getElementById('readingTime').textContent=words?Math.max(1,Math.ceil(words/220)):0;
-  document.getElementById('sideWords').textContent=words;
-  document.getElementById('sideChars').textContent=chars;
-  document.getElementById('paragraphCount').textContent=paras;
-}
-function scheduleSave(){
-  saveStatus.textContent='Saving…'; saveStatus.style.color='#b45309';
-  clearTimeout(saveTimer); saveTimer=setTimeout(saveDocument,350);
-}
-function saveDocument(){
-  localStorage.setItem(STORAGE_KEY,JSON.stringify({title:titleInput.value,html:editor.innerHTML,theme:document.body.classList.contains('dark')?'dark':'light',updated:Date.now()}));
-  saveStatus.textContent='Saved'; saveStatus.style.color='#15803d';
-}
-function loadDocument(){
-  const raw=localStorage.getItem(STORAGE_KEY); if(!raw){updateStats();return;}
-  try{const d=JSON.parse(raw); if(d.title) titleInput.value=d.title; if(d.html) editor.innerHTML=d.html; if(d.theme==='dark'){document.body.classList.add('dark');document.getElementById('themeBtn').textContent='Light mode';}}catch{}
-  updateStats();
-}
-editor.addEventListener('input',()=>{scheduleSave();updateStats();});
-titleInput.addEventListener('input',scheduleSave);
-
-function sanitizeFilename(name){return (name||'document').trim().replace(/[\\/:*?"<>|]+/g,'-').replace(/\s+/g,' ').slice(0,80)||'document';}
-function downloadBlob(blob,filename){const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download=filename;document.body.appendChild(a);a.click();setTimeout(()=>{URL.revokeObjectURL(a.href);a.remove();},1000);}
-function exportFile(type){
-  const name=sanitizeFilename(titleInput.value);
-  if(type==='txt') downloadBlob(new Blob([getPlainText()],{type:'text/plain;charset=utf-8'}),name+'.txt');
-  if(type==='html'){
-    const html=`<!doctype html><html><head><meta charset="utf-8"><title>${escapeHtml(titleInput.value)}</title></head><body>${editor.innerHTML}</body></html>`;
-    downloadBlob(new Blob([html],{type:'text/html;charset=utf-8'}),name+'.html');
-  }
-  if(type==='doc'){
-    const doc=`<html xmlns:o="urn:schemas-microsoft-com:office:office" xmlns:w="urn:schemas-microsoft-com:office:word" xmlns="http://www.w3.org/TR/REC-html40"><head><meta charset="utf-8"><title>${escapeHtml(titleInput.value)}</title></head><body>${editor.innerHTML}</body></html>`;
-    downloadBlob(new Blob(['\ufeff',doc],{type:'application/msword'}),name+'.doc');
-  }
-  if(type==='pdf') window.print();
-  downloadMenu.hidden=true;
-}
-function escapeHtml(s=''){return s.replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;'}[m]));}
-
-document.getElementById('downloadBtn').addEventListener('click',()=>downloadMenu.hidden=!downloadMenu.hidden);
-downloadMenu.querySelectorAll('[data-export]').forEach(b=>b.addEventListener('click',()=>exportFile(b.dataset.export)));
-document.addEventListener('click',e=>{if(!e.target.closest('.menu-wrap'))downloadMenu.hidden=true;});
-
-document.getElementById('newBtn').addEventListener('click',()=>{
-  if(!confirm('Start a new document? Your current draft is already saved locally.')) return;
-  titleInput.value='Untitled document'; editor.innerHTML='<p><br></p>'; updateStats(); saveDocument(); editor.focus();
-});
-document.getElementById('openBtn').addEventListener('click',()=>fileInput.click());
-fileInput.addEventListener('change',async()=>{
-  const file=fileInput.files[0]; if(!file)return; const text=await file.text(); titleInput.value=file.name.replace(/\.[^.]+$/,'');
-  if(/\.html?$/i.test(file.name)) editor.innerHTML=text; else editor.innerHTML=text.split(/\n{2,}/).map(p=>`<p>${escapeHtml(p).replace(/\n/g,'<br>')}</p>`).join('');
-  updateStats();saveDocument();fileInput.value='';
-});
-
-document.getElementById('themeBtn').addEventListener('click',()=>{
-  document.body.classList.toggle('dark'); const dark=document.body.classList.contains('dark');
-  document.getElementById('themeBtn').textContent=dark?'Light mode':'Dark mode';saveDocument();
-});
-
-window.addEventListener('beforeinstallprompt',e=>{e.preventDefault();deferredPrompt=e;document.getElementById('installBtn').hidden=false;});
-document.getElementById('installBtn').addEventListener('click',async()=>{if(!deferredPrompt)return;deferredPrompt.prompt();await deferredPrompt.userChoice;deferredPrompt=null;document.getElementById('installBtn').hidden=true;});
-
-if('serviceWorker' in navigator){window.addEventListener('load',()=>navigator.serviceWorker.register('sw.js').catch(()=>{}));}
-loadDocument();
+const $=id=>document.getElementById(id),editor=$('editor'),titleInput=$('docTitle'),saveStatus=$('saveStatus'),fileInput=$('fileInput');
+let current=null,saveTimer,lastVersionAt=0,deferredPrompt,documents=[];
+const makeId=()=>crypto.randomUUID?crypto.randomUUID():Date.now().toString(36)+Math.random().toString(36).slice(2);
+const escapeHtml=(s='')=>s.replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;'}[m]));
+const filename=name=>(name||'document').trim().replace(/[\\/:*?"<>|]+/g,'-').replace(/\s+/g,' ').slice(0,80)||'document';
+function toast(message){const el=$('toast');el.textContent=message;el.hidden=false;clearTimeout(el.timer);el.timer=setTimeout(()=>el.hidden=true,2600)}
+function sanitizeHtml(html){const doc=new DOMParser().parseFromString(html,'text/html'),allowed=new Set(['P','BR','H1','H2','H3','BLOCKQUOTE','UL','OL','LI','STRONG','B','EM','I','U','S','STRIKE','A','SPAN']);for(const el of [...doc.body.querySelectorAll('*')]){if(!allowed.has(el.tagName)){el.replaceWith(...el.childNodes);continue}for(const a of [...el.attributes])if(!['href','style'].includes(a.name))el.removeAttribute(a.name);if(el.hasAttribute('href')&&!/^https?:|^mailto:/i.test(el.getAttribute('href')))el.removeAttribute('href');if(el.hasAttribute('style')){const keep=[];for(const p of el.style){if(['color','background-color','font-family','font-size','text-align'].includes(p))keep.push(p+':'+el.style.getPropertyValue(p))}keep.length?el.setAttribute('style',keep.join(';')):el.removeAttribute('style')}}return doc.body.innerHTML}
+function plain(){return editor.innerText.replace(/\u00a0/g,' ').trim()}
+function updateStats(){const text=plain(),words=text?text.split(/\s+/).filter(Boolean).length:0,chars=text.length,paras=editor.querySelectorAll('p,h1,h2,h3,blockquote,li').length||(text?1:0);$('wordCount').textContent=words;$('charCount').textContent=chars;$('paragraphCount').textContent=paras;$('readingTime').textContent=words?Math.max(1,Math.ceil(words/220)):0;const goal=Number($('wordGoal').value)||0;$('goalProgress').textContent=goal?Math.min(100,Math.round(words/goal*100))+'% of '+goal.toLocaleString()+' words':''}
+function exec(cmd,value=null){editor.focus();document.execCommand(cmd,false,value);scheduleSave();updateStats()}
+document.querySelectorAll('[data-cmd]').forEach(b=>b.addEventListener('click',()=>exec(b.dataset.cmd)));
+$('blockFormat').addEventListener('change',e=>exec('formatBlock',e.target.value));$('fontName').addEventListener('change',e=>exec('fontName',e.target.value));$('fontSize').addEventListener('change',e=>exec('fontSize',e.target.value));$('foreColor').addEventListener('input',e=>exec('foreColor',e.target.value));$('hiliteColor').addEventListener('input',e=>exec('hiliteColor',e.target.value));$('undoBtn').onclick=()=>exec('undo');$('redoBtn').onclick=()=>exec('redo');
+$('linkBtn').onclick=()=>{const url=prompt('Link URL (https://...)');if(url&&/^https?:\/\//i.test(url))exec('createLink',url);else if(url)toast('Use a complete http:// or https:// address.')};
+async function saveDocument(forceVersion=false){if(!current)return;current={...current,title:titleInput.value.trim()||'Untitled document',html:sanitizeHtml(editor.innerHTML),updated:Date.now(),settings:{pageSize:$('pageSize').value,margins:$('pageMargins').value,language:$('spellLanguage').value,goal:Number($('wordGoal').value)||0}};await WriterDB.putDocument(current);if(forceVersion||Date.now()-lastVersionAt>300000){await WriterDB.addVersion(current);await WriterDB.pruneVersions(current.id);lastVersionAt=Date.now()}saveStatus.textContent='Saved locally';saveStatus.classList.remove('saving');$('docUpdated').textContent='Updated '+new Date(current.updated).toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'});await refreshLibrary()}
+function scheduleSave(){saveStatus.textContent='Saving…';saveStatus.classList.add('saving');clearTimeout(saveTimer);saveTimer=setTimeout(()=>saveDocument().catch(()=>toast('Local save failed. Download a backup.')),400)}
+function applySettings(s={}){$('pageSize').value=s.pageSize||'a4';$('pageMargins').value=s.margins||'normal';$('spellLanguage').value=s.language||'en';$('wordGoal').value=s.goal||'';editor.lang=$('spellLanguage').value;document.body.dataset.pageSize=$('pageSize').value;document.body.dataset.margins=$('pageMargins').value;updateStats()}
+async function openDocument(id){await saveDocument();const doc=await WriterDB.getDocument(id);if(!doc)return;current=doc;titleInput.value=doc.title;editor.innerHTML=sanitizeHtml(doc.html)||'<p><br></p>';applySettings(doc.settings);lastVersionAt=Date.now();updateStats();await refreshLibrary();editor.focus()}
+async function createDocument(template=WriterTemplates[0]){await saveDocument(true);const now=Date.now(),doc={id:makeId(),title:template.title,html:sanitizeHtml(template.html),created:now,updated:now,settings:{pageSize:'a4',margins:'normal',language:'en',goal:0}};await WriterDB.putDocument(doc);current=doc;titleInput.value=doc.title;editor.innerHTML=doc.html;applySettings(doc.settings);await WriterDB.addVersion(doc);lastVersionAt=now;await refreshLibrary();editor.focus()}
+async function refreshLibrary(){documents=await WriterDB.listDocuments();const q=$('librarySearch').value.trim().toLowerCase(),list=$('documentList');list.textContent='';for(const d of documents.filter(x=>!q||x.title.toLowerCase().includes(q))){const b=document.createElement('button');b.type='button';b.className='document-item'+(current&&d.id===current.id?' active':'');b.innerHTML='<strong>'+escapeHtml(d.title)+'</strong><span>'+new Date(d.updated).toLocaleDateString()+' · '+(d.html.replace(/<[^>]+>/g,' ').trim().split(/\s+/).filter(Boolean).length)+' words</span>';b.onclick=()=>openDocument(d.id);list.append(b)}if(!list.children.length)list.innerHTML='<p class="empty-state">No matching documents.</p>'}
+async function migrate(){if((await WriterDB.listDocuments()).length)return;const raw=localStorage.getItem('lettertoolkit-writer-v1');if(!raw)return;try{const d=JSON.parse(raw),now=Date.now();await WriterDB.putDocument({id:makeId(),title:d.title||'Recovered document',html:sanitizeHtml(d.html||''),created:d.updated||now,updated:d.updated||now,settings:{pageSize:'a4',margins:'normal',language:'en',goal:0}});toast('Your previous Writer draft was recovered.')}catch{}}
+editor.addEventListener('input',()=>{scheduleSave();updateStats()});titleInput.addEventListener('input',scheduleSave);$('wordGoal').addEventListener('input',()=>{scheduleSave();updateStats()});for(const id of ['pageSize','pageMargins','spellLanguage'])$(id).addEventListener('change',()=>{applySettings({pageSize:$('pageSize').value,margins:$('pageMargins').value,language:$('spellLanguage').value,goal:$('wordGoal').value});scheduleSave()});
+function download(blob,name){const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download=name;document.body.append(a);a.click();setTimeout(()=>{URL.revokeObjectURL(a.href);a.remove()},1500)}
+function markdown(){const d=new DOMParser().parseFromString('<body>'+editor.innerHTML+'</body>','text/html');for(const el of [...d.body.querySelectorAll('h1,h2,h3,strong,b,em,i,li,blockquote,br')].reverse()){let t=el.textContent;if(el.matches('h1,h2,h3'))t='#'.repeat(Number(el.tagName[1]))+' '+t+'\n\n';else if(el.matches('strong,b'))t='**'+t+'**';else if(el.matches('em,i'))t='*'+t+'*';else if(el.matches('li'))t='- '+t+'\n';else if(el.matches('blockquote'))t='> '+t+'\n\n';else if(el.tagName==='BR')t='\n';el.replaceWith(t)}return d.body.textContent.replace(/\n{3,}/g,'\n\n').trim()}
+async function exportFile(type){await saveDocument(true);const name=filename(titleInput.value);if(type==='docx')download(WriterDocx.exportDocx(editor.innerHTML),name+'.docx');if(type==='txt')download(new Blob([plain()],{type:'text/plain;charset=utf-8'}),name+'.txt');if(type==='md')download(new Blob([markdown()],{type:'text/markdown;charset=utf-8'}),name+'.md');if(type==='html')download(new Blob(['<!doctype html><html><head><meta charset="utf-8"><title>'+escapeHtml(titleInput.value)+'</title></head><body>'+sanitizeHtml(editor.innerHTML)+'</body></html>'],{type:'text/html;charset=utf-8'}),name+'.html');if(type==='pdf')window.print();$('downloadMenu').hidden=true;$('downloadBtn').setAttribute('aria-expanded','false')}
+$('downloadBtn').onclick=e=>{e.stopPropagation();$('downloadMenu').hidden=!$('downloadMenu').hidden;$('downloadBtn').setAttribute('aria-expanded',String(!$('downloadMenu').hidden))};$('downloadMenu').querySelectorAll('[data-export]').forEach(b=>b.onclick=()=>exportFile(b.dataset.export).catch(e=>toast(e.message)));
+$('moreBtn').onclick=e=>{e.stopPropagation();$('moreMenu').hidden=!$('moreMenu').hidden;$('moreBtn').setAttribute('aria-expanded',String(!$('moreMenu').hidden))};document.addEventListener('click',e=>{if(!e.target.closest('.menu-wrap')){$('downloadMenu').hidden=true;$('moreMenu').hidden=true}});
+$('openBtn').onclick=()=>fileInput.click();fileInput.onchange=async()=>{const f=fileInput.files[0];if(!f)return;try{let html;if(/\.docx$/i.test(f.name))html=await WriterDocx.importDocx(await f.arrayBuffer());else{const text=await f.text();if(/\.html?$/i.test(f.name))html=sanitizeHtml(text);else if(/\.md$/i.test(f.name))html=text.split(/\r?\n/).map(line=>{const m=line.match(/^(#{1,3})\s+(.*)$/);return m?'<h'+m[1].length+'>'+escapeHtml(m[2])+'</h'+m[1].length+'>':line.trim()?'<p>'+escapeHtml(line)+'</p>':'<p><br></p>'}).join('');else html=text.split(/\n{2,}/).map(p=>'<p>'+escapeHtml(p).replace(/\n/g,'<br>')+'</p>').join('')}await createDocument({title:f.name.replace(/\.[^.]+$/,''),html});toast('Document opened as a new local copy.')}catch(e){toast('Could not open file: '+e.message)}fileInput.value=''};
+$('newBtn').onclick=$('libraryNewBtn').onclick=()=>createDocument();$('duplicateBtn').onclick=()=>createDocument({title:(current?.title||'Document')+' copy',html:editor.innerHTML});$('deleteBtn').onclick=async()=>{if(!current||!confirm('Delete this document and its local versions? This cannot be undone.'))return;await WriterDB.deleteDocument(current.id);const left=await WriterDB.listDocuments();left.length?await openDocument(left[0].id):await createDocument();toast('Document deleted.')};
+function renderTemplates(){const grid=$('templateGrid'),quick=$('quickTemplates');grid.textContent='';quick.textContent='';for(const t of WriterTemplates){const b=document.createElement('button');b.type='button';b.className='template-card';b.innerHTML='<strong>'+escapeHtml(t.name)+'</strong><span>'+escapeHtml(t.description)+'</span>';b.onclick=async()=>{$('templateDialog').close();await createDocument(t)};grid.append(b)}for(const t of WriterTemplates.slice(1,5)){const b=document.createElement('button');b.type='button';b.textContent=t.name;b.onclick=()=>createDocument(t);quick.append(b)}}
+$('templatesBtn').onclick=()=>$('templateDialog').showModal();$('historyBtn').onclick=async()=>{const versions=await WriterDB.versions(current.id),list=$('historyList');list.textContent='';for(const v of versions){const row=document.createElement('div');row.className='history-item';row.innerHTML='<div><strong>'+escapeHtml(v.title)+'</strong><span>'+new Date(v.created).toLocaleString()+'</span></div><button type="button">Restore</button>';row.querySelector('button').onclick=async()=>{editor.innerHTML=sanitizeHtml(v.html);titleInput.value=v.title;scheduleSave();updateStats();$('historyDialog').close();toast('Version restored as the current draft.')};list.append(row)}if(!versions.length)list.innerHTML='<p>No recovery versions yet.</p>';$('historyDialog').showModal()};$('historyClose').onclick=()=>$('historyDialog').close();
+$('findBtn').onclick=()=>{$('findBar').hidden=!$('findBar').hidden;if(!$('findBar').hidden)$('findText').focus()};$('findCloseBtn').onclick=()=>$('findBar').hidden=true;$('findNextBtn').onclick=()=>{editor.focus();window.find($('findText').value,false,false,true)};$('replaceBtn').onclick=()=>{if(getSelection().toString()===$('findText').value)exec('insertText',$('replaceText').value);else $('findNextBtn').click()};$('replaceAllBtn').onclick=()=>{const find=$('findText').value;if(!find)return;let changed=0;const walk=document.createTreeWalker(editor,NodeFilter.SHOW_TEXT);const nodes=[];while(walk.nextNode())nodes.push(walk.currentNode);for(const n of nodes){const next=n.nodeValue.split(find).join($('replaceText').value);if(next!==n.nodeValue){changed++;n.nodeValue=next}}scheduleSave();updateStats();toast('Replaced text in '+changed+' text block'+(changed===1?'':'s')+'.')};
+$('focusBtn').onclick=()=>{document.body.classList.toggle('focus-mode');$('focusBtn').textContent=document.body.classList.contains('focus-mode')?'Exit focus':'Focus'};$('themeBtn').onclick=()=>{document.body.classList.toggle('dark');const dark=document.body.classList.contains('dark');$('themeBtn').textContent=dark?'Light mode':'Dark mode';localStorage.setItem('lt-writer-theme',dark?'dark':'light')};$('jumpToEditor').onclick=()=>editor.scrollIntoView({behavior:'smooth',block:'center'});
+window.addEventListener('beforeinstallprompt',e=>{e.preventDefault();deferredPrompt=e;$('installBtn').hidden=false});$('installBtn').onclick=async()=>{if(!deferredPrompt)return;deferredPrompt.prompt();await deferredPrompt.userChoice;deferredPrompt=null;$('installBtn').hidden=true};const ios=/iphone|ipad|ipod/i.test(navigator.userAgent);if(ios)$('installHelp').textContent='On iPhone or iPad: tap Share in Safari, then Add to Home Screen.';
+function online(){const off=!navigator.onLine;$('offlineBadge').hidden=!off}addEventListener('online',online);addEventListener('offline',online);online();
+if('serviceWorker'in navigator)addEventListener('load',()=>navigator.serviceWorker.register('sw.js').catch(()=>{}));
+async function init(){if(localStorage.getItem('lt-writer-theme')==='dark'){$('themeBtn').click()}await migrate();documents=await WriterDB.listDocuments();if(documents.length)await openDocument(documents[0].id);else await createDocument();renderTemplates();$('librarySearch').oninput=refreshLibrary;updateStats();const params=new URLSearchParams(location.search);if(params.has('new'))await createDocument();if(params.has('templates'))$('templateDialog').showModal()}init().catch(e=>{console.error(e);toast('Writer could not start local storage. Download work frequently.')});

@@ -121,6 +121,42 @@ jobs:
           await browser.close();
           NODE
 
+      - name: Test Writer storage, templates and DOCX round trip
+        run: |
+          node --input-type=module <<'NODE'
+          import {chromium} from 'playwright-core';
+          import fs from 'node:fs';
+          import {execFileSync} from 'node:child_process';
+          const browser=await chromium.launch({executablePath:'/usr/bin/google-chrome',headless:true,args:['--no-sandbox','--disable-gpu']});
+          const context=await browser.newContext({acceptDownloads:true});
+          const page=await context.newPage();
+          const errors=[];
+          page.on('pageerror',e=>errors.push(e.message));
+          await page.goto('http://127.0.0.1:8788/writer/',{waitUntil:'networkidle'});
+          await page.locator('#docTitle').fill('Writer CI document');
+          await page.locator('#editor').fill('Hello from the LetterToolkit DOCX test.');
+          await page.waitForTimeout(700);
+          const docs=await page.evaluate(()=>WriterDB.listDocuments());
+          if(docs.length!==1||docs[0].title!=='Writer CI document') throw new Error('Writer IndexedDB autosave failed');
+          await page.click('#templatesBtn');
+          if(!await page.locator('#templateDialog').evaluate(el=>el.open)) throw new Error('Template dialog did not open');
+          await page.locator('#templateDialog button[value="cancel"]').click();
+          await page.click('#downloadBtn');
+          const downloadPromise=page.waitForEvent('download');
+          await page.click('[data-export="docx"]');
+          const download=await downloadPromise;
+          await download.saveAs('/tmp/writer-ci.docx');
+          execFileSync('unzip',['-t','/tmp/writer-ci.docx'],{stdio:'inherit'});
+          const xml=execFileSync('unzip',['-p','/tmp/writer-ci.docx','word/document.xml'],{encoding:'utf8'});
+          if(!xml.includes('Hello from the LetterToolkit DOCX test.')) throw new Error('DOCX export content missing');
+          await page.setInputFiles('#fileInput','/tmp/writer-ci.docx');
+          await page.waitForTimeout(900);
+          const imported=await page.locator('#editor').innerText();
+          if(!imported.includes('Hello from the LetterToolkit DOCX test.')) throw new Error('DOCX import round trip failed');
+          if(errors.length) throw new Error('Writer page errors: '+errors.join(' | '));
+          await browser.close();
+          NODE
+
       - name: Stop preview
         if: always()
         run: kill "$(cat /tmp/wrangler.pid 2>/dev/null)" 2>/dev/null || true
