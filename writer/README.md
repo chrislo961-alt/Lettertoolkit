@@ -1,21 +1,24 @@
-# LetterToolkit Writer v1
+# LetterToolkit Writer v2
 
-A private browser-based writer that can also be installed as a PWA.
+A private browser-based word processor and installable PWA.
 
 ## Features
-- Rich text formatting
-- Autosave to localStorage
-- Word, character and paragraph counts
-- Open TXT/HTML
-- Export TXT/HTML/Word-compatible DOC
+
+- Multiple local documents backed by IndexedDB
+- Automatic saving and local recovery versions
+- Native OOXML DOCX import and export for common document structures
+- TXT, HTML and Markdown import/export
 - Print / Save as PDF
-- Dark mode
-- Installable PWA on supported browsers
+- Eight practical writing templates
+- Formatting, links, colors, find/replace, page settings, language and word goals
+- Dark mode, focus mode and responsive mobile layout
+- Offline caching and install guidance
 - No account and no server-side document storage
 
-## Deploy on LetterToolkit
-Copy this folder to `/writer/` in the LetterToolkit repository.
-Then visit `https://lettertoolkit.com/writer/`.
+## DOCX scope
 
-## Notes
-The `.doc` export is Word-compatible HTML, not a native `.docx` package. A true DOCX exporter can be added in v2.
+Writer preserves common paragraphs, headings, lists, bold, italic, underline and strikethrough. Advanced Word features such as tracked changes, comments, columns, charts, macros and pixel-perfect pagination are intentionally simplified.
+
+## Privacy
+
+Documents remain in the browser's IndexedDB. Clearing site data can remove them, so the interface tells users to download important work as a backup.

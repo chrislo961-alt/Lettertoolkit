@@ -1,10 +1,1 @@
-{
-  "name":"LetterToolkit Writer",
-  "short_name":"Writer",
-  "start_url":"./",
-  "display":"standalone",
-  "background_color":"#eef3fb",
-  "theme_color":"#5b5ce2",
-  "description":"A fast, private writing app from LetterToolkit.",
-  "icons":[{"src":"assets/writer-icon.svg","sizes":"any","type":"image/svg+xml","purpose":"any maskable"}]
-}
+{"name":"LetterToolkit Writer – Private Word Processor","short_name":"LT Writer","id":"/writer/","start_url":"/writer/","scope":"/writer/","display":"standalone","background_color":"#eef3fb","theme_color":"#5b5ce2","description":"A free private word processor with local documents, DOCX support, templates and offline mode.","categories":["productivity","utilities"],"icons":[{"src":"assets/writer-icon-192.png","sizes":"192x192","type":"image/png","purpose":"any maskable"},{"src":"assets/writer-icon-512.png","sizes":"512x512","type":"image/png","purpose":"any maskable"},{"src":"assets/writer-icon.svg","sizes":"any","type":"image/svg+xml","purpose":"any"}],"shortcuts":[{"name":"New document","short_name":"New","url":"/writer/?new=1","icons":[{"src":"assets/writer-icon-192.png","sizes":"192x192"}]},{"name":"Templates","short_name":"Templates","url":"/writer/?templates=1","icons":[{"src":"assets/writer-icon-192.png","sizes":"192x192"}]}]}
