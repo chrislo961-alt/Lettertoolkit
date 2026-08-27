@@ -7,7 +7,7 @@ if(root){
   const curated=Array.from(listEl?.querySelectorAll('.seo-word')||[]).map(el=>el.textContent.trim().toLowerCase()).filter(w=>/^[a-z]+$/.test(w));
   const supportsModes=(type==='length'&&lengthValue>=6&&lengthValue<=15)||root.dataset.commonMode==='true';
   const supportsBrowseControls=['starts','ends','contains'].includes(type);
-  let all=[],filtered=[],shown=120,mode=supportsModes&&curated.length?'common':'full',browseLength=0,browseSort='alpha';
+  let all=[],filtered=[],shown=120,mode=supportsModes&&curated.length?'common':'full',browseLength=0,browseSort='alpha',fullReady=!supportsModes;
   const match=w=>type==='length'?w.length===lengthValue:type==='starts'?w.startsWith(value):type==='ends'?w.endsWith(value):w.includes(value);
 
   const sharedStyle=document.createElement('style');
@@ -16,11 +16,14 @@ if(root){
 
   const copyRow=document.createElement('div');copyRow.className='seo-copy-row';copyRow.innerHTML='<button class="seo-copy-button" id="seoCopyVisible" type="button">Copy visible words</button>';moreEl?.insertAdjacentElement('beforebegin',copyRow);
   const copyButton=document.getElementById('seoCopyVisible');
+  let modeNote=null,fullModeInput=null;
 
   if(supportsModes&&curated.length){
-    const style=document.createElement('style');style.textContent='.seo-dictionary-mode{margin:18px 0 4px;padding:14px 16px;border:1px solid var(--line);border-radius:16px;background:var(--surface-2)}.seo-dictionary-mode legend{padding:0 6px;font-weight:850}.seo-mode-options{display:flex;gap:10px;flex-wrap:wrap}.seo-mode-options label{display:flex;align-items:center;gap:8px;background:var(--surface);border:1px solid var(--line);border-radius:999px;padding:8px 12px;font-weight:800;cursor:pointer}.seo-mode-note{margin:10px 0 0;color:var(--muted);font-size:.9rem}@media(max-width:560px){.seo-mode-options{display:grid;grid-template-columns:1fr}.seo-mode-options label{border-radius:12px}}';document.head.appendChild(style);
-    const field=document.createElement('fieldset');field.className='seo-dictionary-mode';field.innerHTML='<legend>Dictionary view</legend><div class="seo-mode-options"><label><input type="radio" name="seoDictionaryMode" value="common" checked> Common words</label><label><input type="radio" name="seoDictionaryMode" value="full"> Full dictionary</label></div><p class="seo-mode-note">Common words shows familiar examples first. Full dictionary includes rare and specialist entries too.</p>';
-    filterEl.closest('.seo-filter-label')?.insertAdjacentElement('afterend',field);field.addEventListener('change',e=>{if(e.target.name==='seoDictionaryMode'){mode=e.target.value;shown=120;render();}});
+    const style=document.createElement('style');style.textContent='.seo-dictionary-mode{margin:18px 0 4px;padding:14px 16px;border:1px solid var(--line);border-radius:16px;background:var(--surface-2)}.seo-dictionary-mode legend{padding:0 6px;font-weight:850}.seo-mode-options{display:flex;gap:10px;flex-wrap:wrap}.seo-mode-options label{display:flex;align-items:center;gap:8px;background:var(--surface);border:1px solid var(--line);border-radius:999px;padding:8px 12px;font-weight:800;cursor:pointer}.seo-mode-options label:has(input:disabled){opacity:.6;cursor:wait}.seo-mode-note{margin:10px 0 0;color:var(--muted);font-size:.9rem}@media(max-width:560px){.seo-mode-options{display:grid;grid-template-columns:1fr}.seo-mode-options label{border-radius:12px}}';document.head.appendChild(style);
+    const field=document.createElement('fieldset');field.className='seo-dictionary-mode';field.innerHTML='<legend>Dictionary view</legend><div class="seo-mode-options"><label><input type="radio" name="seoDictionaryMode" value="common" checked> Common words</label><label><input type="radio" name="seoDictionaryMode" value="full" disabled> Full dictionary</label></div><p class="seo-mode-note">Loading the full dictionary… Common words are ready now.</p>';
+    filterEl.closest('.seo-filter-label')?.insertAdjacentElement('afterend',field);
+    modeNote=field.querySelector('.seo-mode-note');fullModeInput=field.querySelector('input[value="full"]');
+    field.addEventListener('change',e=>{if(e.target.name==='seoDictionaryMode'&&!e.target.disabled){mode=e.target.value;shown=120;render();}});
   }
 
   if(supportsBrowseControls){
@@ -41,6 +44,13 @@ if(root){
   }
 
   copyButton?.addEventListener('click',async()=>{const visible=filtered.slice(0,shown);if(!visible.length)return;try{await navigator.clipboard.writeText(visible.join('\n'));const old=copyButton.textContent;copyButton.textContent='Copied';setTimeout(()=>{copyButton.textContent=old;},1200);}catch{messageEl.textContent='Copy failed. Select the words manually.';}});
-  fetch('/words.txt').then(r=>{if(!r.ok)throw new Error('Dictionary unavailable');return r.text();}).then(text=>{all=text.split(/\r?\n/).map(w=>w.trim().toLowerCase()).filter(w=>/^[a-z]+$/.test(w)&&match(w));shown=120;render();}).catch(()=>{if(supportsModes&&curated.length){mode='common';document.querySelectorAll('input[name="seoDictionaryMode"]').forEach(input=>{input.checked=input.value==='common';if(input.value==='full')input.disabled=true;});render();messageEl.textContent='The full dictionary could not load, so the curated common words are shown instead.';}else{messageEl.textContent='The full list could not load. The words shown below are still available.';moreEl.hidden=true;if(copyButton)copyButton.disabled=!curated.length;}});
+  fetch('/words.txt').then(r=>{if(!r.ok)throw new Error('Dictionary unavailable');return r.text();}).then(text=>{
+    all=text.split(/\r?\n/).map(w=>w.trim().toLowerCase()).filter(w=>/^[a-z]+$/.test(w)&&match(w));shown=120;fullReady=true;
+    if(fullModeInput){fullModeInput.disabled=false;if(modeNote)modeNote.textContent='Common words shows familiar examples first. Full dictionary includes rare and specialist entries too.';}
+    render();
+  }).catch(()=>{
+    if(supportsModes&&curated.length){mode='common';document.querySelectorAll('input[name="seoDictionaryMode"]').forEach(input=>{input.checked=input.value==='common';if(input.value==='full')input.disabled=true;});if(modeNote)modeNote.textContent='Full dictionary is unavailable right now. Common words are still available.';render();messageEl.textContent='The full dictionary could not load, so the curated common words are shown instead.';}
+    else{messageEl.textContent='The full list could not load. The words shown below are still available.';moreEl.hidden=true;if(copyButton)copyButton.disabled=!curated.length;}
+  });
   filterEl.addEventListener('input',()=>{shown=120;render();});moreEl.addEventListener('click',()=>{shown+=200;render();});if(supportsModes&&curated.length)render();
 }
