@@ -35,9 +35,13 @@ export function unscramble({letters,wordsByLength,minLength=2,filters={},sort='l
   }
   return sortResults(found,sort);
 }
-export function exactAnagrams({letters,wordsByLength,sort='score'}){
-  return sortResults(unscramble({letters,wordsByLength,minLength:letters.length,sort})
-    .filter(item=>item.word.length===letters.length && item.word!==letters.toLowerCase()),sort);
+export function exactAnagrams({letters,wordsByLength,sort='alpha',filters={},includeOriginal=false}){
+  const normalized=letters.toLowerCase();
+  return sortResults(
+    unscramble({letters,wordsByLength,minLength:letters.length,filters,sort})
+      .filter(item=>item.word.length===letters.length && (includeOriginal || item.word!==normalized)),
+    sort
+  );
 }
 export function findWords({wordsByLength,length=0,starts='',contains='',ends='',pattern='',excluded='',sort='alpha',limit=5000}){
   const lengths=length ? [Number(length)] : [...wordsByLength.keys()].sort((a,b)=>a-b);
