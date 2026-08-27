@@ -26,54 +26,32 @@ const bind=(id,fn)=>{const el=$(id);if(el)el.addEventListener('submit',fn)};
 
 const finderForm=$('finderForm');
 if(finderForm){
-  const actionRow=document.createElement('div');actionRow.className='finder-actions';actionRow.style.cssText='display:grid;grid-template-columns:minmax(0,1fr) auto;gap:12px;align-items:end';
-  actionRow.innerHTML=`<label style="display:grid;gap:.45rem;font-weight:800;font-size:.9rem">Sort results<select id="finderSort" style="width:100%;border:1px solid var(--line);background:var(--input);color:var(--text);border-radius:14px;padding:1rem;min-height:54px"><option value="alpha">A–Z</option><option value="score">Highest tile score</option><option value="length">Longest first</option></select></label><button class="secondary-button" id="finderClear" type="button" style="min-height:54px">Clear filters</button>`;
+  const actionRow=document.createElement('div');actionRow.className='finder-actions';actionRow.style.cssText='display:grid;grid-template-columns:minmax(0,1fr) auto auto;gap:12px;align-items:end';
+  actionRow.innerHTML=`<label style="display:grid;gap:.45rem;font-weight:800;font-size:.9rem">Sort results<select id="finderSort" style="width:100%;border:1px solid var(--line);background:var(--input);color:var(--text);border-radius:14px;padding:1rem;min-height:54px"><option value="alpha">A–Z</option><option value="score">Highest tile score</option><option value="length">Longest first</option><option value="short">Shortest first</option></select></label><button class="secondary-button" id="finderShare" type="button" style="min-height:54px">Copy search link</button><button class="secondary-button" id="finderClear" type="button" style="min-height:54px">Clear filters</button>`;
   const submit=finderForm.querySelector('button[type="submit"]');submit?.insertAdjacentElement('beforebegin',actionRow);
-  $('finderClear')?.addEventListener('click',()=>{['finderPattern','finderStarts','finderContains','finderEnds','finderExcluded'].forEach(id=>{if($(id))$(id).value='';});if($('finderLength'))$('finderLength').value='5';if($('finderSort'))$('finderSort').value='alpha';state.results=[];state.visible=100;render();if(message)message.textContent='Filters cleared. Enter your clues and run a search.';$('finderPattern')?.focus();});
-  const responsive=document.createElement('style');responsive.textContent='@media(max-width:560px){.finder-actions{grid-template-columns:1fr!important}}';document.head.appendChild(responsive);
+  const ids=['finderPattern','finderStarts','finderContains','finderEnds','finderRequired','finderExcluded'];
+  const params=new URLSearchParams(location.search);
+  const restore={finderLength:'length',finderPattern:'pattern',finderStarts:'starts',finderContains:'contains',finderEnds:'ends',finderRequired:'required',finderExcluded:'excluded',finderSort:'sort'};
+  for(const [id,key] of Object.entries(restore)){const el=$(id);const value=params.get(key);if(el&&value!==null)el.value=value;}
+  function currentFinderUrl(){const url=new URL(location.href);url.search='';const values={length:$('finderLength')?.value||'',pattern:$('finderPattern')?.value||'',starts:$('finderStarts')?.value||'',contains:$('finderContains')?.value||'',ends:$('finderEnds')?.value||'',required:$('finderRequired')?.value||'',excluded:$('finderExcluded')?.value||'',sort:$('finderSort')?.value||'alpha'};for(const [key,value] of Object.entries(values)){if(value&&!(key==='sort'&&value==='alpha'))url.searchParams.set(key,value);}return url.toString();}
+  $('finderShare')?.addEventListener('click',async()=>{try{await navigator.clipboard.writeText(currentFinderUrl());$('finderShare').textContent='Link copied';setTimeout(()=>$('finderShare').textContent='Copy search link',1200)}catch{if(message)message.textContent='Could not copy the link. Copy the browser address instead.'}});
+  $('finderClear')?.addEventListener('click',()=>{ids.forEach(id=>{if($(id))$(id).value='';});if($('finderLength'))$('finderLength').value='5';if($('finderSort'))$('finderSort').value='alpha';history.replaceState(null,'',location.pathname);state.results=[];state.visible=100;render();if(message)message.textContent='Filters cleared. Enter your clues and run a search.';$('finderPattern')?.focus();});
+  const responsive=document.createElement('style');responsive.textContent='@media(max-width:720px){.finder-actions{grid-template-columns:1fr!important}}';document.head.appendChild(responsive);
 }
 
 const unscramblerForm=$('unscramblerForm');
 if(unscramblerForm){
-  $('unscramblerClear')?.addEventListener('click',()=>{
-    $('unscrambleLetters').value='';$('unscrambleMin').value='3';$('unscrambleMax').value='0';$('unscrambleStarts').value='';$('unscrambleContains').value='';$('unscrambleEnds').value='';$('unscrambleExcluded').value='';$('unscrambleMinScore').value='0';$('unscrambleSort').value='length';
-    state.results=[];state.visible=100;render();if(message)message.textContent='Filters cleared. Enter your letters and search.';$('unscrambleLetters')?.focus();
-  });
+  $('unscramblerClear')?.addEventListener('click',()=>{$('unscrambleLetters').value='';$('unscrambleMin').value='3';$('unscrambleMax').value='0';$('unscrambleStarts').value='';$('unscrambleContains').value='';$('unscrambleEnds').value='';$('unscrambleExcluded').value='';$('unscrambleMinScore').value='0';$('unscrambleSort').value='length';state.results=[];state.visible=100;render();if(message)message.textContent='Filters cleared. Enter your letters and search.';$('unscrambleLetters')?.focus();});
 }
 
 const anagramForm=$('anagramForm');
 if(anagramForm){
-  $('anagramClear')?.addEventListener('click',()=>{
-    $('anagramLetters').value='';$('anagramStarts').value='';$('anagramContains').value='';$('anagramEnds').value='';$('anagramSort').value='alpha';$('anagramIncludeOriginal').checked=false;
-    state.results=[];state.visible=100;render();if(message)message.textContent='Filters cleared. Enter your letters and solve.';$('anagramLetters')?.focus();
-  });
+  $('anagramClear')?.addEventListener('click',()=>{$('anagramLetters').value='';$('anagramStarts').value='';$('anagramContains').value='';$('anagramEnds').value='';$('anagramSort').value='alpha';$('anagramIncludeOriginal').checked=false;state.results=[];state.visible=100;render();if(message)message.textContent='Filters cleared. Enter your letters and solve.';$('anagramLetters')?.focus();});
 }
 
-bind('unscramblerForm',e=>{
-  e.preventDefault();if(!ready())return;
-  const letters=clean($('unscrambleLetters').value,true);if(letters.length<2)return setResults([],'Enter at least two letters.');
-  const minLength=Number($('unscrambleMin').value)||2,maxLength=Number($('unscrambleMax')?.value)||0,minScore=Number($('unscrambleMinScore')?.value)||0;
-  if(maxLength&&maxLength<minLength)return setResults([],'Maximum length must be at least the minimum length.');
-  const filters={starts:clean($('unscrambleStarts')?.value||''),contains:clean($('unscrambleContains')?.value||''),ends:clean($('unscrambleEnds')?.value||'')};
-  const excluded=new Set(clean($('unscrambleExcluded')?.value||'').split(''));
-  let items=unscramble({letters,wordsByLength:state.wordsByLength,minLength,filters,sort:$('unscrambleSort').value});
-  if(maxLength)items=items.filter(item=>item.word.length<=maxLength);
-  if(excluded.size)items=items.filter(item=>![...item.word].some(ch=>excluded.has(ch)));
-  if(minScore)items=items.filter(item=>item.score>=minScore);
-  const exactCount=items.filter(item=>item.word.length===letters.length).length;
-  setResults(items,`Words made from ${letters.toUpperCase()}. ${exactCount.toLocaleString()} use all ${letters.length} rack tiles.`);
-});
-bind('anagramForm',e=>{
-  e.preventDefault();if(!ready())return;
-  const letters=clean($('anagramLetters').value,true);if(letters.length<2)return setResults([],'Enter at least two letters.');
-  const filters={starts:clean($('anagramStarts')?.value||''),contains:clean($('anagramContains')?.value||''),ends:clean($('anagramEnds')?.value||'')};
-  const includeOriginal=Boolean($('anagramIncludeOriginal')?.checked),sort=$('anagramSort')?.value||'alpha';
-  const items=exactAnagrams({letters,wordsByLength:state.wordsByLength,sort,filters,includeOriginal});
-  const wildcardCount=(letters.match(/\?/g)||[]).length;
-  const label=wildcardCount?`Exact ${letters.length}-letter matches using all supplied tiles, including ${wildcardCount} wildcard${wildcardCount===1?'':'s'}.`:`Exact anagrams of ${letters.toUpperCase()} using every letter once.`;
-  setResults(items,label);
-});
-bind('finderForm',e=>{e.preventDefault();if(!ready())return;const sort=$('finderSort')?.value||'alpha';const length=Number($('finderLength').value)||0;const pattern=clean($('finderPattern').value,true);if(pattern&&length&&pattern.length!==length)return setResults([],'Pattern length must match the selected word length.');setResults(findWords({wordsByLength:state.wordsByLength,length,pattern,starts:clean($('finderStarts').value),contains:clean($('finderContains').value),ends:clean($('finderEnds').value),excluded:clean($('finderExcluded').value),sort}),`Words matching your filters, sorted ${sort==='alpha'?'A–Z':sort==='score'?'by tile score':'longest first'}.`)});
+bind('unscramblerForm',e=>{e.preventDefault();if(!ready())return;const letters=clean($('unscrambleLetters').value,true);if(letters.length<2)return setResults([],'Enter at least two letters.');const minLength=Number($('unscrambleMin').value)||2,maxLength=Number($('unscrambleMax')?.value)||0,minScore=Number($('unscrambleMinScore')?.value)||0;if(maxLength&&maxLength<minLength)return setResults([],'Maximum length must be at least the minimum length.');const filters={starts:clean($('unscrambleStarts')?.value||''),contains:clean($('unscrambleContains')?.value||''),ends:clean($('unscrambleEnds')?.value||'')};const excluded=new Set(clean($('unscrambleExcluded')?.value||'').split(''));let items=unscramble({letters,wordsByLength:state.wordsByLength,minLength,filters,sort:$('unscrambleSort').value});if(maxLength)items=items.filter(item=>item.word.length<=maxLength);if(excluded.size)items=items.filter(item=>![...item.word].some(ch=>excluded.has(ch)));if(minScore)items=items.filter(item=>item.score>=minScore);const exactCount=items.filter(item=>item.word.length===letters.length).length;setResults(items,`Words made from ${letters.toUpperCase()}. ${exactCount.toLocaleString()} use all ${letters.length} rack tiles.`);});
+bind('anagramForm',e=>{e.preventDefault();if(!ready())return;const letters=clean($('anagramLetters').value,true);if(letters.length<2)return setResults([],'Enter at least two letters.');const filters={starts:clean($('anagramStarts')?.value||''),contains:clean($('anagramContains')?.value||''),ends:clean($('anagramEnds')?.value||'')};const includeOriginal=Boolean($('anagramIncludeOriginal')?.checked),sort=$('anagramSort')?.value||'alpha';const items=exactAnagrams({letters,wordsByLength:state.wordsByLength,sort,filters,includeOriginal});const wildcardCount=(letters.match(/\?/g)||[]).length;setResults(items,wildcardCount?`Exact ${letters.length}-letter matches using all supplied tiles, including ${wildcardCount} wildcard${wildcardCount===1?'':'s'}.`:`Exact anagrams of ${letters.toUpperCase()} using every letter once.`);});
+bind('finderForm',e=>{e.preventDefault();if(!ready())return;const sort=$('finderSort')?.value||'alpha';const length=Number($('finderLength').value)||0;const pattern=clean($('finderPattern').value,true);if(pattern&&length&&pattern.length!==length)return setResults([],'Pattern length must match the selected word length.');const required=clean($('finderRequired')?.value||'');const items=findWords({wordsByLength:state.wordsByLength,length,pattern,starts:clean($('finderStarts').value),contains:clean($('finderContains').value),ends:clean($('finderEnds').value),required,excluded:clean($('finderExcluded').value),sort});const labels=[];if(length)labels.push(`${length} letters`);if(pattern)labels.push(`pattern ${pattern.toUpperCase()}`);if(required)labels.push(`including ${required.toUpperCase()}`);setResults(items,`Words matching ${labels.length?labels.join(', '):'your filters'}, sorted ${sort==='alpha'?'A–Z':sort==='score'?'by tile score':sort==='short'?'shortest first':'longest first'}.`);});
 bind('wordleForm',e=>{e.preventDefault();if(!ready())return;setResults(wordleSearch({wordsByLength:state.wordsByLength,greens:clean($('wordleGreens').value,true),yellows:clean($('wordleYellows').value),grays:clean($('wordleGrays').value)}),'Five-letter candidates.')});
 bind('crosswordForm',e=>{e.preventDefault();if(!ready())return;const length=Number($('crosswordLength').value)||0;let pattern=clean($('crosswordPattern').value,true);if(!pattern&&length)pattern='?'.repeat(length);if(pattern&&length&&pattern.length!==length)return setResults([],'The pattern length must match the answer length.');setResults(findWords({wordsByLength:state.wordsByLength,length:length||pattern.length,pattern,excluded:clean($('crosswordExcluded').value),sort:'alpha'}),'Possible crossword answers.');});
 bind('scrabbleForm',e=>{e.preventDefault();if(!ready())return;const letters=clean($('scrabbleLetters').value,true);if(letters.length<2)return setResults([],'Enter at least two rack letters.');const filters={starts:clean($('scrabbleStarts').value),contains:clean($('scrabbleContains').value),ends:clean($('scrabbleEnds').value)};setResults(unscramble({letters,wordsByLength:state.wordsByLength,minLength:Number($('scrabbleMin').value)||2,filters,sort:$('scrabbleSort').value}),`Playable words from ${letters.toUpperCase()}, ranked by Scrabble tile value.`);});
@@ -83,4 +61,4 @@ bind('rhymeForm',e=>{e.preventDefault();if(!ready())return;const source=clean($(
 if(showMore)showMore.addEventListener('click',()=>{state.visible+=100;render()});
 if(copy)copy.addEventListener('click',async()=>{try{await navigator.clipboard.writeText(state.results.map(x=>x.word).join('\n'));copy.textContent='Copied';setTimeout(()=>copy.textContent='Copy all',1200)}catch{if(message)message.textContent='Copy failed. Select the words manually.'}});
 
-if(message){try{const d=await loadDictionary('/words.txt');state.wordsByLength=d.wordsByLength;state.ready=true;message.textContent=`${d.total.toLocaleString()} words ready. Enter your clues and search.`}catch(err){message.textContent='Dictionary unavailable. Please refresh the page.';console.error(err)}}
+if(message){try{const d=await loadDictionary('/words.txt');state.wordsByLength=d.wordsByLength;state.ready=true;message.textContent=`${d.total.toLocaleString()} words ready. Enter your clues and search.`;if(finderForm&&location.search)finderForm.requestSubmit()}catch(err){message.textContent='Dictionary unavailable. Please refresh the page.';console.error(err)}}
