@@ -1,4 +1,4 @@
-import {scoreWord} from './score.js';
+import {scoreWord,LETTER_SCORES} from './score.js';
 import {matchesFilters} from './filters.js';
 
 function countLetters(value){
@@ -19,6 +19,14 @@ function canBuild(word,rack){
   }
   return true;
 }
+function rackAdjustedScore(word,rack){
+  const used=new Uint8Array(26);let total=0;
+  for(const char of word){
+    const idx=char.charCodeAt(0)-97;used[idx]++;
+    if(used[idx]<=rack.counts[idx]) total+=LETTER_SCORES[char]||0;
+  }
+  return total;
+}
 export function sortResults(items,mode='length'){
   return [...items].sort((a,b)=> mode==='alpha'
     ? a.word.localeCompare(b.word)
@@ -28,11 +36,11 @@ export function sortResults(items,mode='length'){
         ? a.word.length-b.word.length || a.word.localeCompare(b.word)
         : b.word.length-a.word.length || b.score-a.score || a.word.localeCompare(b.word));
 }
-export function unscramble({letters,wordsByLength,minLength=2,filters={},sort='length'}){
+export function unscramble({letters,wordsByLength,minLength=2,filters={},sort='length',blankScoreZero=false}){
   const rack=countLetters(letters); const found=[];
   for(let len=minLength;len<=letters.length;len++){
     for(const word of wordsByLength.get(len)||[]){
-      if(matchesFilters(word,filters) && canBuild(word,rack)) found.push({word,score:scoreWord(word)});
+      if(matchesFilters(word,filters) && canBuild(word,rack)) found.push({word,score:blankScoreZero?rackAdjustedScore(word,rack):scoreWord(word)});
     }
   }
   return sortResults(found,sort);
