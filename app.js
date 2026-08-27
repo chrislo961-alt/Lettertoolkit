@@ -41,9 +41,41 @@ function render(){
 function ready(){if(state.ready)return true;if(message)message.textContent='The dictionary is still loading.';return false}
 const bind=(id,fn)=>{const el=$(id);if(el)el.addEventListener('submit',fn)};
 
+// Word Finder gets lightweight result controls without making the HTML form
+// harder to maintain. The controls are progressively enhanced by JavaScript.
+const finderForm=$('finderForm');
+if(finderForm){
+  const actionRow=document.createElement('div');
+  actionRow.className='finder-actions';
+  actionRow.style.cssText='display:grid;grid-template-columns:minmax(0,1fr) auto;gap:12px;align-items:end';
+  actionRow.innerHTML=`
+    <label style="display:grid;gap:.45rem;font-weight:800;font-size:.9rem">Sort results
+      <select id="finderSort" style="width:100%;border:1px solid var(--line);background:var(--input);color:var(--text);border-radius:14px;padding:1rem;min-height:54px">
+        <option value="alpha">A–Z</option>
+        <option value="score">Highest tile score</option>
+        <option value="length">Longest first</option>
+      </select>
+    </label>
+    <button class="secondary-button" id="finderClear" type="button" style="min-height:54px">Clear filters</button>
+  `;
+  const submit=finderForm.querySelector('button[type="submit"]');
+  submit?.insertAdjacentElement('beforebegin',actionRow);
+  $('finderClear')?.addEventListener('click',()=>{
+    ['finderPattern','finderStarts','finderContains','finderEnds','finderExcluded'].forEach(id=>{if($(id))$(id).value='';});
+    if($('finderLength'))$('finderLength').value='5';
+    if($('finderSort'))$('finderSort').value='alpha';
+    state.results=[];state.visible=100;render();
+    if(message)message.textContent='Filters cleared. Enter your clues and run a search.';
+    $('finderPattern')?.focus();
+  });
+  const responsive=document.createElement('style');
+  responsive.textContent='@media(max-width:560px){.finder-actions{grid-template-columns:1fr!important}}';
+  document.head.appendChild(responsive);
+}
+
 bind('unscramblerForm',e=>{e.preventDefault();if(!ready())return;const letters=clean($('unscrambleLetters').value,true);if(letters.length<2)return setResults([],'Enter at least two letters.');setResults(unscramble({letters,wordsByLength:state.wordsByLength,minLength:Number($('unscrambleMin').value),sort:$('unscrambleSort').value}),`Words made from ${letters.toUpperCase()}.`)});
 bind('anagramForm',e=>{e.preventDefault();if(!ready())return;const letters=clean($('anagramLetters').value,true);if(letters.length<2)return setResults([],'Enter at least two letters.');setResults(exactAnagrams({letters,wordsByLength:state.wordsByLength,sort:$('anagramSort').value}),`Exact anagrams of ${letters.toUpperCase()}.`)});
-bind('finderForm',e=>{e.preventDefault();if(!ready())return;setResults(findWords({wordsByLength:state.wordsByLength,length:Number($('finderLength').value)||0,pattern:clean($('finderPattern').value,true),starts:clean($('finderStarts').value),contains:clean($('finderContains').value),ends:clean($('finderEnds').value),excluded:clean($('finderExcluded').value),sort:'alpha'}),'Words matching your filters.')});
+bind('finderForm',e=>{e.preventDefault();if(!ready())return;const sort=$('finderSort')?.value||'alpha';const length=Number($('finderLength').value)||0;const pattern=clean($('finderPattern').value,true);if(pattern&&length&&pattern.length!==length)return setResults([],'Pattern length must match the selected word length.');setResults(findWords({wordsByLength:state.wordsByLength,length,pattern,starts:clean($('finderStarts').value),contains:clean($('finderContains').value),ends:clean($('finderEnds').value),excluded:clean($('finderExcluded').value),sort}),`Words matching your filters, sorted ${sort==='alpha'?'A–Z':sort==='score'?'by tile score':'longest first'}.`)});
 bind('wordleForm',e=>{e.preventDefault();if(!ready())return;setResults(wordleSearch({wordsByLength:state.wordsByLength,greens:clean($('wordleGreens').value,true),yellows:clean($('wordleYellows').value),grays:clean($('wordleGrays').value)}),'Five-letter candidates.')});
 bind('crosswordForm',e=>{e.preventDefault();if(!ready())return;const length=Number($('crosswordLength').value)||0;let pattern=clean($('crosswordPattern').value,true);if(!pattern&&length)pattern='?'.repeat(length);if(pattern&&length&&pattern.length!==length)return setResults([],'The pattern length must match the answer length.');setResults(findWords({wordsByLength:state.wordsByLength,length:length||pattern.length,pattern,excluded:clean($('crosswordExcluded').value),sort:'alpha'}),'Possible crossword answers.');});
 bind('scrabbleForm',e=>{e.preventDefault();if(!ready())return;const letters=clean($('scrabbleLetters').value,true);if(letters.length<2)return setResults([],'Enter at least two rack letters.');const filters={starts:clean($('scrabbleStarts').value),contains:clean($('scrabbleContains').value),ends:clean($('scrabbleEnds').value)};setResults(unscramble({letters,wordsByLength:state.wordsByLength,minLength:Number($('scrabbleMin').value)||2,filters,sort:$('scrabbleSort').value}),`Playable words from ${letters.toUpperCase()}, ranked by Scrabble tile value.`);});
