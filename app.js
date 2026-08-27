@@ -4,26 +4,12 @@ import {sanitizeLetters, sanitizePattern} from './core/filters.js';
 
 const $=id=>document.getElementById(id);
 
-// Theme controls are shared by the homepage, tools, guides and writing pages.
-// Keep this setup independent from tool-specific DOM so the toggle works even
-// on pages that do not render the result workspace.
 const toggle=$('themeToggle');
 const savedTheme=localStorage.getItem('lt-theme');
-if(savedTheme==='dark'||savedTheme==='light'){
-  document.documentElement.dataset.theme=savedTheme;
-}
-function syncThemeButton(){
-  if(toggle) toggle.textContent=document.documentElement.dataset.theme==='dark'?'Light mode':'Dark mode';
-}
+if(savedTheme==='dark'||savedTheme==='light')document.documentElement.dataset.theme=savedTheme;
+function syncThemeButton(){if(toggle)toggle.textContent=document.documentElement.dataset.theme==='dark'?'Light mode':'Dark mode'}
 syncThemeButton();
-if(toggle){
-  toggle.addEventListener('click',()=>{
-    const next=document.documentElement.dataset.theme==='dark'?'light':'dark';
-    document.documentElement.dataset.theme=next;
-    localStorage.setItem('lt-theme',next);
-    syncThemeButton();
-  });
-}
+if(toggle)toggle.addEventListener('click',()=>{const next=document.documentElement.dataset.theme==='dark'?'light':'dark';document.documentElement.dataset.theme=next;localStorage.setItem('lt-theme',next);syncThemeButton();});
 
 const state={wordsByLength:new Map(),ready:false,results:[],visible:100};
 const resultList=$('results'),count=$('resultCount'),message=$('resultMessage'),showMore=$('showMoreButton'),copy=$('copyButton');
@@ -31,49 +17,45 @@ function clean(v,w=false){return(w?sanitizeLetters(v):sanitizePattern(v)).toLowe
 function setResults(items,label){state.results=items;state.visible=100;if(message)message.textContent=items.length?label:'No matches found. Try broader filters.';render()}
 function render(){
   if(!resultList||!count||!showMore||!copy)return;
-  resultList.textContent='';
-  const f=document.createDocumentFragment();
-  for(const item of state.results.slice(0,state.visible)){
-    const li=document.createElement('li');li.className='word-result';li.innerHTML=`<strong>${item.word}</strong><span class="score">${item.meta || `${item.word.length} letters · ${item.score} pts`}</span>`;f.append(li)
-  }
+  resultList.textContent='';const f=document.createDocumentFragment();
+  for(const item of state.results.slice(0,state.visible)){const li=document.createElement('li');li.className='word-result';li.innerHTML=`<strong>${item.word}</strong><span class="score">${item.meta||`${item.word.length} letters · ${item.score} pts`}</span>`;f.append(li)}
   resultList.append(f);count.textContent=state.results.length.toLocaleString();showMore.hidden=state.visible>=state.results.length;copy.disabled=!state.results.length
 }
 function ready(){if(state.ready)return true;if(message)message.textContent='The dictionary is still loading.';return false}
 const bind=(id,fn)=>{const el=$(id);if(el)el.addEventListener('submit',fn)};
 
-// Word Finder gets lightweight result controls without making the HTML form
-// harder to maintain. The controls are progressively enhanced by JavaScript.
 const finderForm=$('finderForm');
 if(finderForm){
-  const actionRow=document.createElement('div');
-  actionRow.className='finder-actions';
-  actionRow.style.cssText='display:grid;grid-template-columns:minmax(0,1fr) auto;gap:12px;align-items:end';
-  actionRow.innerHTML=`
-    <label style="display:grid;gap:.45rem;font-weight:800;font-size:.9rem">Sort results
-      <select id="finderSort" style="width:100%;border:1px solid var(--line);background:var(--input);color:var(--text);border-radius:14px;padding:1rem;min-height:54px">
-        <option value="alpha">A–Z</option>
-        <option value="score">Highest tile score</option>
-        <option value="length">Longest first</option>
-      </select>
-    </label>
-    <button class="secondary-button" id="finderClear" type="button" style="min-height:54px">Clear filters</button>
-  `;
-  const submit=finderForm.querySelector('button[type="submit"]');
-  submit?.insertAdjacentElement('beforebegin',actionRow);
-  $('finderClear')?.addEventListener('click',()=>{
-    ['finderPattern','finderStarts','finderContains','finderEnds','finderExcluded'].forEach(id=>{if($(id))$(id).value='';});
-    if($('finderLength'))$('finderLength').value='5';
-    if($('finderSort'))$('finderSort').value='alpha';
-    state.results=[];state.visible=100;render();
-    if(message)message.textContent='Filters cleared. Enter your clues and run a search.';
-    $('finderPattern')?.focus();
-  });
-  const responsive=document.createElement('style');
-  responsive.textContent='@media(max-width:560px){.finder-actions{grid-template-columns:1fr!important}}';
-  document.head.appendChild(responsive);
+  const actionRow=document.createElement('div');actionRow.className='finder-actions';actionRow.style.cssText='display:grid;grid-template-columns:minmax(0,1fr) auto;gap:12px;align-items:end';
+  actionRow.innerHTML=`<label style="display:grid;gap:.45rem;font-weight:800;font-size:.9rem">Sort results<select id="finderSort" style="width:100%;border:1px solid var(--line);background:var(--input);color:var(--text);border-radius:14px;padding:1rem;min-height:54px"><option value="alpha">A–Z</option><option value="score">Highest tile score</option><option value="length">Longest first</option></select></label><button class="secondary-button" id="finderClear" type="button" style="min-height:54px">Clear filters</button>`;
+  const submit=finderForm.querySelector('button[type="submit"]');submit?.insertAdjacentElement('beforebegin',actionRow);
+  $('finderClear')?.addEventListener('click',()=>{['finderPattern','finderStarts','finderContains','finderEnds','finderExcluded'].forEach(id=>{if($(id))$(id).value='';});if($('finderLength'))$('finderLength').value='5';if($('finderSort'))$('finderSort').value='alpha';state.results=[];state.visible=100;render();if(message)message.textContent='Filters cleared. Enter your clues and run a search.';$('finderPattern')?.focus();});
+  const responsive=document.createElement('style');responsive.textContent='@media(max-width:560px){.finder-actions{grid-template-columns:1fr!important}}';document.head.appendChild(responsive);
 }
 
-bind('unscramblerForm',e=>{e.preventDefault();if(!ready())return;const letters=clean($('unscrambleLetters').value,true);if(letters.length<2)return setResults([],'Enter at least two letters.');setResults(unscramble({letters,wordsByLength:state.wordsByLength,minLength:Number($('unscrambleMin').value),sort:$('unscrambleSort').value}),`Words made from ${letters.toUpperCase()}.`)});
+const unscramblerForm=$('unscramblerForm');
+if(unscramblerForm){
+  $('unscramblerClear')?.addEventListener('click',()=>{
+    $('unscrambleLetters').value='';$('unscrambleMin').value='3';$('unscrambleMax').value='0';$('unscrambleStarts').value='';$('unscrambleContains').value='';$('unscrambleEnds').value='';$('unscrambleExcluded').value='';$('unscrambleMinScore').value='0';$('unscrambleSort').value='length';
+    state.results=[];state.visible=100;render();if(message)message.textContent='Filters cleared. Enter your letters and search.';$('unscrambleLetters')?.focus();
+  });
+}
+
+bind('unscramblerForm',e=>{
+  e.preventDefault();if(!ready())return;
+  const letters=clean($('unscrambleLetters').value,true);if(letters.length<2)return setResults([],'Enter at least two letters.');
+  const minLength=Number($('unscrambleMin').value)||2,maxLength=Number($('unscrambleMax')?.value)||0,minScore=Number($('unscrambleMinScore')?.value)||0;
+  if(maxLength&&maxLength<minLength)return setResults([],'Maximum length must be at least the minimum length.');
+  const filters={starts:clean($('unscrambleStarts')?.value||''),contains:clean($('unscrambleContains')?.value||''),ends:clean($('unscrambleEnds')?.value||'')};
+  const excluded=new Set(clean($('unscrambleExcluded')?.value||'').split(''));
+  let items=unscramble({letters,wordsByLength:state.wordsByLength,minLength,filters,sort:$('unscrambleSort').value});
+  if(maxLength)items=items.filter(item=>item.word.length<=maxLength);
+  if(excluded.size)items=items.filter(item=>![...item.word].some(ch=>excluded.has(ch)));
+  if(minScore)items=items.filter(item=>item.score>=minScore);
+  const exactCount=items.filter(item=>item.word.length===letters.length).length;
+  const label=`Words made from ${letters.toUpperCase()}. ${exactCount.toLocaleString()} use all ${letters.length} rack tiles.`;
+  setResults(items,label);
+});
 bind('anagramForm',e=>{e.preventDefault();if(!ready())return;const letters=clean($('anagramLetters').value,true);if(letters.length<2)return setResults([],'Enter at least two letters.');setResults(exactAnagrams({letters,wordsByLength:state.wordsByLength,sort:$('anagramSort').value}),`Exact anagrams of ${letters.toUpperCase()}.`)});
 bind('finderForm',e=>{e.preventDefault();if(!ready())return;const sort=$('finderSort')?.value||'alpha';const length=Number($('finderLength').value)||0;const pattern=clean($('finderPattern').value,true);if(pattern&&length&&pattern.length!==length)return setResults([],'Pattern length must match the selected word length.');setResults(findWords({wordsByLength:state.wordsByLength,length,pattern,starts:clean($('finderStarts').value),contains:clean($('finderContains').value),ends:clean($('finderEnds').value),excluded:clean($('finderExcluded').value),sort}),`Words matching your filters, sorted ${sort==='alpha'?'A–Z':sort==='score'?'by tile score':'longest first'}.`)});
 bind('wordleForm',e=>{e.preventDefault();if(!ready())return;setResults(wordleSearch({wordsByLength:state.wordsByLength,greens:clean($('wordleGreens').value,true),yellows:clean($('wordleYellows').value),grays:clean($('wordleGrays').value)}),'Five-letter candidates.')});
@@ -85,12 +67,4 @@ bind('rhymeForm',e=>{e.preventDefault();if(!ready())return;const source=clean($(
 if(showMore)showMore.addEventListener('click',()=>{state.visible+=100;render()});
 if(copy)copy.addEventListener('click',async()=>{try{await navigator.clipboard.writeText(state.results.map(x=>x.word).join('\n'));copy.textContent='Copied';setTimeout(()=>copy.textContent='Copy all',1200)}catch{if(message)message.textContent='Copy failed. Select the words manually.'}});
 
-// Only tool pages need the large dictionary. Homepage and content pages should
-// not fetch it just to support shared navigation/theme behavior.
-if(message){
-  try{
-    const d=await loadDictionary('/words.txt');state.wordsByLength=d.wordsByLength;state.ready=true;message.textContent=`${d.total.toLocaleString()} words ready. Enter your clues and search.`
-  }catch(err){
-    message.textContent='Dictionary unavailable. Please refresh the page.';console.error(err)
-  }
-}
+if(message){try{const d=await loadDictionary('/words.txt');state.wordsByLength=d.wordsByLength;state.ready=true;message.textContent=`${d.total.toLocaleString()} words ready. Enter your clues and search.`}catch(err){message.textContent='Dictionary unavailable. Please refresh the page.';console.error(err)}}
