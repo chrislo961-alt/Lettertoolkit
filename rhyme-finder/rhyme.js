@@ -30,6 +30,7 @@ function render(){
   results.append(frag);count.textContent=state.items.length.toLocaleString();showMore.hidden=state.visible>=state.items.length;copy.disabled=!state.items.length;
 }
 function setItems(items,label){state.items=items;state.visible=100;message.textContent=items.length?label:'No spelling-rhyme matches found. Try a broader match depth.';render();}
+function setError(label){state.items=[];state.visible=100;message.textContent=label;render();}
 
 const params=new URLSearchParams(location.search);
 const restore={rhymeWord:'word',rhymeDepth:'depth',rhymeMinLength:'min',rhymeMaxLength:'max',rhymeSort:'sort'};
@@ -40,17 +41,17 @@ function currentUrl(){
   for(const [key,value] of Object.entries(values)){if(value&&!(key==='depth'&&value==='3')&&!(key==='min'&&value==='0')&&!(key==='max'&&value==='0')&&!(key==='sort'&&value==='strong'))url.searchParams.set(key,value);}
   return url.toString();
 }
-$('rhymeShare')?.addEventListener('click',async()=>{try{await navigator.clipboard.writeText(currentUrl());$('rhymeShare').textContent='Link copied';setTimeout(()=>$('rhymeShare').textContent='Copy search link',1200)}catch{message.textContent='Could not copy the link. Copy the browser address instead.'}});
+$('rhymeShare')?.addEventListener('click',async()=>{const url=currentUrl();try{await navigator.clipboard.writeText(url);$('rhymeShare').textContent='Link copied';setTimeout(()=>$('rhymeShare').textContent='Copy search link',1200)}catch{history.replaceState(null,'',url);message.textContent='Clipboard unavailable. The generated search URL is now in the browser address bar.'}});
 $('rhymeClear')?.addEventListener('click',()=>{$('rhymeWord').value='';$('rhymeDepth').value='3';$('rhymeMinLength').value='0';$('rhymeMaxLength').value='0';$('rhymeSort').value='strong';history.replaceState(null,'',location.pathname);state.items=[];state.visible=100;render();message.textContent='Filters cleared. Enter a word to explore spelling rhymes.';$('rhymeWord')?.focus();});
 showMore?.addEventListener('click',()=>{state.visible+=100;render();});
 copy?.addEventListener('click',async()=>{try{await navigator.clipboard.writeText(state.items.map(x=>x.word).join('\n'));copy.textContent='Copied';setTimeout(()=>copy.textContent='Copy all',1200)}catch{message.textContent='Copy failed. Select the words manually.'}});
 
 form?.addEventListener('submit',e=>{
   e.preventDefault();if(!state.ready){message.textContent='The dictionary is still loading.';return;}
-  const source=clean($('rhymeWord')?.value);if(source.length<2){setItems([],'Enter at least two letters.');return;}
+  const source=clean($('rhymeWord')?.value);if(source.length<2){setError('Enter at least two letters.');return;}
   const depth=Math.max(2,Math.min(source.length,Number($('rhymeDepth')?.value)||3));
   const minLength=Number($('rhymeMinLength')?.value)||0,maxLength=Number($('rhymeMaxLength')?.value)||0,sort=$('rhymeSort')?.value||'strong';
-  if(maxLength&&minLength&&maxLength<minLength){setItems([],'Maximum length must be at least the minimum length.');return;}
+  if(maxLength&&minLength&&maxLength<minLength){setError('Maximum length must be at least the minimum length.');return;}
   const items=[];
   for(const [len,words] of state.wordsByLength){
     if(minLength&&len<minLength)continue;if(maxLength&&len>maxLength)continue;
