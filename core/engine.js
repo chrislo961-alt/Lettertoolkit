@@ -64,14 +64,41 @@ export function findWords({wordsByLength,length=0,starts='',contains='',ends='',
   }
   return sortResults(found,sort);
 }
-export function wordleSearch({wordsByLength,greens='',yellows='',grays='',sort='alpha'}){
-  const pattern=greens.toLowerCase().replace(/[^a-z?]/g,'').padEnd(5,'?').slice(0,5);
-  const mustHave=[...new Set(yellows.toLowerCase().replace(/[^a-z]/g,''))];
-  const blocked=new Set(grays.toLowerCase().replace(/[^a-z]/g,''));
-  return sortResults((wordsByLength.get(5)||[]).filter(word=>{
-    for(let i=0;i<5;i++) if(pattern[i]!=='?' && word[i]!==pattern[i]) return false;
-    if(mustHave.some(char=>!word.includes(char))) return false;
-    for(const char of blocked) if(!mustHave.includes(char) && word.includes(char)) return false;
-    return true;
-  }).map(word=>({word,score:scoreWord(word)})),sort);
+function wordleFeedback(answer,guess){
+  const result=Array(5).fill('gray');
+  const remaining={};
+  for(let i=0;i<5;i++){
+    if(guess[i]===answer[i]) result[i]='green';
+    else remaining[answer[i]]=(remaining[answer[i]]||0)+1;
+  }
+  for(let i=0;i<5;i++){
+    if(result[i]==='green') continue;
+    const ch=guess[i];
+    if((remaining[ch]||0)>0){result[i]='yellow';remaining[ch]--;}
+  }
+  return result;
+}
+export function wordleSearch({wordsByLength,greens='',yellows='',grays='',guesses=[],sort='alpha'}){
+  let pool=wordsByLength.get(5)||[];
+  if(guesses.length){
+    const normalized=guesses.map(row=>({
+      word:String(row.word||'').toLowerCase().replace(/[^a-z]/g,'').slice(0,5),
+      states:Array.isArray(row.states)?row.states.slice(0,5):[]
+    })).filter(row=>row.word.length===5&&row.states.length===5);
+    pool=pool.filter(candidate=>normalized.every(row=>{
+      const actual=wordleFeedback(candidate,row.word);
+      return actual.every((state,i)=>state===row.states[i]);
+    }));
+  }else{
+    const pattern=greens.toLowerCase().replace(/[^a-z?]/g,'').padEnd(5,'?').slice(0,5);
+    const mustHave=[...new Set(yellows.toLowerCase().replace(/[^a-z]/g,''))];
+    const blocked=new Set(grays.toLowerCase().replace(/[^a-z]/g,''));
+    pool=pool.filter(word=>{
+      for(let i=0;i<5;i++) if(pattern[i]!=='?' && word[i]!==pattern[i]) return false;
+      if(mustHave.some(char=>!word.includes(char))) return false;
+      for(const char of blocked) if(!mustHave.includes(char) && word.includes(char)) return false;
+      return true;
+    });
+  }
+  return sortResults(pool.map(word=>({word,score:scoreWord(word)})),sort);
 }
