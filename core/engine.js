@@ -56,7 +56,13 @@ export function exactAnagrams({letters,wordsByLength,sort='alpha',filters={},inc
 export function findWords({wordsByLength,length=0,starts='',contains='',ends='',pattern='',excluded='',required='',sort='alpha',limit=5000}){
   const lengths=length ? [Number(length)] : [...wordsByLength.keys()].sort((a,b)=>a-b);
   const excludedSet=new Set(excluded.toLowerCase());
-  const requiredChars=[...new Set(required.toLowerCase().replace(/[^a-z]/g,''))];
+  const requiredCounts=new Uint8Array(26);
+  let requiredTotal=0;
+  for(const char of required.toLowerCase().replace(/[^a-z]/g,'')){
+    const idx=char.charCodeAt(0)-97;
+    requiredCounts[idx]++;
+    requiredTotal++;
+  }
   const normalizedPattern=pattern.toLowerCase().replace(/[^a-z?]/g,'');
   const found=[];
   for(const len of lengths){
@@ -64,7 +70,13 @@ export function findWords({wordsByLength,length=0,starts='',contains='',ends='',
     for(const word of wordsByLength.get(len)||[]){
       if(!matchesFilters(word,{starts,contains,ends})) continue;
       if(excludedSet.size && [...word].some(char=>excludedSet.has(char))) continue;
-      if(requiredChars.length && requiredChars.some(char=>!word.includes(char))) continue;
+      if(requiredTotal){
+        const wordCounts=new Uint8Array(26);
+        for(const char of word) wordCounts[char.charCodeAt(0)-97]++;
+        let missingRequired=false;
+        for(let i=0;i<26;i++) if(wordCounts[i]<requiredCounts[i]){missingRequired=true;break;}
+        if(missingRequired) continue;
+      }
       if(normalizedPattern && [...normalizedPattern].some((char,index)=>char!=='?' && word[index]!==char)) continue;
       found.push({word,score:scoreWord(word)});
       if(found.length>=limit) return sortResults(found,sort);
