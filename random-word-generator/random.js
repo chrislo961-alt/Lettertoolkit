@@ -2,6 +2,13 @@ import {loadDictionary} from '../core/dictionary.js';
 import {scoreWord} from '../core/score.js';
 
 const $=id=>document.getElementById(id);
+const toggle=$('themeToggle');
+const savedTheme=localStorage.getItem('lt-theme');
+if(savedTheme==='dark'||savedTheme==='light')document.documentElement.dataset.theme=savedTheme;
+function syncThemeButton(){if(toggle)toggle.textContent=document.documentElement.dataset.theme==='dark'?'Light mode':'Dark mode';}
+syncThemeButton();
+toggle?.addEventListener('click',()=>{const next=document.documentElement.dataset.theme==='dark'?'light':'dark';document.documentElement.dataset.theme=next;localStorage.setItem('lt-theme',next);syncThemeButton();});
+
 const form=$('randomForm'),results=$('results'),count=$('resultCount'),message=$('resultMessage'),copy=$('copyButton');
 const state={wordsByLength:new Map(),results:[]};
 const clean=v=>String(v||'').toLowerCase().replace(/[^a-z]/g,'').slice(0,15);
