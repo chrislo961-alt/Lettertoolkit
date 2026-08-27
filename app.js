@@ -41,6 +41,14 @@ if(unscramblerForm){
   });
 }
 
+const anagramForm=$('anagramForm');
+if(anagramForm){
+  $('anagramClear')?.addEventListener('click',()=>{
+    $('anagramLetters').value='';$('anagramStarts').value='';$('anagramContains').value='';$('anagramEnds').value='';$('anagramSort').value='alpha';$('anagramIncludeOriginal').checked=false;
+    state.results=[];state.visible=100;render();if(message)message.textContent='Filters cleared. Enter your letters and solve.';$('anagramLetters')?.focus();
+  });
+}
+
 bind('unscramblerForm',e=>{
   e.preventDefault();if(!ready())return;
   const letters=clean($('unscrambleLetters').value,true);if(letters.length<2)return setResults([],'Enter at least two letters.');
@@ -53,10 +61,18 @@ bind('unscramblerForm',e=>{
   if(excluded.size)items=items.filter(item=>![...item.word].some(ch=>excluded.has(ch)));
   if(minScore)items=items.filter(item=>item.score>=minScore);
   const exactCount=items.filter(item=>item.word.length===letters.length).length;
-  const label=`Words made from ${letters.toUpperCase()}. ${exactCount.toLocaleString()} use all ${letters.length} rack tiles.`;
+  setResults(items,`Words made from ${letters.toUpperCase()}. ${exactCount.toLocaleString()} use all ${letters.length} rack tiles.`);
+});
+bind('anagramForm',e=>{
+  e.preventDefault();if(!ready())return;
+  const letters=clean($('anagramLetters').value,true);if(letters.length<2)return setResults([],'Enter at least two letters.');
+  const filters={starts:clean($('anagramStarts')?.value||''),contains:clean($('anagramContains')?.value||''),ends:clean($('anagramEnds')?.value||'')};
+  const includeOriginal=Boolean($('anagramIncludeOriginal')?.checked),sort=$('anagramSort')?.value||'alpha';
+  const items=exactAnagrams({letters,wordsByLength:state.wordsByLength,sort,filters,includeOriginal});
+  const wildcardCount=(letters.match(/\?/g)||[]).length;
+  const label=wildcardCount?`Exact ${letters.length}-letter matches using all supplied tiles, including ${wildcardCount} wildcard${wildcardCount===1?'':'s'}.`:`Exact anagrams of ${letters.toUpperCase()} using every letter once.`;
   setResults(items,label);
 });
-bind('anagramForm',e=>{e.preventDefault();if(!ready())return;const letters=clean($('anagramLetters').value,true);if(letters.length<2)return setResults([],'Enter at least two letters.');setResults(exactAnagrams({letters,wordsByLength:state.wordsByLength,sort:$('anagramSort').value}),`Exact anagrams of ${letters.toUpperCase()}.`)});
 bind('finderForm',e=>{e.preventDefault();if(!ready())return;const sort=$('finderSort')?.value||'alpha';const length=Number($('finderLength').value)||0;const pattern=clean($('finderPattern').value,true);if(pattern&&length&&pattern.length!==length)return setResults([],'Pattern length must match the selected word length.');setResults(findWords({wordsByLength:state.wordsByLength,length,pattern,starts:clean($('finderStarts').value),contains:clean($('finderContains').value),ends:clean($('finderEnds').value),excluded:clean($('finderExcluded').value),sort}),`Words matching your filters, sorted ${sort==='alpha'?'A–Z':sort==='score'?'by tile score':'longest first'}.`)});
 bind('wordleForm',e=>{e.preventDefault();if(!ready())return;setResults(wordleSearch({wordsByLength:state.wordsByLength,greens:clean($('wordleGreens').value,true),yellows:clean($('wordleYellows').value),grays:clean($('wordleGrays').value)}),'Five-letter candidates.')});
 bind('crosswordForm',e=>{e.preventDefault();if(!ready())return;const length=Number($('crosswordLength').value)||0;let pattern=clean($('crosswordPattern').value,true);if(!pattern&&length)pattern='?'.repeat(length);if(pattern&&length&&pattern.length!==length)return setResults([],'The pattern length must match the answer length.');setResults(findWords({wordsByLength:state.wordsByLength,length:length||pattern.length,pattern,excluded:clean($('crosswordExcluded').value),sort:'alpha'}),'Possible crossword answers.');});
