@@ -9,6 +9,7 @@ if (root) {
   const moreEl = document.getElementById('seoShowMore');
   const lengthValue = Number(value);
   const supportsModes = type === 'length' && lengthValue >= 6 && lengthValue <= 15;
+  const supportsBrowseControls = ['starts','ends','contains'].includes(type);
   const curated = Array.from(listEl?.querySelectorAll('.seo-word') || [])
     .map(el => el.textContent.trim().toLowerCase())
     .filter(w => /^[a-z]+$/.test(w));
@@ -17,6 +18,8 @@ if (root) {
   let filtered = [];
   let shown = 120;
   let mode = supportsModes && curated.length ? 'common' : 'full';
+  let browseLength = 0;
+  let browseSort = 'alpha';
 
   const match = w => type === 'length'
     ? w.length === lengthValue
@@ -57,10 +60,59 @@ if (root) {
     });
   }
 
+  if (supportsBrowseControls) {
+    const style = document.createElement('style');
+    style.textContent = `
+      .seo-browse-controls{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin:16px 0 4px}
+      .seo-browse-controls label{display:grid;gap:7px;font-weight:800;font-size:.88rem;color:var(--muted)}
+      .seo-browse-controls select{width:100%;min-height:46px;border:1px solid var(--line);border-radius:12px;padding:0 12px;background:var(--surface);color:var(--text);font:inherit;font-weight:750}
+      .seo-browse-controls select:focus{outline:none;border-color:var(--accent);box-shadow:0 0 0 4px rgba(91,92,226,.14)}
+      @media(max-width:560px){.seo-browse-controls{grid-template-columns:1fr}}
+    `;
+    document.head.appendChild(style);
+
+    const controls = document.createElement('div');
+    controls.className = 'seo-browse-controls';
+    controls.innerHTML = `
+      <label>Word length
+        <select id="seoLengthFilter">
+          <option value="0">Any length</option>
+          ${Array.from({length:14},(_,i)=>i+2).map(n=>`<option value="${n}">${n} letters</option>`).join('')}
+        </select>
+      </label>
+      <label>Sort results
+        <select id="seoSortFilter">
+          <option value="alpha">A–Z</option>
+          <option value="short">Shortest first</option>
+          <option value="long">Longest first</option>
+        </select>
+      </label>
+    `;
+    filterEl.closest('.seo-filter-label')?.insertAdjacentElement('afterend', controls);
+    controls.querySelector('#seoLengthFilter')?.addEventListener('change', event => {
+      browseLength = Number(event.target.value) || 0;
+      shown = 120;
+      render();
+    });
+    controls.querySelector('#seoSortFilter')?.addEventListener('change', event => {
+      browseSort = event.target.value;
+      shown = 120;
+      render();
+    });
+  }
+
+  const sortBrowseResults = words => {
+    if (!supportsBrowseControls || browseSort === 'alpha') return [...words].sort((a,b)=>a.localeCompare(b));
+    if (browseSort === 'short') return [...words].sort((a,b)=>a.length-b.length || a.localeCompare(b));
+    return [...words].sort((a,b)=>b.length-a.length || a.localeCompare(b));
+  };
+
   const render = () => {
     const source = mode === 'common' ? curated : all;
     const q = filterEl.value.trim().toLowerCase();
-    filtered = q ? source.filter(w => w.includes(q)) : source;
+    let next = q ? source.filter(w => w.includes(q)) : [...source];
+    if (supportsBrowseControls && browseLength) next = next.filter(w => w.length === browseLength);
+    filtered = sortBrowseResults(next);
     const visible = filtered.slice(0, shown);
     listEl.innerHTML = visible.map(w => `<li class="seo-word">${w}</li>`).join('');
     countEl.textContent = filtered.length.toLocaleString('en-US');
@@ -69,12 +121,17 @@ if (root) {
       messageEl.textContent = q
         ? `Showing ${visible.length.toLocaleString('en-US')} common matching words. Try Full dictionary if you need a rarer entry.`
         : `Showing ${visible.length.toLocaleString('en-US')} curated common words. Switch to Full dictionary for every matching entry.`;
+    } else if (supportsBrowseControls) {
+      const lengthText = browseLength ? ` with ${browseLength} letters` : '';
+      messageEl.textContent = `Showing ${visible.length.toLocaleString('en-US')} of ${filtered.length.toLocaleString('en-US')} matching words${lengthText}.`;
     } else {
       messageEl.textContent = `Showing ${visible.length.toLocaleString('en-US')} of ${filtered.length.toLocaleString('en-US')} matching dictionary words.`;
     }
 
     if (!filtered.length && mode === 'common') {
       messageEl.textContent = 'No common words matched. Switch to Full dictionary to search rare and specialist entries.';
+    } else if (!filtered.length && supportsBrowseControls) {
+      messageEl.textContent = 'No words match these filters. Try another length or clear the text filter.';
     }
     moreEl.hidden = mode === 'common' || visible.length >= filtered.length;
   };
@@ -88,8 +145,7 @@ if (root) {
       all = text
         .split(/\r?\n/)
         .map(w => w.trim().toLowerCase())
-        .filter(w => /^[a-z]+$/.test(w) && match(w))
-        .sort();
+        .filter(w => /^[a-z]+$/.test(w) && match(w));
       shown = 120;
       render();
     })
