@@ -36,7 +36,7 @@ export function sortResults(items,mode='length'){
         ? a.word.length-b.word.length || a.word.localeCompare(b.word)
         : b.word.length-a.word.length || b.score-a.score || a.word.localeCompare(b.word));
 }
-export function unscramble({letters,wordsByLength,minLength=2,filters={},sort='length',blankScoreZero=false}){
+export function unscramble({letters,wordsByLength,minLength=2,filters={},sort='length',blankScoreZero=true}){
   const rack=countLetters(letters); const found=[];
   for(let len=minLength;len<=letters.length;len++){
     for(const word of wordsByLength.get(len)||[]){
