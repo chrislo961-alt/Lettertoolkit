@@ -24,7 +24,9 @@ export function sortResults(items,mode='length'){
     ? a.word.localeCompare(b.word)
     : mode==='score'
       ? b.score-a.score || b.word.length-a.word.length || a.word.localeCompare(b.word)
-      : b.word.length-a.word.length || b.score-a.score || a.word.localeCompare(b.word));
+      : mode==='short'
+        ? a.word.length-b.word.length || a.word.localeCompare(b.word)
+        : b.word.length-a.word.length || b.score-a.score || a.word.localeCompare(b.word));
 }
 export function unscramble({letters,wordsByLength,minLength=2,filters={},sort='length'}){
   const rack=countLetters(letters); const found=[];
@@ -43,9 +45,10 @@ export function exactAnagrams({letters,wordsByLength,sort='alpha',filters={},inc
     sort
   );
 }
-export function findWords({wordsByLength,length=0,starts='',contains='',ends='',pattern='',excluded='',sort='alpha',limit=5000}){
+export function findWords({wordsByLength,length=0,starts='',contains='',ends='',pattern='',excluded='',required='',sort='alpha',limit=5000}){
   const lengths=length ? [Number(length)] : [...wordsByLength.keys()].sort((a,b)=>a-b);
   const excludedSet=new Set(excluded.toLowerCase());
+  const requiredChars=[...new Set(required.toLowerCase().replace(/[^a-z]/g,''))];
   const normalizedPattern=pattern.toLowerCase().replace(/[^a-z?]/g,'');
   const found=[];
   for(const len of lengths){
@@ -53,6 +56,7 @@ export function findWords({wordsByLength,length=0,starts='',contains='',ends='',
     for(const word of wordsByLength.get(len)||[]){
       if(!matchesFilters(word,{starts,contains,ends})) continue;
       if(excludedSet.size && [...word].some(char=>excludedSet.has(char))) continue;
+      if(requiredChars.length && requiredChars.some(char=>!word.includes(char))) continue;
       if(normalizedPattern && [...normalizedPattern].some((char,index)=>char!=='?' && word[index]!==char)) continue;
       found.push({word,score:scoreWord(word)});
       if(found.length>=limit) return sortResults(found,sort);
