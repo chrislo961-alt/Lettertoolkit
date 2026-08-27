@@ -6,7 +6,7 @@ const form=$('crosswordForm');
 if(form){
   const results=$('results'),count=$('resultCount'),message=$('resultMessage'),showMore=$('showMoreButton'),copy=$('copyButton');
   let wordsByLength=new Map(),ready=false,items=[],visible=100;
-  const clean=v=>(v||'').toLowerCase().replace(/[^a-z?]/g,'').slice(0,15);
+  const clean=v=>(v||'').toLowerCase().replace(/[_.]/g,'?').replace(/[^a-z?]/g,'').slice(0,15);
   function render(){
     results.textContent='';
     for(const item of items.slice(0,visible)){
@@ -35,7 +35,7 @@ if(form){
     message.textContent=items.length?`Possible crossword answers matching ${parts.length?parts.join(', '):'your filters'}.`:'No matches found. Recheck the crossings or remove a filter.';render();
   },true);
   $('crosswordClear')?.addEventListener('click',()=>{['crosswordPattern','crosswordStarts','crosswordEnds','crosswordRequired','crosswordExcluded'].forEach(id=>$(id).value='');$('crosswordLength').value='7';$('crosswordSort').value='alpha';history.replaceState(null,'',location.pathname);items=[];visible=100;message.textContent='Filters cleared. Enter the answer pattern and search.';render();$('crosswordPattern').focus();});
-  $('crosswordShare')?.addEventListener('click',async()=>{try{await navigator.clipboard.writeText(currentUrl());$('crosswordShare').textContent='Link copied';setTimeout(()=>$('crosswordShare').textContent='Copy search link',1200)}catch{message.textContent='Could not copy the link. Copy the browser address instead.'}});
+  $('crosswordShare')?.addEventListener('click',async()=>{const url=currentUrl();try{await navigator.clipboard.writeText(url);$('crosswordShare').textContent='Link copied';setTimeout(()=>$('crosswordShare').textContent='Copy search link',1200)}catch{history.replaceState(null,'',url);message.textContent='Clipboard unavailable. The generated search URL is now in the browser address bar.'}});
   showMore.addEventListener('click',e=>{e.stopImmediatePropagation();visible+=100;render();},true);
   copy.addEventListener('click',async e=>{e.stopImmediatePropagation();try{await navigator.clipboard.writeText(items.map(x=>x.word).join('\n'));copy.textContent='Copied';setTimeout(()=>copy.textContent='Copy all',1200)}catch{message.textContent='Copy failed. Select the words manually.'}},true);
   try{const d=await loadDictionary('../words.txt');wordsByLength=d.wordsByLength;ready=true;message.textContent=`${d.total.toLocaleString()} words ready. Enter the answer pattern and search.`;if(location.search)form.requestSubmit();}catch(err){message.textContent='Dictionary unavailable. Please refresh the page.';console.error(err)}
