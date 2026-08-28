@@ -46,8 +46,6 @@ export async function onRequest(context) {
   const isApexHost = url.hostname === 'lettertoolkit.com';
   const isWwwHost = url.hostname === 'www.lettertoolkit.com';
 
-  // Enforce the public canonical host without interfering with local Pages
-  // previews used by CI and development.
   if (isWwwHost || (isApexHost && url.protocol !== 'https:')) {
     url.protocol = 'https:';
     url.hostname = 'lettertoolkit.com';
@@ -122,6 +120,47 @@ export async function onRequest(context) {
         );
       },
     });
+  }
+
+  if (url.pathname === '/word-unscrambler/' || url.pathname === '/word-unscrambler') {
+    rewriter = rewriter
+      .on('head', {
+        element(element) {
+          element.append('<link rel="stylesheet" href="/growth-word-tools.css?v=1"><script src="/growth-word-tools.js?v=1" defer></script>', { html: true });
+        },
+      })
+      .on('title', {
+        element(element) {
+          element.setInnerContent('Word Unscrambler – Make Words From Letters Free | LetterToolkit');
+        },
+      })
+      .on('meta[name="description"]', {
+        element(element) {
+          element.setAttribute('content', 'Free word unscrambler to make words from letters. Use wildcards, length, starts-with, ends-with, contains and score filters to find the best matches fast.');
+        },
+      })
+      .on('.pane-intro', {
+        element(element) {
+          element.after('<div class="quick-start" aria-label="Quick examples"><strong>Try an example</strong><div class="quick-start-actions"><button type="button" data-unscramble-example="LISTEN">LISTEN</button><button type="button" data-unscramble-example="STREAM">STREAM</button><button type="button" data-unscramble-example="TRAIN?">TRAIN?</button><button type="button" data-unscramble-example="SCRABBLE">SCRABBLE</button></div></div>', { html: true });
+        },
+      })
+      .on('#resultMessage', {
+        element(element) {
+          element.after('<div class="result-pulse" id="resultPulse" aria-live="polite">Try an example above or enter your own rack.</div>', { html: true });
+        },
+      })
+      .on('.workspace', {
+        element(element) {
+          element.after(
+            '<section class="growth-path shell"><div class="growth-path-card"><p class="eyebrow">Keep solving</p><h2>Popular next searches</h2><p>Move from a letter rack to the exact word pattern or list you need without starting over.</p><div class="growth-link-groups">' +
+            '<div><h3>By length</h3><div><a href="/5-letter-words/">5-letter words</a><a href="/6-letter-words/">6-letter words</a><a href="/7-letter-words/">7-letter words</a><a href="/8-letter-words/">8-letter words</a></div></div>' +
+            '<div><h3>Popular patterns</h3><div><a href="/words-containing-q/">Words with Q</a><a href="/words-containing-x/">Words with X</a><a href="/words-containing-z/">Words with Z</a><a href="/words-that-end-with-ing/">Words ending in ING</a></div></div>' +
+            '<div><h3>More precise tools</h3><div><a href="/anagram-solver/">Exact anagrams</a><a href="/word-finder/">Word Finder</a><a href="/scrabble-helper/">Scrabble Helper</a><a href="/wordle-helper/">Wordle Helper</a></div></div>' +
+            '</div></div></section>',
+            { html: true },
+          );
+        },
+      });
   }
 
   if (url.pathname === '/frontend/' || url.pathname === '/frontend') {
