@@ -1,0 +1,58 @@
+name: Redirect regression
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+
+permissions:
+  contents: read
+
+jobs:
+  redirects:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+
+      - name: Start Cloudflare Pages preview
+        run: |
+          npx --yes wrangler@4 pages dev . --port 8788 --ip 127.0.0.1 > /tmp/wrangler-redirects.log 2>&1 &
+          echo $! > /tmp/wrangler-redirects.pid
+          for i in $(seq 1 45); do
+            if curl -fsS http://127.0.0.1:8788/ >/dev/null; then exit 0; fi
+            sleep 1
+          done
+          cat /tmp/wrangler-redirects.log
+          exit 1
+
+      - name: Verify permanent canonical redirects
+        run: |
+          set -e
+          check_redirect() {
+            source="$1"
+            expected="$2"
+            status="$(curl -sS -o /dev/null -w '%{http_code}' "http://127.0.0.1:8788${source}")"
+            destination="$(curl -sS -o /dev/null -w '%{redirect_url}' "http://127.0.0.1:8788${source}")"
+            test "$status" = "301"
+            test "$destination" = "http://127.0.0.1:8788${expected}"
+          }
+
+          check_redirect '/crossword-answer-finder/' '/crossword-solver/'
+          check_redirect '/word-generator/' '/random-word-generator/'
+          check_redirect '/words-with-q/?length=5' '/words-containing-q/?length=5'
+          check_redirect '/words-with-x/' '/words-containing-x/'
+          check_redirect '/words-with-z/' '/words-containing-z/'
+          check_redirect '/5-letter-words-containing-q/' '/5-letter-words-with-q/'
+          check_redirect '/words-ending-in-ing/' '/words-that-end-with-ing/'
+          check_redirect '/words-ending-in-ed/' '/words-that-end-with-ed/'
+          check_redirect '/words-ending-in-ly/' '/words-that-end-with-ly/'
+          check_redirect '/words-ending-in-er/' '/words-that-end-with-er/'
+          check_redirect '/words-ending-in-tion/' '/words-that-end-with-tion/'
+
+      - name: Stop preview
+        if: always()
+        run: kill "$(cat /tmp/wrangler-redirects.pid 2>/dev/null)" 2>/dev/null || true
