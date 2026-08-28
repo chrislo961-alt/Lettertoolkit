@@ -75,6 +75,7 @@ jobs:
           assert_canonical '/random-word-generator/' "$base/random-word-generator/"
           assert_canonical '/5-letter-words/' "$base/5-letter-words/"
           assert_canonical '/words-containing-q/' "$base/words-containing-q/"
+          assert_canonical '/words-that-end-with-in/' "$base/words-that-end-with-in/"
           assert_canonical '/words-that-end-with-ing/' "$base/words-that-end-with-ing/"
 
           assert_redirect '/crossword-answer-finder/' "$base/crossword-solver/"
