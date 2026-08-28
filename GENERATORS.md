@@ -4,17 +4,17 @@ LetterToolkit uses focused generators only. Broad site-wide regeneration is inte
 
 ## Active generators
 
-- `generate-growth-pages.js` — owns the focused five-letter finder/growth pages it explicitly lists.
-- `generate-word-explorer.js` — owns `/word/`, the selected `/word/<term>/` explorer pages, `word-explorer.js`, and its report/sitemap output.
+- `generate-growth-pages.js` — owns the focused five-letter finder/growth pages it explicitly lists and is the only generator allowed to rebuild the five child sitemaps plus the root sitemap index.
 - `generate-writer-seo.js` — owns the Writer SEO landing pages it explicitly lists plus its Writer report/sitemap entries.
 
 Active generators must only write routes they explicitly own. Do not expand them into catch-all word-list generation without reviewing canonical intent, redirect policy, sitemap placement, and CI coverage.
 
-## Retired generator
+## Retired generators
 
-- `generate-seo-pages.js` — retired. It previously generated broad word-list routes and directly mutated the root `sitemap.xml`. It now exits without writing files.
+- `generate-seo-pages.js` — retired. It previously generated broad word-list routes and directly mutated the root sitemap.
+- `generate-word-explorer.js` — retired. Word Explorer pages remain materialized in the repository, but the old generator treated the root sitemap index as a urlset and could corrupt it when rerun.
 
-The filename is intentionally retained as a fail-safe so old commands cannot silently recreate deprecated pages.
+The filenames are intentionally retained as fail-closed sentinels so old commands cannot silently recreate deprecated pages, overwrite curated files, or damage sitemap structure.
 
 ## Canonical route policy
 
@@ -28,14 +28,17 @@ They are permanent aliases handled by Cloudflare Pages middleware. Their canonic
 
 ## Sitemap policy
 
-The root `sitemap.xml` is a sitemap index and must not be rewritten by content generators. Focused generators may update the appropriate child sitemap only when that generator owns those routes.
+The root `sitemap.xml` is a sitemap index. `generate-growth-pages.js` is the single designated sitemap builder and must emit that root file only as `<sitemapindex>`. Other generators may update only their appropriate child sitemap when they own those routes.
 
 ## CI guard
 
 `scripts/check-generator-safety.cjs` verifies that:
 
-1. the retired broad generator remains a non-writing sentinel;
-2. top-level generators do not contain deprecated route families;
-3. active generators do not write directly to root `sitemap.xml`.
+1. retired generators remain non-writing sentinels;
+2. top-level generators do not contain deprecated route definitions;
+3. only the designated sitemap builder may write root `sitemap.xml`;
+4. the designated sitemap builder still emits a sitemap index.
+
+`.github/workflows/production-smoke.yml` verifies representative production routes, redirects, canonical markup, robots.txt, and sitemap structure from GitHub Actions where public DNS is available.
 
 If a future architecture intentionally changes these rules, update the generator, redirect policy, sitemap structure, tests, and this document together.
