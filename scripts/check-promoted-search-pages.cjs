@@ -6,7 +6,8 @@ const root = path.resolve(__dirname, '..');
 const site = 'https://lettertoolkit.com';
 const promotedRoutes = [
   '/words-that-start-with-a/',
-  '/6-letter-words/'
+  '/6-letter-words/',
+  '/random-word-generator/'
 ];
 const sitemapFiles = [
   'sitemap-static.xml',
