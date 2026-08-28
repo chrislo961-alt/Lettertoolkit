@@ -16,6 +16,13 @@ const manifest = JSON.stringify({
   ],
 });
 
+const permanentRouteRedirects = new Map([
+  ['/crossword-answer-finder', '/crossword-solver/'],
+  ['/crossword-answer-finder/', '/crossword-solver/'],
+  ['/word-generator', '/random-word-generator/'],
+  ['/word-generator/', '/random-word-generator/'],
+]);
+
 export async function onRequest(context) {
   const url = new URL(context.request.url);
   const isApexHost = url.hostname === 'lettertoolkit.com';
@@ -26,6 +33,12 @@ export async function onRequest(context) {
   if (isWwwHost || (isApexHost && url.protocol !== 'https:')) {
     url.protocol = 'https:';
     url.hostname = 'lettertoolkit.com';
+    return Response.redirect(url.toString(), 301);
+  }
+
+  const permanentDestination = permanentRouteRedirects.get(url.pathname);
+  if (permanentDestination) {
+    url.pathname = permanentDestination;
     return Response.redirect(url.toString(), 301);
   }
 
