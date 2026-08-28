@@ -1,0 +1,35 @@
+name: SEO integrity
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+    paths:
+      - '**/index.html'
+      - 'robots.txt'
+      - 'sitemap*.xml'
+      - 'scripts/check-seo-integrity.cjs'
+      - 'scripts/check-indexability-links.cjs'
+      - 'scripts/check-promoted-search-pages.cjs'
+      - 'scripts/check-seo-basics.cjs'
+      - '.github/workflows/seo-integrity.yml'
+
+permissions:
+  contents: read
+
+jobs:
+  audit:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - name: Run strict SEO integrity gate
+        run: node scripts/check-seo-integrity.cjs
+      - name: Audit indexability and internal links
+        run: node scripts/check-indexability-links.cjs
+      - name: Guard promoted Search Console pages
+        run: node scripts/check-promoted-search-pages.cjs
+      - name: Check flagship SEO basics
+        run: node scripts/check-seo-basics.cjs
