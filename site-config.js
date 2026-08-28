@@ -21,5 +21,5 @@ window.LETTERTOOLKIT_CONFIG = {
     const script=document.createElement('script');script.src=pair[1];script.defer=true;document.head.appendChild(script);
   }
   const seoCss=document.createElement('link');seoCss.rel='stylesheet';seoCss.href='/phase44-seo.css?v=1';document.head.appendChild(seoCss);
-  const seoScript=document.createElement('script');seoScript.src='/phase44-seo.js?v=2';seoScript.defer=true;document.head.appendChild(seoScript);
+  const seoScript=document.createElement('script');seoScript.src='/phase44-seo.js?v=3';seoScript.defer=true;document.head.appendChild(seoScript);
 })();
