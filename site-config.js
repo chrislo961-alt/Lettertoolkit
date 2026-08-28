@@ -1,5 +1,5 @@
 window.LETTERTOOLKIT_CONFIG = {
-  googleAnalyticsId: "",
+  googleAnalyticsId: "G-8FWVYBHL0K",
   adsensePublisherId: "",
   searchConsoleVerification: ""
 };
