@@ -16,13 +16,10 @@ window.LETTERTOOLKIT_CONFIG = {
     '/word-lists':['/phase43-random-rhyme-hub.css?v=1','/phase43-random-rhyme-hub.js?v=1']
   };
   const pair=assets[route];
-  if(!pair)return;
-  const css=document.createElement('link');
-  css.rel='stylesheet';
-  css.href=pair[0];
-  document.head.appendChild(css);
-  const script=document.createElement('script');
-  script.src=pair[1];
-  script.defer=true;
-  document.head.appendChild(script);
+  if(pair){
+    const css=document.createElement('link');css.rel='stylesheet';css.href=pair[0];document.head.appendChild(css);
+    const script=document.createElement('script');script.src=pair[1];script.defer=true;document.head.appendChild(script);
+  }
+  const seoCss=document.createElement('link');seoCss.rel='stylesheet';seoCss.href='/phase44-seo.css?v=1';document.head.appendChild(seoCss);
+  const seoScript=document.createElement('script');seoScript.src='/phase44-seo.js?v=1';seoScript.defer=true;document.head.appendChild(seoScript);
 })();
