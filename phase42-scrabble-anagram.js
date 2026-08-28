@@ -1,4 +1,6 @@
-document.addEventListener('DOMContentLoaded',()=>{
+function initPhase42(){
+  if(document.documentElement.dataset.phase42Init==='1')return;
+  document.documentElement.dataset.phase42Init='1';
   const path=location.pathname.replace(/\/$/,'');
   const add=(target,html)=>target?.insertAdjacentHTML('afterend',html);
   const setMeta=(title,description)=>{document.title=title;const meta=document.querySelector('meta[name="description"]');if(meta)meta.setAttribute('content',description);};
@@ -20,7 +22,17 @@ document.addEventListener('DOMContentLoaded',()=>{
       const button=document.createElement('button');button.type='button';button.id='anagramSharePhase42';button.className='secondary-button phase42-share';button.textContent='Copy search link';form.appendChild(button);
       const restore=new URLSearchParams(location.search);const map={letters:'anagramLetters',starts:'anagramStarts',contains:'anagramContains',ends:'anagramEnds',sort:'anagramSort',original:'anagramIncludeOriginal'};
       for(const [key,id] of Object.entries(map)){const el=document.getElementById(id),value=restore.get(key);if(!el||value===null)continue;if(el.type==='checkbox')el.checked=value==='1';else el.value=value;}
-      if(location.search&&document.querySelector('#anagramLetters')?.value)form.requestSubmit();
+      const submitWhenDictionaryReady=()=>{
+        if(!location.search||!document.querySelector('#anagramLetters')?.value)return;
+        const message=document.querySelector('#resultMessage');
+        const readyNow=/words ready/i.test(message?.textContent||'');
+        if(readyNow){form.requestSubmit();return;}
+        if(!message)return;
+        const observer=new MutationObserver(()=>{if(/words ready/i.test(message.textContent||'')){observer.disconnect();form.requestSubmit();}});
+        observer.observe(message,{childList:true,subtree:true,characterData:true});
+        setTimeout(()=>observer.disconnect(),10000);
+      };
+      submitWhenDictionaryReady();
       button.addEventListener('click',async()=>{const url=new URL(location.href);url.search='';const values={letters:document.querySelector('#anagramLetters')?.value||'',starts:document.querySelector('#anagramStarts')?.value||'',contains:document.querySelector('#anagramContains')?.value||'',ends:document.querySelector('#anagramEnds')?.value||'',sort:document.querySelector('#anagramSort')?.value||'alpha',original:document.querySelector('#anagramIncludeOriginal')?.checked?'1':''};for(const [key,value] of Object.entries(values)){if(value&&!(key==='sort'&&value==='alpha'))url.searchParams.set(key,value);}try{await navigator.clipboard.writeText(url.toString());button.textContent='Link copied';setTimeout(()=>button.textContent='Copy search link',1200);}catch{history.replaceState(null,'',url.toString());}track('anagram_share',{letter_count:values.letters.length,has_wildcard:values.letters.includes('?')});});
     }
     const workspace=document.querySelector('.workspace');
@@ -29,4 +41,5 @@ document.addEventListener('DOMContentLoaded',()=>{
   }
 
   document.querySelectorAll('.rack-links a,.rack-actions a').forEach(a=>a.addEventListener('click',()=>track('rack_cluster_click',{from:path,to:a.getAttribute('href')||''})));
-});
+}
+if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',initPhase42,{once:true});else initPhase42();
