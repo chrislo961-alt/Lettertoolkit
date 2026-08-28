@@ -1,0 +1,36 @@
+name: Generator safety
+
+on:
+  pull_request:
+    paths:
+      - 'generate-*.js'
+      - 'scripts/check-generator-safety.cjs'
+      - 'GENERATORS.md'
+      - '.github/workflows/generator-safety.yml'
+  push:
+    branches: [main]
+    paths:
+      - 'generate-*.js'
+      - 'scripts/check-generator-safety.cjs'
+      - 'GENERATORS.md'
+      - '.github/workflows/generator-safety.yml'
+
+permissions:
+  contents: read
+
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - name: Check generator route and sitemap safety
+        run: node scripts/check-generator-safety.cjs
+      - name: Confirm retired broad generator fails closed
+        run: |
+          if node generate-seo-pages.js; then
+            echo 'Retired generator unexpectedly succeeded'
+            exit 1
+          fi
