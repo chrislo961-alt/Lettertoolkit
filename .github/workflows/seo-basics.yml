@@ -1,0 +1,23 @@
+name: SEO basics
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths:
+      - '**/index.html'
+      - 'site-config.js'
+      - 'phase44-seo.*'
+      - 'scripts/check-seo-basics.cjs'
+      - '.github/workflows/seo-basics.yml'
+
+jobs:
+  audit:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - name: Check flagship SEO basics
+        run: node scripts/check-seo-basics.cjs
