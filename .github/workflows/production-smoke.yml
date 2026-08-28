@@ -34,9 +34,20 @@ jobs:
 
           assert_200() {
             local path="$1"
-            local code
-            code=$(curl -sS -o /tmp/body -w '%{http_code}' --max-time 30 "$base$path")
-            test "$code" = '200' || { echo "Expected 200 for $path, got $code"; exit 1; }
+            local code=''
+            local attempt
+            for attempt in 1 2 3 4 5 6 7 8 9 10 11 12; do
+              code=$(curl -sS -o /tmp/body -w '%{http_code}' --max-time 30 "$base$path" || true)
+              if test "$code" = '200'; then
+                return 0
+              fi
+              if test "$attempt" -lt 12; then
+                echo "Waiting for production deploy: $path returned ${code:-request-error} (attempt $attempt/12)"
+                sleep 10
+              fi
+            done
+            echo "Expected 200 for $path after deploy retry window, got ${code:-request-error}"
+            exit 1
           }
 
           assert_canonical() {
@@ -74,6 +85,7 @@ jobs:
           assert_canonical '/rhyme-finder/' "$base/rhyme-finder/"
           assert_canonical '/random-word-generator/' "$base/random-word-generator/"
           assert_canonical '/5-letter-words/' "$base/5-letter-words/"
+          assert_canonical '/15-letter-words/' "$base/15-letter-words/"
           assert_canonical '/words-containing-q/' "$base/words-containing-q/"
           assert_canonical '/words-that-end-with-in/' "$base/words-that-end-with-in/"
           assert_canonical '/words-that-end-with-ing/' "$base/words-that-end-with-ing/"
