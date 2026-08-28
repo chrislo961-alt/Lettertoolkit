@@ -1,4 +1,6 @@
-document.addEventListener('DOMContentLoaded',()=>{
+function initPhase41(){
+  if(document.documentElement.dataset.phase41Init==='1')return;
+  document.documentElement.dataset.phase41Init='1';
   const path=location.pathname.replace(/\/$/,'');
   const add=(target,html)=>target?.insertAdjacentHTML('afterend',html);
   const setMeta=(title,description)=>{document.title=title;const meta=document.querySelector('meta[name="description"]');if(meta)meta.setAttribute('content',description);};
@@ -19,4 +21,5 @@ document.addEventListener('DOMContentLoaded',()=>{
   }
 
   document.querySelectorAll('.solve-links a,.solve-actions a').forEach(a=>a.addEventListener('click',()=>track('solver_cluster_click',{from:path,to:a.getAttribute('href')||''})));
-});
+}
+if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',initPhase41,{once:true});else initPhase41();
