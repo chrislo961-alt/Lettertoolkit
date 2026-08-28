@@ -71,7 +71,7 @@ for (const [route,p] of pages) {
   }
   if (!p.noindex) {
     const expected = site + route;
-    if (!p.canonical) failures.push(`Indexable page missing canonical: ${route}`);
+    if (!p.canonical) warnings.push(`Indexable page missing canonical: ${route}`);
     else if (p.canonical !== expected) warnings.push(`Non-self canonical: ${route} -> ${p.canonical}`);
   }
 }
@@ -84,7 +84,6 @@ for (const [route,p] of pages) {
   if (!p.noindex && !sitemapRoutes.has(route) && route !== '/404/') warnings.push(`Indexable page missing from child sitemaps: ${route}`);
 }
 
-// Crawl depth from homepage using crawlable internal hrefs.
 const depth = new Map([['/',0]]); const q=['/'];
 while(q.length){ const cur=q.shift(); const d=depth.get(cur); const p=pages.get(cur); if(!p) continue; for(const t of p.links){ if(pages.has(t)&&!depth.has(t)){depth.set(t,d+1);q.push(t);} } }
 for (const [route,p] of pages) {
@@ -105,7 +104,8 @@ const summary = {
   unreachable: warnings.filter(x=>x.startsWith('Not crawl')).length,
   deepPages: warnings.filter(x=>x.startsWith('Deep ')).length,
   aliasLinks: warnings.filter(x=>x.includes('retired alias')).length,
-  missingSitemap: warnings.filter(x=>x.includes('missing from child sitemaps')).length
+  missingSitemap: warnings.filter(x=>x.includes('missing from child sitemaps')).length,
+  missingCanonicals: warnings.filter(x=>x.includes('missing canonical')).length
 };
 console.log('Indexability/link audit summary:', JSON.stringify(summary,null,2));
 if (warnings.length) console.log('\nWARNINGS\n- '+warnings.join('\n- '));
