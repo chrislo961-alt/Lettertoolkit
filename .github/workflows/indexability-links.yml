@@ -8,6 +8,7 @@ on:
       - '**/index.html'
       - 'sitemap*.xml'
       - 'scripts/check-indexability-links.cjs'
+      - 'scripts/check-promoted-search-pages.cjs'
       - '.github/workflows/indexability-links.yml'
 
 jobs:
@@ -20,3 +21,5 @@ jobs:
           node-version: 22
       - name: Audit indexability and internal links
         run: node scripts/check-indexability-links.cjs
+      - name: Guard promoted Search Console pages
+        run: node scripts/check-promoted-search-pages.cjs
