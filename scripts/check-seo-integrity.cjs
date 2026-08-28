@@ -36,6 +36,13 @@ function match(html, pattern) {
   return html.match(pattern)?.[1]?.trim() || null;
 }
 
+function htmlForOutline(html) {
+  return html
+    .replace(/<script\b[^>]*>[\s\S]*?<\/script>/gi, '')
+    .replace(/<style\b[^>]*>[\s\S]*?<\/style>/gi, '')
+    .replace(/<([a-z][\w:-]*)\b[^>]*contenteditable=["']true["'][^>]*>[\s\S]*?<\/\1>/gi, '');
+}
+
 function normalizeInternal(href, baseRoute) {
   if (!href || href.startsWith('#') || href.startsWith('mailto:') || href.startsWith('tel:') || href.startsWith('javascript:')) return null;
   try {
@@ -82,6 +89,7 @@ for (const route of uniqueRoutes) {
   }
 
   const html = fs.readFileSync(file, 'utf8');
+  const outlineHtml = htmlForOutline(html);
   const robots = match(html, /<meta[^>]+name=["']robots["'][^>]+content=["']([^"']+)["']/i)
     || match(html, /<meta[^>]+content=["']([^"']+)["'][^>]+name=["']robots["']/i)
     || '';
@@ -94,7 +102,7 @@ for (const route of uniqueRoutes) {
     || match(html, /<meta[^>]+content=["']([^"']+)["'][^>]+name=["']description["']/i);
   if (!description) warnings.push(`Missing meta description: ${route}`);
 
-  const h1Count = (html.match(/<h1\b[^>]*>/gi) || []).length;
+  const h1Count = (outlineHtml.match(/<h1\b[^>]*>/gi) || []).length;
   if (!edgeManagedRoutes.has(route) && h1Count !== 1) failures.push(`Expected exactly one H1 on ${route}, found ${h1Count}`);
 
   const canonical = match(html, /<link[^>]+rel=["']canonical["'][^>]+href=["']([^"']+)["']/i)
@@ -110,7 +118,7 @@ for (const route of uniqueRoutes) {
     canonicalOwners.set(canonical, owners);
   }
 
-  for (const result of html.matchAll(/<a\b[^>]*href=["']([^"']+)["']/gi)) {
+  for (const result of outlineHtml.matchAll(/<a\b[^>]*href=["']([^"']+)["']/gi)) {
     const target = normalizeInternal(result[1], route);
     if (!target) continue;
     if (retiredAliases.has(target)) failures.push(`Internal link points at retired alias: ${route} -> ${target}`);
