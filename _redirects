@@ -1,6 +1,0 @@
-/crossword-answer-finder /crossword-solver/ 301
-/crossword-answer-finder/ /crossword-solver/ 301
-/crossword-answer-finder/* /crossword-solver/:splat 301
-/word-generator /random-word-generator/ 301
-/word-generator/ /random-word-generator/ 301
-/word-generator/* /random-word-generator/:splat 301
