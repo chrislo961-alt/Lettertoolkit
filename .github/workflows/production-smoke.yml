@@ -43,8 +43,11 @@ jobs:
             local path="$1"
             local canonical="$2"
             assert_200 "$path"
-            grep -Fq "rel=\"canonical\" href=\"$canonical\"" /tmp/body || {
-              echo "Missing canonical $canonical on $path"; exit 1;
+            grep -Fq 'rel="canonical"' /tmp/body || {
+              echo "Missing canonical link element on $path"; exit 1;
+            }
+            grep -Fq "href=\"$canonical\"" /tmp/body || {
+              echo "Missing canonical URL $canonical on $path"; exit 1;
             }
           }
 
