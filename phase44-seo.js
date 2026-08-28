@@ -5,16 +5,22 @@ function initPhase44(){
   const names={
     '/word-unscrambler':'Word Unscrambler','/anagram-solver':'Anagram Solver','/word-finder':'Word Finder','/5-letter-words':'5 Letter Word Finder','/crossword-solver':'Crossword Solver','/wordle-helper':'Wordle Solver','/scrabble-helper':'Scrabble Helper','/random-word-generator':'Random Word Generator','/rhyme-finder':'Rhyme Finder','/word-lists':'Word Lists','/guides':'Guides','/writer':'Writer','/cv-builder':'CV Builder','/application-builder':'Application Builder'
   };
+  const wordToolRoutes=new Set(['/word-unscrambler','/anagram-solver','/word-finder','/5-letter-words','/crossword-solver','/wordle-helper','/scrabble-helper','/random-word-generator','/rhyme-finder']);
   const core=names[path];
   if(core&&path!=='/'){
     const main=document.querySelector('main');
+    const hasHub=wordToolRoutes.has(path);
+    const crumbs=[{name:'Home',item:'https://lettertoolkit.com/'}];
+    if(path==='/word-lists')crumbs.push({name:'Word Lists',item:'https://lettertoolkit.com/word-lists/'});
+    else if(hasHub){crumbs.push({name:'Word Lists',item:'https://lettertoolkit.com/word-lists/'});crumbs.push({name:core,item:`https://lettertoolkit.com${path}/`});}
+    else crumbs.push({name:core,item:`https://lettertoolkit.com${path}/`});
     if(main&&!document.querySelector('.site-breadcrumb')){
       const nav=document.createElement('nav');nav.className='site-breadcrumb';nav.setAttribute('aria-label','Breadcrumb');
-      nav.innerHTML=`<ol><li><a href="/">Home</a></li>${path==='/word-lists'?'<li aria-current="page">Word Lists</li>':`<li><a href="/word-lists/">Word Tools</a></li><li aria-current="page">${core}</li>`}</ol>`;
+      nav.innerHTML='<ol>'+crumbs.map((crumb,index)=>index===crumbs.length-1?`<li aria-current="page">${crumb.name}</li>`:`<li><a href="${new URL(crumb.item).pathname}">${crumb.name}</a></li>`).join('')+'</ol>';
       main.insertAdjacentElement('afterbegin',nav);
     }
     if(!document.querySelector('script[data-breadcrumb-schema]')){
-      const data={"@context":"https://schema.org","@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"Home","item":"https://lettertoolkit.com/"},{"@type":"ListItem","position":2,"name":core,"item":`https://lettertoolkit.com${path}/`} ]};
+      const data={"@context":"https://schema.org","@type":"BreadcrumbList","itemListElement":crumbs.map((crumb,index)=>({"@type":"ListItem","position":index+1,"name":crumb.name,"item":crumb.item}))};
       const s=document.createElement('script');s.type='application/ld+json';s.dataset.breadcrumbSchema='1';s.textContent=JSON.stringify(data);document.head.appendChild(s);
     }
   }
