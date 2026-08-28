@@ -163,6 +163,72 @@ export async function onRequest(context) {
       });
   }
 
+  if (url.pathname === '/5-letter-words/' || url.pathname === '/5-letter-words') {
+    rewriter = rewriter
+      .on('head', {
+        element(element) {
+          element.append('<link rel="stylesheet" href="/phase40-five-wordle.css?v=1">', { html: true });
+        },
+      })
+      .on('title', {
+        element(element) {
+          element.setInnerContent('5 Letter Word Finder – Wordle & Pattern Solver | LetterToolkit');
+        },
+      })
+      .on('meta[name="description"]', {
+        element(element) {
+          element.setAttribute('content', 'Find 5 letter words by position, starting letters, endings, required letters and exclusions. Built for Wordle-style patterns, crosswords and word games.');
+        },
+      })
+      .on('.tool-hero', {
+        element(element) {
+          element.after(
+            '<section class="cluster-bridge"><div class="cluster-bridge-card"><p class="eyebrow">Wordle and five-letter hub</p><h2>Know the tile colors instead?</h2><p>If you have green, yellow and gray feedback from a Wordle-style puzzle, use the feedback-aware solver. If you only know positions or letters, stay here and use the five-letter finder.</p><div class="cluster-actions"><a href="/wordle-helper/" data-growth-link="five_to_wordle">Open Wordle Helper</a><a class="secondary" href="#finder" data-growth-link="five_to_finder">Use 5 Letter Finder</a></div></div></section>',
+            { html: true },
+          );
+        },
+      })
+      .on('.five-finder', {
+        element(element) {
+          element.after(
+            '<section class="cluster-bridge"><div class="cluster-bridge-card"><p class="eyebrow">Explore by clue type</p><h2>Turn a broad search into a short list</h2><div class="cluster-grid">' +
+            '<article><h3>Common beginnings</h3><p>Jump directly to high-use starting patterns.</p><div class="cluster-links"><a href="/5-letter-words-starting-with-st/" data-growth-link="five_st">ST</a><a href="/5-letter-words-starting-with-cr/" data-growth-link="five_cr">CR</a><a href="/5-letter-words-starting-with-ch/" data-growth-link="five_ch">CH</a><a href="/5-letter-words-starting-with-tr/" data-growth-link="five_tr">TR</a></div></article>' +
+            '<article><h3>Useful endings</h3><p>Narrow a known suffix without rebuilding the search.</p><div class="cluster-links"><a href="/5-letter-words-ending-in-er/" data-growth-link="five_er">ER</a><a href="/5-letter-words-ending-in-ly/" data-growth-link="five_ly">LY</a><a href="/5-letter-words-ending-in-le/" data-growth-link="five_le">LE</a><a href="/5-letter-words-ending-in-nt/" data-growth-link="five_nt">NT</a></div></article>' +
+            '<article><h3>Wordle-friendly lists</h3><p>Explore letter structure when several candidates still fit.</p><div class="cluster-links"><a href="/5-letter-words-with-no-repeated-letters/" data-growth-link="five_unique">No repeats</a><a href="/5-letter-words-with-double-letters/" data-growth-link="five_double">Double letters</a><a href="/5-letter-words-with-3-vowels/" data-growth-link="five_vowels">3 vowels</a><a href="/5-letter-words-with-q/" data-growth-link="five_q">With Q</a></div></article>' +
+            '</div></div></section>',
+            { html: true },
+          );
+        },
+      });
+  }
+
+  if (url.pathname === '/wordle-helper/' || url.pathname === '/wordle-helper') {
+    rewriter = rewriter
+      .on('head', {
+        element(element) {
+          element.append('<link rel="stylesheet" href="/phase40-five-wordle.css?v=1">', { html: true });
+        },
+      })
+      .on('title', {
+        element(element) {
+          element.setInnerContent('Wordle Solver – Green, Yellow & Gray Helper | LetterToolkit');
+        },
+      })
+      .on('meta[name="description"]', {
+        element(element) {
+          element.setAttribute('content', 'Free Wordle solver using full green, yellow and gray tile feedback. Handles duplicate letters, multiple guesses and shareable five-letter candidate searches.');
+        },
+      })
+      .on('.workspace', {
+        element(element) {
+          element.after(
+            '<section class="cluster-bridge"><div class="cluster-bridge-card"><p class="eyebrow">Five-letter toolkit</p><h2>Still too many candidates?</h2><p>Use the five-letter hub to inspect common beginnings, endings, vowel patterns and repeated-letter lists, or switch to a position-based search when you know exact letters.</p><div class="cluster-actions"><a href="/5-letter-words/" data-growth-link="wordle_to_five">Open 5 Letter Word Finder</a><a class="secondary" href="/guides/wordle-strategy/" data-growth-link="wordle_to_strategy">Read Wordle strategy</a></div><div class="wordle-shortcuts cluster-links"><a href="/5-letter-words-with-no-repeated-letters/" data-growth-link="wordle_unique">No repeated letters</a><a href="/5-letter-words-with-double-letters/" data-growth-link="wordle_double">Double letters</a><a href="/5-letter-words-with-3-vowels/" data-growth-link="wordle_vowels">3 vowels</a><a href="/5-letter-words-containing-ou/" data-growth-link="wordle_ou">Contains OU</a><a href="/5-letter-words-containing-ea/" data-growth-link="wordle_ea">Contains EA</a><a href="/5-letter-words-ending-in-er/" data-growth-link="wordle_er">Ends ER</a></div></div></section>',
+            { html: true },
+          );
+        },
+      });
+  }
+
   if (url.pathname === '/frontend/' || url.pathname === '/frontend') {
     rewriter = rewriter.on('head', {
       element(element) {
