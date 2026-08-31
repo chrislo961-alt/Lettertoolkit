@@ -3,9 +3,9 @@ function initPhase44(){
   document.documentElement.dataset.phase44Init='1';
   const path=location.pathname.replace(/\/$/,'')||'/';
   const names={
-    '/word-unscrambler':'Word Unscrambler','/anagram-solver':'Anagram Solver','/word-finder':'Word Finder','/5-letter-words':'5 Letter Word Finder','/crossword-solver':'Crossword Solver','/wordle-helper':'Wordle Solver','/scrabble-helper':'Scrabble Helper','/random-word-generator':'Random Word Generator','/rhyme-finder':'Rhyme Finder','/word-lists':'Word Lists','/guides':'Guides','/writer':'Writer','/cv-builder':'CV Builder','/application-builder':'Application Builder'
+    '/word-unscrambler':'Word Unscrambler','/word-generator-from-words':'Word Generator From Words','/anagram-solver':'Anagram Solver','/word-finder':'Word Finder','/5-letter-words':'5 Letter Word Finder','/crossword-solver':'Crossword Solver','/wordle-helper':'Wordle Solver','/scrabble-helper':'Scrabble Helper','/random-word-generator':'Random Word Generator','/rhyme-finder':'Rhyme Finder','/word-lists':'Word Lists','/guides':'Guides','/writer':'Writer','/cv-builder':'CV Builder','/application-builder':'Application Builder'
   };
-  const wordToolRoutes=new Set(['/word-unscrambler','/anagram-solver','/word-finder','/5-letter-words','/crossword-solver','/wordle-helper','/scrabble-helper','/random-word-generator','/rhyme-finder']);
+  const wordToolRoutes=new Set(['/word-unscrambler','/word-generator-from-words','/anagram-solver','/word-finder','/5-letter-words','/crossword-solver','/wordle-helper','/scrabble-helper','/random-word-generator','/rhyme-finder']);
   const core=names[path];
   if(core&&path!=='/'){
     const main=document.querySelector('main');
@@ -26,7 +26,15 @@ function initPhase44(){
   }
   if(path==='/'){
     const tools=document.querySelector('#tools .section-heading');
-    if(tools&&!document.querySelector('.home-route-links'))tools.insertAdjacentHTML('beforeend','<div class="home-route-links" aria-label="Popular word tool paths"><a href="/word-unscrambler/">Make words from letters</a><a href="/5-letter-words/">Find 5-letter words</a><a href="/crossword-solver/">Solve a pattern</a><a href="/random-word-generator/">Generate random words</a><a href="/scrabble-helper/">Score a rack</a><a href="/word-lists/">Browse word lists</a></div>');
+    if(tools&&!document.querySelector('.home-route-links'))tools.insertAdjacentHTML('beforeend','<div class="home-route-links" aria-label="Popular word tool paths"><a href="/word-generator-from-words/">Generate words from a word</a><a href="/word-unscrambler/">Make words from letters</a><a href="/5-letter-words/">Find 5-letter words</a><a href="/crossword-solver/">Solve a pattern</a><a href="/random-word-generator/">Generate random words</a><a href="/scrabble-helper/">Score a rack</a><a href="/word-lists/">Browse word lists</a></div>');
+  }
+  if(path==='/random-word-generator'||path==='/word-unscrambler'){
+    const main=document.querySelector('main');
+    if(main&&!document.querySelector('.words-from-words-route')){
+      const section=document.createElement('section');section.className='content-section shell tool-copy words-from-words-route';
+      section.innerHTML='<div class="section-heading"><p class="eyebrow">Related search</p><h2>Want to generate words from another word?</h2><p class="lead">Use the <a href="/word-generator-from-words/" data-growth-link="words-from-words">Word Generator From Words</a> when you already have a word or phrase and want to discover words hidden in its letters.</p></div>';
+      main.append(section);
+    }
   }
   document.addEventListener('click',event=>{
     const link=event.target.closest?.('[data-growth-link]');
