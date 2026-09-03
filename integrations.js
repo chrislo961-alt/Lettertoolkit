@@ -15,9 +15,25 @@
     window.gtag('config', config.googleAnalyticsId, { anonymize_ip: true });
   }
 
+  function hasConsent(){
+    return localStorage.getItem(consentKey) === 'granted';
+  }
+
+  function track(eventName, params){
+    if(!hasConsent() || !config.googleAnalyticsId) return;
+    loadAnalytics();
+    window.gtag?.('event', eventName, {
+      page_path: location.pathname,
+      ...(params || {})
+    });
+  }
+
   function setConsent(value){
     localStorage.setItem(consentKey, value);
-    if(value === 'granted') loadAnalytics();
+    if(value === 'granted') {
+      loadAnalytics();
+      track('analytics_consent_granted');
+    }
     document.querySelector('[data-lt-consent-banner]')?.remove();
   }
 
@@ -34,10 +50,42 @@
     wrap.querySelector('[data-lt-consent-decline]')?.addEventListener('click',()=>setConsent('denied'));
   }
 
+  function bindInteractionTracking(){
+    document.addEventListener('submit', event => {
+      const form = event.target;
+      if(!(form instanceof HTMLFormElement)) return;
+      const id = form.id || form.closest('[data-tool]')?.getAttribute('data-tool') || 'tool_form';
+      track('tool_submit', { tool: id });
+    });
+
+    document.addEventListener('click', event => {
+      const target = event.target instanceof Element ? event.target.closest('a,button') : null;
+      if(!target) return;
+      if(target.matches('[data-lt-consent-accept],[data-lt-consent-decline]')) return;
+
+      if(target.matches('a.tool-card')) {
+        const href = target.getAttribute('href') || '';
+        track('tool_card_click', { destination: href });
+        return;
+      }
+
+      const growthLink = target.getAttribute('data-growth-link');
+      if(growthLink) {
+        track('growth_link_click', { link_name: growthLink });
+        return;
+      }
+
+      if(target.tagName === 'BUTTON' && (target.classList.contains('primary-button') || target.id === 'go')) {
+        track('primary_action_click', { action_id: target.id || 'primary_button' });
+      }
+    });
+  }
+
   window.LetterToolkitAnalytics = {
     openPreferences(){ localStorage.removeItem(consentKey); showConsent(); },
     grant(){ setConsent('granted'); },
-    deny(){ setConsent('denied'); }
+    deny(){ setConsent('denied'); },
+    track
   };
 
   const consent = localStorage.getItem(consentKey);
@@ -46,6 +94,9 @@
     if(document.readyState === 'loading') document.addEventListener('DOMContentLoaded', showConsent, {once:true});
     else showConsent();
   }
+
+  if(document.readyState === 'loading') document.addEventListener('DOMContentLoaded', bindInteractionTracking, {once:true});
+  else bindInteractionTracking();
 
   if (config.adsensePublisherId) {
     const script = document.createElement('script');
