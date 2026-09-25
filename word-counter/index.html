@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Word Counter – How Many Words Is This? | LetterToolkit</title>
+<meta name="description" content="Paste any text to count words, characters, sentences and paragraphs instantly. Free word counter with estimated reading and speaking time, all in your browser.">
+<link rel="canonical" href="https://lettertoolkit.com/word-counter/">
+<meta name="robots" content="index,follow,max-image-preview:large,max-snippet:-1">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="LetterToolkit">
+<meta property="og:title" content="Word Counter – How Many Words Is This?">
+<meta property="og:description" content="Count words, characters, sentences, paragraphs and reading time instantly.">
+<meta property="og:url" content="https://lettertoolkit.com/word-counter/">
+<meta property="og:image" content="https://lettertoolkit.com/assets/og-image.svg">
+<meta name="twitter:card" content="summary_large_image">
+<link href="/assets/favicon.svg" rel="icon" type="image/svg+xml">
+<link href="/site.webmanifest" rel="manifest">
+<link href="/styles.css?v=4.1.0" rel="stylesheet">
+<link href="/word-counter/counter.css?v=1" rel="stylesheet">
+<script type="application/ld+json">[{"@context":"https://schema.org","@type":"WebApplication","name":"LetterToolkit Word Counter","url":"https://lettertoolkit.com/word-counter/","description":"Count words, characters, sentences, paragraphs and estimated reading time in text.","applicationCategory":"UtilitiesApplication","operatingSystem":"Any","browserRequirements":"Requires JavaScript","offers":{"@type":"Offer","price":"0","priceCurrency":"USD"}},{"@context":"https://schema.org","@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"Home","item":"https://lettertoolkit.com/"},{"@type":"ListItem","position":2,"name":"Word Counter","item":"https://lettertoolkit.com/word-counter/"}]},{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"How many words is this text?","acceptedAnswer":{"@type":"Answer","text":"Paste the text into the LetterToolkit Word Counter. The word total updates instantly as you type or paste."}},{"@type":"Question","name":"Does the word counter also count characters?","acceptedAnswer":{"@type":"Answer","text":"Yes. It shows total characters and characters excluding whitespace, alongside words, sentences and paragraphs."}},{"@type":"Question","name":"Is my text uploaded?","acceptedAnswer":{"@type":"Answer","text":"No text is sent to a LetterToolkit word-count API. Counting is performed in your browser."}}]}]</script>
+</head>
+<body>
+<a class="skip-link" href="#main">Skip to content</a>
+<header class="site-header"><div class="shell header-inner"><a class="brand" href="/"><span class="brand-mark">LT</span><span>LetterToolkit</span></a><nav aria-label="Primary navigation"><a href="/word-finder/">Word Finder</a><a href="/word-unscrambler/">Word Unscrambler</a><a href="/word-lists/">Word Lists</a><a href="/guides/">Guides</a><button class="theme-toggle" id="themeToggle" type="button">Dark mode</button></nav></div></header>
+<main id="main">
+<nav class="site-breadcrumb shell" aria-label="Breadcrumb"><ol><li><a href="/">Home</a></li><li aria-current="page">Word Counter</li></ol></nav>
+<section class="tool-hero shell"><p class="eyebrow">Free text tool</p><h1>Word Counter – How Many Words Is This?</h1><p>Paste or type any text to see the word count instantly, plus characters, sentences, paragraphs and estimated reading time. The counting happens locally in your browser.</p></section>
+<section class="counter-workspace shell">
+  <section class="counter-editor">
+    <div class="pane-intro"><p class="kicker">Your text</p><h2>Paste text to count the words</h2><p>The totals update automatically. Nothing needs to be submitted.</p></div>
+    <label for="counterText">Text to count</label>
+    <textarea id="counterText" autofocus placeholder="Paste or type your text here..." spellcheck="true"></textarea>
+    <div class="counter-actions"><button class="primary-button" id="sampleButton" type="button">Try an example</button><button class="secondary-button" id="clearButton" type="button">Clear</button></div>
+  </section>
+  <aside class="counter-results" aria-live="polite">
+    <p class="kicker">Live count</p><h2><span id="wordCount">0</span> words</h2>
+    <div class="metric-grid">
+      <div><strong id="characterCount">0</strong><span>Characters</span></div>
+      <div><strong id="characterNoSpaceCount">0</strong><span>Characters without spaces</span></div>
+      <div><strong id="sentenceCount">0</strong><span>Sentences</span></div>
+      <div><strong id="paragraphCount">0</strong><span>Paragraphs</span></div>
+      <div><strong id="readingTime">0 min</strong><span>Reading time</span></div>
+      <div><strong id="speakingTime">0 min</strong><span>Speaking time</span></div>
+    </div>
+    <p class="counter-note" id="counterNote">Start typing or paste text to see the totals.</p>
+  </aside>
+</section>
+<section class="content-section shell tool-copy"><div class="section-heading"><p class="eyebrow">How it works</p><h2>Count the text you already have</h2><p class="lead">A word counter is useful when a form, assignment, article or message has a length limit and you need a quick answer without uploading the text somewhere else.</p></div><div class="steps-grid"><article><span>1</span><h3>Paste or type</h3><p>Add the text you want to measure. Counts update with every change.</p></article><article><span>2</span><h3>Check the useful totals</h3><p>See words, characters, characters without spaces, sentences and paragraphs in one place.</p></article><article><span>3</span><h3>Estimate the time</h3><p>Reading time uses about 200 words per minute and speaking time about 130 words per minute.</p></article></div></section>
+<section class="content-section shell tool-copy"><div class="section-heading"><p class="eyebrow">Word count rules</p><h2>What counts as a word?</h2></div><p>LetterToolkit counts sequences of letters or numbers as words and keeps common apostrophes and hyphens inside a word. Multiple spaces, tabs and line breaks do not create extra words. Different editors can use slightly different rules, so a formal submission system may differ by a small amount for unusual punctuation.</p><div class="faq-list mini-faq"><details open><summary>How many words is this text?</summary><p>Paste it into the box above. The large total on the right is the current word count.</p></details><details><summary>Does this count letters too?</summary><p>Yes. The character totals show the full character count and a second count with whitespace removed.</p></details><details><summary>What is the difference between words and characters?</summary><p>A word is a sequence such as <em>toolkit</em>. Characters count each letter, number, punctuation mark and, in the total-character figure, spaces too.</p></details><details><summary>Is the text saved or uploaded?</summary><p>The counter runs in your browser. LetterToolkit does not need to send the text to a word-count service to calculate these totals.</p></details></div></section>
+<section class="content-section shell tool-copy"><div class="section-heading"><p class="eyebrow">More LetterToolkit tools</p><h2>Need to work with the words after counting them?</h2></div><div class="tool-card-grid"><a class="tool-card" href="/word-finder/"><h3>Word Finder</h3><p>Find words by length, pattern, beginning, ending and required letters.</p><b>Find words →</b></a><a class="tool-card" href="/word-unscrambler/"><h3>Word Unscrambler</h3><p>Make words from a set of letters, with optional wildcards and filters.</p><b>Unscramble letters →</b></a><a class="tool-card" href="/random-word-generator/"><h3>Random Word Generator</h3><p>Generate words for prompts, games, lessons and practice.</p><b>Generate words →</b></a><a class="tool-card" href="/writer/"><h3>Online Writer</h3><p>Write and edit longer text in the browser when you need more than a counter.</p><b>Open Writer →</b></a></div></section>
+</main>
+<footer><div class="shell footer-inner"><div><strong>LetterToolkit</strong><p>Independent browser-based word and letter tools.</p></div><div class="footer-links"><a href="/word-lists/">Word Lists</a><a href="/guides/">Guides</a><a href="/about/">About</a><a href="/contact/">Contact</a><a href="/privacy/">Privacy</a><a href="/terms/">Terms</a></div></div></footer>
+<script src="/word-counter/counter.js?v=1" type="module"></script>
+<script src="/theme.js?v=4.1.0"></script>
+<script src="/site-config.js?v=4.1.0"></script>
+<script src="/integrations.js?v=4.1.0"></script>
+</body></html>
