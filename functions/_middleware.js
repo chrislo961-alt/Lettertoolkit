@@ -16,6 +16,27 @@ const manifest = JSON.stringify({
   ],
 });
 
+const retiredCareerRoutes = new Set([
+  '/cv-builder',
+  '/cv-builder/',
+  '/application-builder',
+  '/application-builder/',
+  '/how-to-write-a-cv',
+  '/how-to-write-a-cv/',
+  '/cv-examples',
+  '/cv-examples/',
+  '/cv-template',
+  '/cv-template/',
+  '/how-to-write-a-job-application',
+  '/how-to-write-a-job-application/',
+  '/job-application-examples',
+  '/job-application-examples/',
+  '/cover-letter',
+  '/cover-letter/',
+  '/interview-questions',
+  '/interview-questions/',
+]);
+
 const permanentRouteRedirects = new Map([
   ['/crossword-answer-finder', '/crossword-solver/'],
   ['/crossword-answer-finder/', '/crossword-solver/'],
@@ -50,6 +71,17 @@ export async function onRequest(context) {
     url.protocol = 'https:';
     url.hostname = 'lettertoolkit.com';
     return Response.redirect(url.toString(), 301);
+  }
+
+  if (retiredCareerRoutes.has(url.pathname)) {
+    return new Response('This career page has been retired as LetterToolkit refocuses on word and letter tools.', {
+      status: 410,
+      headers: {
+        'content-type': 'text/plain; charset=utf-8',
+        'cache-control': 'public, max-age=3600',
+        'x-robots-tag': 'noindex, follow',
+      },
+    });
   }
 
   const permanentDestination = permanentRouteRedirects.get(url.pathname);
@@ -112,10 +144,10 @@ export async function onRequest(context) {
         element.append(
           '<meta property="og:type" content="website">' +
             '<meta property="og:site_name" content="LetterToolkit">' +
-            '<meta property="og:title" content="LetterToolkit – Free Word Tools, Writing Tools & Practical Guides">' +
-            '<meta property="og:description" content="Free browser-based tools for unscrambling words, anagrams, word patterns, crosswords and writing, supported by original practical guides.">' +
+            '<meta property="og:title" content="LetterToolkit – Word Finder, Word Counter & Free Word Tools">' +
+            '<meta property="og:description" content="Free browser-based word tools for finding, counting, generating and solving words, including word finder, word counter, anagram, crossword and letter tools.">' +
             '<meta property="og:url" content="https://lettertoolkit.com/">' +
-            '<script type="application/ld+json">{"@context":"https://schema.org","@type":"WebSite","name":"LetterToolkit","url":"https://lettertoolkit.com/","description":"Free browser-based word, puzzle and writing tools with practical guides."}</script>',
+            '<script type="application/ld+json">{"@context":"https://schema.org","@type":"WebSite","name":"LetterToolkit","url":"https://lettertoolkit.com/","description":"Free browser-based word, letter and puzzle tools with practical guides."}</script>',
           { html: true },
         );
       },
