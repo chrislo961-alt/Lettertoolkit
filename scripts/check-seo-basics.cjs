@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 const fs=require('fs'),path=require('path');
 const root=path.resolve(__dirname,'..');
-const routes=['/','/word-unscrambler/','/anagram-solver/','/word-finder/','/5-letter-words/','/crossword-solver/','/wordle-helper/','/scrabble-helper/','/random-word-generator/','/rhyme-finder/','/word-lists/'];
+const routes=['/','/word-unscrambler/','/anagram-solver/','/word-finder/','/5-letter-words/','/crossword-solver/','/wordle-helper/','/scrabble-helper/','/random-word-generator/','/rhyme-finder/','/word-counter/','/word-lists/'];
 const failures=[],titles=new Map();
 for(const route of routes){
   const file=route==='/'?path.join(root,'index.html'):path.join(root,route.slice(1),'index.html');
