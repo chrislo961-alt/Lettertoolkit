@@ -24,6 +24,15 @@ const retiredAliases = new Set([
   '/words-ending-in-ly/',
   '/words-ending-in-er/',
   '/words-ending-in-tion/',
+  '/cv-builder/',
+  '/application-builder/',
+  '/how-to-write-a-cv/',
+  '/cv-examples/',
+  '/cv-template/',
+  '/how-to-write-a-job-application/',
+  '/job-application-examples/',
+  '/cover-letter/',
+  '/interview-questions/',
 ]);
 
 function routeToFile(route) {

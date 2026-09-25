@@ -53,6 +53,21 @@ jobs:
           check_redirect '/words-ending-in-er/' '/words-that-end-with-er/'
           check_redirect '/words-ending-in-tion/' '/words-that-end-with-tion/'
 
+          for source in \
+            '/cv-builder/' \
+            '/application-builder/' \
+            '/how-to-write-a-cv/' \
+            '/cv-examples/' \
+            '/cv-template/' \
+            '/how-to-write-a-job-application/' \
+            '/job-application-examples/' \
+            '/cover-letter/' \
+            '/interview-questions/'
+          do
+            status="$(curl -sS -o /dev/null -w '%{http_code}' "http://127.0.0.1:8788${source}")"
+            test "$status" = "410"
+          done
+
       - name: Stop preview
         if: always()
         run: kill "$(cat /tmp/wrangler-redirects.pid 2>/dev/null)" 2>/dev/null || true
