@@ -32,7 +32,18 @@ jobs:
           const sitemapPaths=new Set(urls.map(u=>new URL(u).pathname));
           if(urls.length<80) throw new Error(`Expected expanded curated sitemap coverage, got ${urls.length}`);
 
-          const runtimeNoindex=new Set(['/frontend/']);
+          const runtimeNoindex=new Set([
+            '/frontend/',
+            '/cv-builder/',
+            '/application-builder/',
+            '/how-to-write-a-cv/',
+            '/cv-examples/',
+            '/cv-template/',
+            '/how-to-write-a-job-application/',
+            '/job-application-examples/',
+            '/cover-letter/',
+            '/interview-questions/',
+          ]);
           function walk(dir){return fs.readdirSync(dir,{withFileTypes:true}).flatMap(e=>{if(['.git','node_modules'].includes(e.name))return[];const p=path.join(dir,e.name);return e.isDirectory()?walk(p):[p]})}
           const files=walk('.').filter(f=>f==='index.html'||f.endsWith(`${path.sep}index.html`));
           const indexable=[];
@@ -79,19 +90,34 @@ jobs:
           test "$(curl -sS -o /dev/null -w '%{http_code}' http://127.0.0.1:8788/favicon.ico)" = "302"
           curl -fsS http://127.0.0.1:8788/manifest.webmanifest | grep -q 'LetterToolkit'
           curl -fsS http://127.0.0.1:8788/ > /tmp/home-transformed.html
-          curl -fsS http://127.0.0.1:8788/cv-builder/ > /tmp/cv.html
+          curl -fsS http://127.0.0.1:8788/word-counter/ > /tmp/counter.html
           curl -fsS http://127.0.0.1:8788/frontend/ > /tmp/frontend.html
+
+          for route in \
+            /cv-builder/ \
+            /application-builder/ \
+            /how-to-write-a-cv/ \
+            /cv-examples/ \
+            /cv-template/ \
+            /how-to-write-a-job-application/ \
+            /job-application-examples/ \
+            /cover-letter/ \
+            /interview-questions/
+          do
+            test "$(curl -sS -o /tmp/retired.txt -w '%{http_code}' "http://127.0.0.1:8788${route}")" = "410"
+            curl -sSI "http://127.0.0.1:8788${route}" | grep -qi '^x-robots-tag: noindex, follow'
+          done
 
           node --input-type=module <<'NODE'
           import fs from 'node:fs';
           const home=fs.readFileSync('/tmp/home-transformed.html','utf8');
-          const cv=fs.readFileSync('/tmp/cv.html','utf8');
+          const counter=fs.readFileSync('/tmp/counter.html','utf8');
           const frontend=fs.readFileSync('/tmp/frontend.html','utf8');
-          const h1=(cv.match(/<h1\b/gi)||[]).length;
-          const canon=(cv.match(/<link[^>]+rel=["']canonical["']/gi)||[]).length;
-          if(h1!==1) throw new Error(`CV Builder has ${h1} H1 elements after edge transform`);
-          if(canon!==1) throw new Error(`CV Builder has ${canon} canonical links after edge transform`);
-          if(!/SoftwareApplication/.test(cv)) throw new Error('CV Builder structured data missing');
+          const counterH1=(counter.match(/<h1\b/gi)||[]).length;
+          const counterCanon=(counter.match(/<link[^>]+rel=["']canonical["']/gi)||[]).length;
+          if(counterH1!==1) throw new Error(`Word Counter has ${counterH1} H1 elements after edge transform`);
+          if(counterCanon!==1) throw new Error(`Word Counter has ${counterCanon} canonical links after edge transform`);
+          if(!/WebApplication/.test(counter)) throw new Error('Word Counter structured data missing');
           if(!/manifest\.webmanifest/.test(home)) throw new Error('Manifest link missing from transformed homepage');
           if(!/property=["']og:title["']/.test(home) || !/"@type":"WebSite"/.test(home)) throw new Error('Homepage Open Graph or WebSite JSON-LD missing');
           if(!/site-config\.js[^>]*defer/i.test(home)) throw new Error('site-config.js is not deferred');
