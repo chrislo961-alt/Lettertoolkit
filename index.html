@@ -13,14 +13,13 @@
 <meta property="og:description" content="Count, analyze and clean text instantly in your browser.">
 <meta property="og:url" content="https://lettertoolkit.com/">
 <link href="/assets/favicon.svg" rel="icon">
-<link href="/styles.css?v=7.0" rel="stylesheet">
+<link href="/styles.css?v=8.0" rel="stylesheet">
 <link href="/word-counter/counter.css?v=1" rel="stylesheet">
-<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-9212084765206199" crossorigin="anonymous"></script>
 <script type="application/ld+json">{"@context":"https://schema.org","@type":"WebSite","name":"LetterToolkit","url":"https://lettertoolkit.com/","description":"Free browser-based tools for counting, analyzing and cleaning text."}</script>
 </head>
 <body>
 <a class="skip-link" href="#main">Skip to content</a>
-<header class="site-header"><div class="shell header-inner"><a class="brand" href="/"><span class="brand-mark">LT</span><span>LetterToolkit</span></a><nav aria-label="Primary navigation"><a href="/#text-counters">Counters</a><a href="/#text-analysis">Analysis</a><a href="/#text-formatting">Formatting</a><a href="/word-lists/">Word tools</a><a href="/guides/">Guides</a><button class="theme-toggle" id="themeToggle" type="button">Dark mode</button></nav></div></header>
+<header class="site-header"><div class="shell header-inner"><a class="brand" href="/"><span class="brand-mark">LT</span><span>LetterToolkit</span></a><nav aria-label="Primary navigation"><a href="/tools/">All Tools</a><a href="/#text-counters">Counters</a><a href="/#text-analysis">Analysis</a><a href="/#text-formatting">Formatting</a><a href="/word-lists/">Word tools</a><a href="/guides/">Guides</a><button class="theme-toggle" id="themeToggle" type="button">Dark mode</button></nav></div></header>
 <main id="main">
 
 <section class="tool-hero shell">
@@ -70,6 +69,7 @@
   <div class="tool-card-grid">
     <a class="tool-card" href="/reading-time-calculator/"><span>NEW</span><h3>Reading Time Calculator</h3><p>Estimate how long a passage takes to read.</p><b>Estimate reading time →</b></a>
     <a class="tool-card" href="/speaking-time-calculator/"><span>NEW</span><h3>Speaking Time Calculator</h3><p>Estimate presentation or speech duration.</p><b>Estimate speaking time →</b></a>
+    <a class="tool-card" href="/text-analyzer/"><span>POPULAR</span><h3>Text Analyzer</h3><p>See words, characters, sentences, paragraphs, timing and common words together.</p><b>Analyze text →</b></a>
     <a class="tool-card" href="/word-frequency-counter/"><span>NEW</span><h3>Word Frequency Counter</h3><p>See which words appear most often in your text.</p><b>Analyze word frequency →</b></a>
     <a class="tool-card" href="/word-counter/"><h3>Average Word Length</h3><p>Use the main counter for a quick text-length overview.</p><b>Analyze text →</b></a>
   </div>
@@ -126,6 +126,6 @@ const els={w:document.getElementById('homeWordCount'),c:document.getElementById(
 function update(){const v=t.value;const words=v.match(/[\p{L}\p{N}]+(?:['’\-][\p{L}\p{N}]+)*/gu)||[];const wordCount=words.length;const chars=Array.from(v).length;const letters=v.match(/\p{L}/gu)||[];const sentences=(v.match(/[^.!?]+[.!?]+(?=\s|$)|[^.!?\s][^.!?]*$/gu)||[]).filter(x=>x.trim()).length;const paragraphs=v.trim()?v.trim().split(/\n\s*\n/).filter(Boolean).length:0;els.w.textContent=wordCount.toLocaleString();els.c.textContent=chars.toLocaleString();els.ns.textContent=Array.from(v.replace(/\s/g,'')).length.toLocaleString();els.l.textContent=letters.length.toLocaleString();els.s.textContent=sentences.toLocaleString();els.p.textContent=paragraphs.toLocaleString();els.r.textContent=wordCount?Math.max(1,Math.ceil(wordCount/200))+' min':'0 min';els.sp.textContent=wordCount?Math.max(1,Math.ceil(wordCount/130))+' min':'0 min';els.a.textContent=wordCount?(words.reduce((n,w)=>n+Array.from(w.replace(/[^\p{L}\p{N}]/gu,'')).length,0)/wordCount).toFixed(1):'0';}
 t.addEventListener('input',update);document.getElementById('homeClearButton').addEventListener('click',()=>{t.value='';update();t.focus()});update();})();
 </script>
-<script src="/theme.js?v=4.1.0"></script><script src="/site-config.js?v=4.1.0"></script><script src="/integrations.js?v=4.1.0"></script>
+<script src="/theme.js?v=4.1.0"></script><script src="/site-config.js?v=4.1.0"></script><script src="/integrations.js?v=5"></script>
 </body>
 </html>
