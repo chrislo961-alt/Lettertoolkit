@@ -51,6 +51,15 @@
   }
 
   function bindInteractionTracking(){
+    document.addEventListener('input', event => {
+      const target = event.target;
+      if(!(target instanceof HTMLTextAreaElement)) return;
+      if(target.dataset.ltTrackedInput) return;
+      if(!target.value.trim()) return;
+      target.dataset.ltTrackedInput='1';
+      track('tool_input', { tool: location.pathname });
+    });
+
     document.addEventListener('submit', event => {
       const form = event.target;
       if(!(form instanceof HTMLFormElement)) return;
@@ -65,7 +74,7 @@
 
       if(target.matches('a.tool-card')) {
         const href = target.getAttribute('href') || '';
-        track('tool_card_click', { destination: href });
+        track(target.hasAttribute('data-related-tool') ? 'related_tool_click' : 'tool_card_click', { destination: href });
         return;
       }
 
@@ -76,10 +85,20 @@
       }
 
       if(target.tagName === 'BUTTON' && (target.classList.contains('primary-button') || target.id === 'go')) {
-        track('primary_action_click', { action_id: target.id || 'primary_button' });
+        track('tool_action', { action_id: target.id || 'primary_button' });
+      }
+      if(target.tagName === 'BUTTON' && /copy/i.test(target.id || target.textContent || '')) {
+        track('copy_result', { action_id: target.id || 'copy_button' });
       }
     });
   }
+
+  try {
+    const key='lt-last-visit';
+    const last=Number(localStorage.getItem(key)||0);
+    if(last && Date.now()-last > 6*60*60*1000) track('return_user');
+    localStorage.setItem(key,String(Date.now()));
+  } catch {}
 
   window.LetterToolkitAnalytics = {
     openPreferences(){ localStorage.removeItem(consentKey); showConsent(); },

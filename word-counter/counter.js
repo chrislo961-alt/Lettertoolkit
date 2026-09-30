@@ -50,3 +50,10 @@ text.addEventListener('input',update);
 clearButton.addEventListener('click',()=>{text.value='';update();text.focus();});
 sampleButton.addEventListener('click',()=>{text.value='How many words is this sentence? LetterToolkit counts the text instantly in your browser. Add another paragraph to see the paragraph count change.\n\nThis short example also shows estimated reading and speaking time.';update();text.focus();});
 update();
+
+const pasteButton=document.getElementById('pasteButton');
+const copyTextButton=document.getElementById('copyTextButton');
+const downloadButton=document.getElementById('downloadButton');
+pasteButton?.addEventListener('click',async()=>{try{text.value=await navigator.clipboard.readText();update();text.focus()}catch{}});
+copyTextButton?.addEventListener('click',()=>navigator.clipboard?.writeText(text.value));
+downloadButton?.addEventListener('click',()=>{const url=URL.createObjectURL(new Blob([text.value],{type:'text/plain'}));const a=document.createElement('a');a.href=url;a.download='lettertoolkit-text.txt';a.click();URL.revokeObjectURL(url)});
