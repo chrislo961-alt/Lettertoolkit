@@ -1,137 +1,74 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-<meta charset="utf-8">
-<meta name="viewport" content="width=device-width,initial-scale=1">
-<title>How Many Words Is This? Free Text & Letter Tools | LetterToolkit</title>
-<meta name="description" content="Paste text to instantly count words, characters, letters, sentences, paragraphs, reading time and speaking time. Free browser-based text tools from LetterToolkit.">
-<link rel="canonical" href="https://lettertoolkit.com/">
-<meta name="robots" content="index,follow,max-image-preview:large,max-snippet:-1">
-<meta property="og:type" content="website">
-<meta property="og:site_name" content="LetterToolkit">
-<meta property="og:title" content="How Many Words Is This? Free Text & Letter Tools">
-<meta property="og:description" content="Count, analyze and clean text instantly in your browser.">
-<meta property="og:url" content="https://lettertoolkit.com/">
-<link href="/assets/favicon.svg" rel="icon">
-<link href="/styles.css?v=8.0" rel="stylesheet">
-<link href="/word-counter/counter.css?v=1" rel="stylesheet">
-<script type="application/ld+json">{"@context":"https://schema.org","@type":"WebSite","name":"LetterToolkit","url":"https://lettertoolkit.com/","description":"Free browser-based tools for counting, analyzing and cleaning text."}</script>
-</head>
-<body>
-<a class="skip-link" href="#main">Skip to content</a>
-<header class="site-header"><div class="shell header-inner"><a class="brand" href="/"><span class="brand-mark">LT</span><span>LetterToolkit</span></a><nav aria-label="Primary navigation"><a href="/tools/">All Tools</a><a href="/#text-counters">Counters</a><a href="/#text-analysis">Analysis</a><a href="/#text-formatting">Formatting</a><a href="/word-lists/">Word tools</a><a href="/guides/">Guides</a><button class="theme-toggle" id="themeToggle" type="button">Dark mode</button></nav></div></header>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Word Counter & Free Text Tools | LetterToolkit</title>
+<meta name="description" content="Count words, characters, sentences and paragraphs instantly, then analyze, clean and format text with free browser-based tools.">
+<link rel="canonical" href="https://lettertoolkit.com/"><meta name="robots" content="index,follow,max-image-preview:large,max-snippet:-1">
+<meta property="og:type" content="website"><meta property="og:site_name" content="LetterToolkit"><meta property="og:title" content="Word Counter & Free Text Tools | LetterToolkit"><meta property="og:description" content="Count, analyze, clean and format text instantly in your browser."><meta property="og:url" content="https://lettertoolkit.com/">
+<link href="/assets/favicon.svg" rel="icon"><link href="/styles.css?v=9.0" rel="stylesheet"><link href="/word-counter/counter.css?v=2" rel="stylesheet">
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"WebSite","name":"LetterToolkit","url":"https://lettertoolkit.com/","description":"Free browser-based tools for counting, analyzing, cleaning and formatting text."}</script></head>
+<body><a class="skip-link" href="#main">Skip to content</a>
+<header class="site-header"><div class="shell header-inner"><a class="brand" href="/"><span class="brand-mark">LT</span><span>LetterToolkit</span></a><nav aria-label="Primary navigation"><a href="/tools/">Tools</a><a href="/text-analyzer/">Text Analyzer</a><a href="/word-counter/">Word Counter</a><a href="/text-cleaner/">Clean Text</a><a href="/guides/">Guides</a><button class="theme-toggle" id="themeToggle" type="button">Dark</button></nav></div></header>
 <main id="main">
-
-<section class="tool-hero shell">
-  <p class="eyebrow">Free text utility toolkit</p>
-  <h1>How Many Words Is This?</h1>
-  <p>Paste or type your text below to instantly count words, characters, letters, sentences and paragraphs, plus estimated reading and speaking time. Everything updates in your browser.</p>
+<section class="premium-hero shell">
+  <p class="eyebrow">Fast, private, browser-based</p>
+  <h1>How many words is this?</h1>
+  <p class="hero-lead">Paste your text and get the answer instantly. Then analyze, clean or format it without leaving LetterToolkit.</p>
 </section>
 
-<section class="counter-workspace shell" aria-labelledby="homepage-counter-title">
-  <section class="counter-editor">
-    <div class="pane-intro"><p class="kicker">Your text</p><h2 id="homepage-counter-title">Paste text to count it instantly</h2><p>No submit button. No account. The totals update as you type.</p></div>
-    <label for="homeCounterText">Text to analyze</label>
-    <textarea id="homeCounterText" autofocus placeholder="Paste or type your text here..." spellcheck="true"></textarea>
-    <div class="counter-actions"><button class="secondary-button" id="homeClearButton" type="button">Clear</button><a class="secondary-button" href="/word-counter/" style="text-decoration:none">Open full word counter</a></div>
-  </section>
-  <aside class="counter-results" aria-live="polite">
-    <p class="kicker">Live text stats</p>
-    <h2><span id="homeWordCount">0</span> words</h2>
-    <div class="metric-grid">
-      <div><strong id="homeCharacterCount">0</strong><span>Characters</span></div>
-      <div><strong id="homeCharacterNoSpaceCount">0</strong><span>Characters without spaces</span></div>
-      <div><strong id="homeLetterCount">0</strong><span>Letters</span></div>
-      <div><strong id="homeSentenceCount">0</strong><span>Sentences</span></div>
-      <div><strong id="homeParagraphCount">0</strong><span>Paragraphs</span></div>
-      <div><strong id="homeReadingTime">0 min</strong><span>Reading time</span></div>
-      <div><strong id="homeSpeakingTime">0 min</strong><span>Speaking time</span></div>
-      <div><strong id="homeAvgWordLength">0</strong><span>Avg. word length</span></div>
+<section class="home-tool shell" aria-label="Live word counter">
+  <div class="home-editor">
+    <div class="editor-toolbar">
+      <div class="toolbar-group"><button type="button" id="homePaste">Paste</button><button type="button" id="homeCopy">Copy</button><a href="/text-cleaner/">Clean text</a><a href="/case-converter/">Case</a><a href="/find-and-replace/">Find & replace</a></div>
+      <div class="toolbar-group"><button type="button" id="homeDownload">Download</button><button type="button" id="homeClear">Clear</button></div>
     </div>
+    <textarea id="homeCounterText" autofocus placeholder="Paste or type your text here..." spellcheck="true" aria-label="Text to count"></textarea>
+  </div>
+  <aside class="home-stats" aria-live="polite">
+    <div class="hero-stat"><strong id="homeWordCount">0</strong><span>Words</span></div>
+    <div class="stat-list">
+      <div><span>Characters</span><strong id="homeCharacterCount">0</strong></div>
+      <div><span>No spaces</span><strong id="homeCharacterNoSpaceCount">0</strong></div>
+      <div><span>Sentences</span><strong id="homeSentenceCount">0</strong></div>
+      <div><span>Paragraphs</span><strong id="homeParagraphCount">0</strong></div>
+      <div><span>Reading time</span><strong id="homeReadingTime">0 min</strong></div>
+      <div><span>Speaking time</span><strong id="homeSpeakingTime">0 min</strong></div>
+    </div>
+    <a class="analyze-cta" href="/text-analyzer/">Open full Text Analyzer →</a>
   </aside>
 </section>
 
-<section class="content-section shell" id="text-counters">
-  <div class="section-heading"><p class="eyebrow">Text counters</p><h2>Count exactly what you need</h2><p class="lead">Focused counters for word limits, form fields, school work, documents and everyday writing.</p></div>
-  <div class="tool-card-grid">
-    <a class="tool-card" href="/word-counter/"><span>POPULAR</span><h3>Word Counter</h3><p>Count words, characters, sentences, paragraphs and reading time.</p><b>Count words →</b></a>
-    <a class="tool-card" href="/character-counter/"><h3>Character Counter</h3><p>Count characters with and without spaces.</p><b>Count characters →</b></a>
-    <a class="tool-card" href="/letter-counter/"><h3>Letter Counter</h3><p>Count alphabetic letters while ignoring spaces and punctuation.</p><b>Count letters →</b></a>
-    <a class="tool-card" href="/sentence-counter/"><span>NEW</span><h3>Sentence Counter</h3><p>Count sentences in pasted text instantly.</p><b>Count sentences →</b></a>
-    <a class="tool-card" href="/paragraph-counter/"><span>NEW</span><h3>Paragraph Counter</h3><p>Count non-empty paragraphs and lines.</p><b>Count paragraphs →</b></a>
-    <a class="tool-card" href="/line-counter/"><span>NEW</span><h3>Line Counter</h3><p>Count total and non-empty lines in pasted text.</p><b>Count lines →</b></a>
-    <a class="tool-card" href="/words-per-minute/"><h3>Words Per Minute</h3><p>Calculate reading or typing speed from word count and time.</p><b>Calculate WPM →</b></a>
+<section class="home-section shell">
+  <div class="section-heading"><p class="eyebrow">Popular tools</p><h2>The six tools most people need</h2><p class="lead">Start with the job you have now. The full toolkit stays one click away.</p></div>
+  <div class="featured-tools">
+    <a class="featured-card featured-card-large" href="/text-analyzer/"><span>Analyze</span><h3>Text Analyzer</h3><p>Words, characters, sentence length, reading time and word frequency in one workspace.</p><b>Analyze text →</b></a>
+    <a class="featured-card" href="/character-counter/"><span>Count</span><h3>Character Counter</h3><p>Characters with and without spaces.</p><b>Count characters →</b></a>
+    <a class="featured-card" href="/text-cleaner/"><span>Clean</span><h3>Text Cleaner</h3><p>Fix spacing, blank lines and messy pasted text.</p><b>Clean text →</b></a>
+    <a class="featured-card" href="/reading-time-calculator/"><span>Analyze</span><h3>Reading Time</h3><p>Estimate how long a passage takes to read.</p><b>Estimate time →</b></a>
+    <a class="featured-card" href="/case-converter/"><span>Format</span><h3>Case Converter</h3><p>Lowercase, uppercase, title case and sentence case.</p><b>Convert case →</b></a>
+    <a class="featured-card" href="/line-counter/"><span>Count</span><h3>Line Counter</h3><p>Total and non-empty lines instantly.</p><b>Count lines →</b></a>
   </div>
 </section>
 
-<section class="content-section shell" id="text-analysis">
-  <div class="section-heading"><p class="eyebrow">Text analysis</p><h2>Understand your text</h2><p class="lead">Measure time, repetition and structure without sending your writing to a text-analysis service.</p></div>
-  <div class="tool-card-grid">
-    <a class="tool-card" href="/reading-time-calculator/"><span>NEW</span><h3>Reading Time Calculator</h3><p>Estimate how long a passage takes to read.</p><b>Estimate reading time →</b></a>
-    <a class="tool-card" href="/speaking-time-calculator/"><span>NEW</span><h3>Speaking Time Calculator</h3><p>Estimate presentation or speech duration.</p><b>Estimate speaking time →</b></a>
-    <a class="tool-card" href="/text-analyzer/"><span>POPULAR</span><h3>Text Analyzer</h3><p>See words, characters, sentences, paragraphs, timing and common words together.</p><b>Analyze text →</b></a>
-    <a class="tool-card" href="/word-frequency-counter/"><span>NEW</span><h3>Word Frequency Counter</h3><p>See which words appear most often in your text.</p><b>Analyze word frequency →</b></a>
-    <a class="tool-card" href="/word-counter/"><h3>Average Word Length</h3><p>Use the main counter for a quick text-length overview.</p><b>Analyze text →</b></a>
+<section class="home-section task-section">
+  <div class="shell">
+    <div class="section-heading"><p class="eyebrow">Explore by task</p><h2>Everything is organized around what you want to do</h2></div>
+    <div class="task-grid">
+      <article><div class="task-icon">01</div><h3>Count & analyze</h3><p>Measure length, structure, reading time and repetition.</p><div class="task-links"><a href="/word-counter/">Word Counter</a><a href="/text-analyzer/">Text Analyzer</a><a href="/word-frequency-counter/">Word Frequency</a><a href="/sentence-counter/">Sentence Counter</a></div></article>
+      <article><div class="task-icon">02</div><h3>Clean & format</h3><p>Fix messy pasted text and transform it for your next destination.</p><div class="task-links"><a href="/text-cleaner/">Text Cleaner</a><a href="/remove-line-breaks/">Remove Line Breaks</a><a href="/case-converter/">Case Converter</a><a href="/find-and-replace/">Find & Replace</a></div></article>
+      <article><div class="task-icon">03</div><h3>Lists & words</h3><p>Sort lists, remove duplicates or work with letters and word patterns.</p><div class="task-links"><a href="/alphabetize-lines/">Alphabetize Lines</a><a href="/duplicate-line-remover/">Remove Duplicates</a><a href="/word-finder/">Word Finder</a><a href="/anagram-solver/">Anagram Solver</a></div></article>
+    </div>
+    <div class="center-action"><a class="primary-link" href="/tools/">View all tools →</a></div>
   </div>
 </section>
 
-<section class="content-section shell" id="text-formatting">
-  <div class="section-heading"><p class="eyebrow">Text formatting</p><h2>Clean and transform text</h2><p class="lead">Quick utilities for common cleanup jobs before you paste text into a document, form or CMS.</p></div>
-  <div class="tool-card-grid">
-    <a class="tool-card" href="/case-converter/"><span>NEW</span><h3>Case Converter</h3><p>Switch text between lowercase, UPPERCASE, Title Case and Sentence case.</p><b>Convert text case →</b></a>
-    <a class="tool-card" href="/remove-extra-spaces/"><span>NEW</span><h3>Remove Extra Spaces</h3><p>Clean repeated spaces and tidy whitespace.</p><b>Clean spacing →</b></a>
-    <a class="tool-card" href="/duplicate-line-remover/"><span>NEW</span><h3>Duplicate Line Remover</h3><p>Remove repeated lines while preserving the first occurrence.</p><b>Remove duplicates →</b></a>
-    <a class="tool-card" href="/alphabetize-lines/"><span>NEW</span><h3>Alphabetize Lines</h3><p>Sort a pasted list A–Z or Z–A.</p><b>Sort lines →</b></a>
-    <a class="tool-card" href="/text-cleaner/"><span>NEW</span><h3>Text Cleaner</h3><p>Trim lines, clean repeated spacing and collapse excessive blank lines.</p><b>Clean text →</b></a>
-    <a class="tool-card" href="/find-and-replace/"><span>NEW</span><h3>Find & Replace</h3><p>Replace every exact occurrence of a word or phrase.</p><b>Find and replace →</b></a>
-    <a class="tool-card" href="/remove-line-breaks/"><span>NEW</span><h3>Remove Line Breaks</h3><p>Join unwanted line breaks while keeping paragraph breaks.</p><b>Remove line breaks →</b></a>
-    <a class="tool-card" href="/remove-empty-lines/"><span>NEW</span><h3>Remove Empty Lines</h3><p>Delete blank lines while keeping content order.</p><b>Remove empty lines →</b></a>
-    <a class="tool-card" href="/sort-lines-by-length/"><span>NEW</span><h3>Sort Lines by Length</h3><p>Order list items from shortest to longest or reverse.</p><b>Sort lines →</b></a>
-    <a class="tool-card" href="/reverse-text/"><span>NEW</span><h3>Reverse Text</h3><p>Reverse characters or line order.</p><b>Reverse text →</b></a>
-    <a class="tool-card" href="/add-line-numbers/"><span>NEW</span><h3>Add Line Numbers</h3><p>Number each line automatically.</p><b>Add numbers →</b></a>
-    <a class="tool-card" href="/slug-generator/"><span>NEW</span><h3>Slug Generator</h3><p>Turn titles and phrases into clean URL slugs.</p><b>Create slug →</b></a>
-  </div>
-</section>
-<section class="content-section shell"><div class="section-heading"><p class="eyebrow">Explore everything</p><h2>All LetterToolkit tools in one place</h2><p class="lead">Filter the full toolkit by Count, Analyze, Clean, Format or Word Tools.</p></div><div class="utility-strip"><a href="/tools/">Browse all tools →</a><a href="/text-analyzer/">Open Text Analyzer →</a></div></section>
-
-<section class="content-section shell">
-  <div class="section-heading"><p class="eyebrow">Word tools</p><h2>Need to work with letters instead?</h2><p class="lead">LetterToolkit still includes word-finding tools, but they are secondary to the text toolkit.</p></div>
-  <div class="tool-card-grid">
-    <a class="tool-card" href="/word-finder/"><h3>Word Finder</h3><p>Find words by length, pattern, start, ending and required letters.</p><b>Find words →</b></a>
-    <a class="tool-card" href="/word-unscrambler/"><h3>Word Unscrambler</h3><p>Build words from available letters.</p><b>Unscramble letters →</b></a>
-    <a class="tool-card" href="/anagram-solver/"><h3>Anagram Solver</h3><p>Find exact anagrams using every supplied letter.</p><b>Solve anagrams →</b></a>
-    <a class="tool-card" href="/rhyme-finder/"><h3>Rhyme Finder</h3><p>Explore possible rhymes for a word.</p><b>Find rhymes →</b></a>
-  </div>
+<section class="home-section shell">
+  <div class="section-heading"><p class="eyebrow">Built for speed</p><h2>Useful first. Explanations second.</h2></div>
+  <div class="principle-grid"><article><h3>Instant results</h3><p>Core text calculations happen as you type. No account and no submit button.</p></article><article><h3>Focused tools</h3><p>Each page solves one clear job instead of burying it behind a dashboard.</p></article><article><h3>Private by design</h3><p>Core counting and transformation tools run in your browser.</p></article></div>
 </section>
 
-<section class="content-section shell">
-  <div class="section-heading"><p class="eyebrow">Popular questions</p><h2>Quick answers for common text checks</h2><p class="lead">Focused pages for the exact question you are trying to answer.</p></div>
-  <div class="utility-strip"><a href="/how-many-words-is-this/">How many words is this?</a><a href="/count-characters-in-text/">Count characters in text</a><a href="/how-long-does-this-take-to-read/">How long to read?</a><a href="/how-long-does-this-take-to-say/">How long to say?</a><a href="/how-many-sentences-is-this/">How many sentences?</a></div>
-</section>
-<section class="content-section shell">
-  <div class="section-heading"><p class="eyebrow">Why LetterToolkit</p><h2>One place for everyday text jobs</h2></div>
-  <div class="steps-grid">
-    <article><span>1</span><h3>Paste your text</h3><p>Use the homepage counter for a fast answer or open a focused tool for a specific task.</p></article>
-    <article><span>2</span><h3>Get the result immediately</h3><p>Core text tools run directly in the browser and update as you type.</p></article>
-    <article><span>3</span><h3>Move between related tools</h3><p>Each utility links to the next logical text task so you can count, analyze and clean without starting over.</p></article>
-  </div>
-</section>
-
-<section class="content-section shell" id="faq"><div class="section-heading"><p class="eyebrow">FAQ</p><h2>About LetterToolkit</h2></div><div class="faq-list mini-faq">
-<details open><summary>What is LetterToolkit?</summary><p>LetterToolkit is a free collection of browser-based tools for counting, analyzing and formatting text, plus a smaller set of word and letter utilities.</p></details>
-<details><summary>Is my text uploaded?</summary><p>The homepage counter performs its calculations in your browser. Standard page-loading requests still occur when the website and its assets are loaded.</p></details>
-<details><summary>Can I still use the word-game tools?</summary><p>Yes. Word Finder, Word Unscrambler, Anagram Solver, word lists and related tools remain available under the Word tools area.</p></details>
-</div></section>
+<section class="home-section shell" id="faq"><div class="section-heading"><p class="eyebrow">FAQ</p><h2>About LetterToolkit</h2></div><div class="faq-list mini-faq"><details><summary>What can I use LetterToolkit for?</summary><p>Count, analyze, clean and format text, plus work with lists, words and letter patterns.</p></details><details><summary>Is my text uploaded?</summary><p>Core text calculations run in your browser. Normal web requests still occur when pages and assets load.</p></details><details><summary>Where are all the tools?</summary><p>Use the All Tools page to browse or search the complete toolkit by task.</p></details></div></section>
 </main>
-
-<footer><div class="shell footer-inner"><div><strong>LetterToolkit</strong><p>Free browser-based tools to count, analyze and clean text.</p></div><div class="footer-links"><a href="/word-counter/">Word Counter</a><a href="/character-counter/">Character Counter</a><a href="/word-lists/">Word Tools</a><a href="/guides/">Guides</a><a href="/about/">About</a><a href="/privacy/">Privacy</a><a href="/terms/">Terms</a></div></div></footer>
-
+<footer><div class="shell footer-inner"><div><strong>LetterToolkit</strong><p>Free tools to count, analyze, clean and format text.</p></div><div class="footer-links"><a href="/tools/">All Tools</a><a href="/text-analyzer/">Text Analyzer</a><a href="/word-counter/">Word Counter</a><a href="/about/">About</a><a href="/privacy/">Privacy</a><a href="/terms/">Terms</a></div></div></footer>
 <script>
-(()=>{const t=document.getElementById('homeCounterText');if(!t)return;
-const els={w:document.getElementById('homeWordCount'),c:document.getElementById('homeCharacterCount'),ns:document.getElementById('homeCharacterNoSpaceCount'),l:document.getElementById('homeLetterCount'),s:document.getElementById('homeSentenceCount'),p:document.getElementById('homeParagraphCount'),r:document.getElementById('homeReadingTime'),sp:document.getElementById('homeSpeakingTime'),a:document.getElementById('homeAvgWordLength')};
-function update(){const v=t.value;const words=v.match(/[\p{L}\p{N}]+(?:['’\-][\p{L}\p{N}]+)*/gu)||[];const wordCount=words.length;const chars=Array.from(v).length;const letters=v.match(/\p{L}/gu)||[];const sentences=(v.match(/[^.!?]+[.!?]+(?=\s|$)|[^.!?\s][^.!?]*$/gu)||[]).filter(x=>x.trim()).length;const paragraphs=v.trim()?v.trim().split(/\n\s*\n/).filter(Boolean).length:0;els.w.textContent=wordCount.toLocaleString();els.c.textContent=chars.toLocaleString();els.ns.textContent=Array.from(v.replace(/\s/g,'')).length.toLocaleString();els.l.textContent=letters.length.toLocaleString();els.s.textContent=sentences.toLocaleString();els.p.textContent=paragraphs.toLocaleString();els.r.textContent=wordCount?Math.max(1,Math.ceil(wordCount/200))+' min':'0 min';els.sp.textContent=wordCount?Math.max(1,Math.ceil(wordCount/130))+' min':'0 min';els.a.textContent=wordCount?(words.reduce((n,w)=>n+Array.from(w.replace(/[^\p{L}\p{N}]/gu,'')).length,0)/wordCount).toFixed(1):'0';}
-t.addEventListener('input',update);document.getElementById('homeClearButton').addEventListener('click',()=>{t.value='';update();t.focus()});update();})();
+(()=>{const t=document.getElementById('homeCounterText');const els={w:homeWordCount,c:homeCharacterCount,ns:homeCharacterNoSpaceCount,s:homeSentenceCount,p:homeParagraphCount,r:homeReadingTime,sp:homeSpeakingTime};function update(){const v=t.value;const words=v.match(/[\p{L}\p{N}]+(?:['’\-][\p{L}\p{N}]+)*/gu)||[];const wc=words.length;const sentences=(v.match(/[^.!?]+[.!?]+(?=\s|$)|[^.!?\s][^.!?]*$/gu)||[]).filter(x=>x.trim()).length;const paragraphs=v.trim()?v.trim().split(/\n\s*\n/).filter(Boolean).length:0;els.w.textContent=wc.toLocaleString();els.c.textContent=Array.from(v).length.toLocaleString();els.ns.textContent=Array.from(v.replace(/\s/g,'')).length.toLocaleString();els.s.textContent=sentences.toLocaleString();els.p.textContent=paragraphs.toLocaleString();els.r.textContent=wc?Math.max(1,Math.ceil(wc/200))+' min':'0 min';els.sp.textContent=wc?Math.max(1,Math.ceil(wc/130))+' min':'0 min'}t.addEventListener('input',update);homeClear.onclick=()=>{t.value='';update();t.focus()};homeCopy.onclick=()=>navigator.clipboard?.writeText(t.value);homePaste.onclick=async()=>{try{t.value=await navigator.clipboard.readText();update();t.focus()}catch{}};homeDownload.onclick=()=>{const url=URL.createObjectURL(new Blob([t.value],{type:'text/plain'}));const a=document.createElement('a');a.href=url;a.download='lettertoolkit-text.txt';a.click();URL.revokeObjectURL(url)};update()})();
 </script>
-<script src="/theme.js?v=4.1.0" defer></script><script src="/site-config.js?v=4.1.0" defer></script><script src="/integrations.js?v=5" defer></script>
-</body>
-</html>
+<script src="/theme.js?v=4.1.0" defer></script><script src="/site-config.js?v=4.1.0" defer></script><script src="/integrations.js?v=5" defer></script></body></html>
