@@ -85,8 +85,14 @@
     <a class="tool-card" href="/text-cleaner/"><span>NEW</span><h3>Text Cleaner</h3><p>Trim lines, clean repeated spacing and collapse excessive blank lines.</p><b>Clean text →</b></a>
     <a class="tool-card" href="/find-and-replace/"><span>NEW</span><h3>Find & Replace</h3><p>Replace every exact occurrence of a word or phrase.</p><b>Find and replace →</b></a>
     <a class="tool-card" href="/remove-line-breaks/"><span>NEW</span><h3>Remove Line Breaks</h3><p>Join unwanted line breaks while keeping paragraph breaks.</p><b>Remove line breaks →</b></a>
+    <a class="tool-card" href="/remove-empty-lines/"><span>NEW</span><h3>Remove Empty Lines</h3><p>Delete blank lines while keeping content order.</p><b>Remove empty lines →</b></a>
+    <a class="tool-card" href="/sort-lines-by-length/"><span>NEW</span><h3>Sort Lines by Length</h3><p>Order list items from shortest to longest or reverse.</p><b>Sort lines →</b></a>
+    <a class="tool-card" href="/reverse-text/"><span>NEW</span><h3>Reverse Text</h3><p>Reverse characters or line order.</p><b>Reverse text →</b></a>
+    <a class="tool-card" href="/add-line-numbers/"><span>NEW</span><h3>Add Line Numbers</h3><p>Number each line automatically.</p><b>Add numbers →</b></a>
+    <a class="tool-card" href="/slug-generator/"><span>NEW</span><h3>Slug Generator</h3><p>Turn titles and phrases into clean URL slugs.</p><b>Create slug →</b></a>
   </div>
 </section>
+<section class="content-section shell"><div class="section-heading"><p class="eyebrow">Explore everything</p><h2>All LetterToolkit tools in one place</h2><p class="lead">Filter the full toolkit by Count, Analyze, Clean, Format or Word Tools.</p></div><div class="utility-strip"><a href="/tools/">Browse all tools →</a><a href="/text-analyzer/">Open Text Analyzer →</a></div></section>
 
 <section class="content-section shell">
   <div class="section-heading"><p class="eyebrow">Word tools</p><h2>Need to work with letters instead?</h2><p class="lead">LetterToolkit still includes word-finding tools, but they are secondary to the text toolkit.</p></div>
@@ -126,6 +132,6 @@ const els={w:document.getElementById('homeWordCount'),c:document.getElementById(
 function update(){const v=t.value;const words=v.match(/[\p{L}\p{N}]+(?:['’\-][\p{L}\p{N}]+)*/gu)||[];const wordCount=words.length;const chars=Array.from(v).length;const letters=v.match(/\p{L}/gu)||[];const sentences=(v.match(/[^.!?]+[.!?]+(?=\s|$)|[^.!?\s][^.!?]*$/gu)||[]).filter(x=>x.trim()).length;const paragraphs=v.trim()?v.trim().split(/\n\s*\n/).filter(Boolean).length:0;els.w.textContent=wordCount.toLocaleString();els.c.textContent=chars.toLocaleString();els.ns.textContent=Array.from(v.replace(/\s/g,'')).length.toLocaleString();els.l.textContent=letters.length.toLocaleString();els.s.textContent=sentences.toLocaleString();els.p.textContent=paragraphs.toLocaleString();els.r.textContent=wordCount?Math.max(1,Math.ceil(wordCount/200))+' min':'0 min';els.sp.textContent=wordCount?Math.max(1,Math.ceil(wordCount/130))+' min':'0 min';els.a.textContent=wordCount?(words.reduce((n,w)=>n+Array.from(w.replace(/[^\p{L}\p{N}]/gu,'')).length,0)/wordCount).toFixed(1):'0';}
 t.addEventListener('input',update);document.getElementById('homeClearButton').addEventListener('click',()=>{t.value='';update();t.focus()});update();})();
 </script>
-<script src="/theme.js?v=4.1.0"></script><script src="/site-config.js?v=4.1.0"></script><script src="/integrations.js?v=5"></script>
+<script src="/theme.js?v=4.1.0" defer></script><script src="/site-config.js?v=4.1.0" defer></script><script src="/integrations.js?v=5" defer></script>
 </body>
 </html>
