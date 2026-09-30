@@ -50,6 +50,25 @@
     wrap.querySelector('[data-lt-consent-decline]')?.addEventListener('click',()=>setConsent('denied'));
   }
 
+
+  function normalizeShell(){
+    const nav=document.querySelector('.site-header .header-inner nav');
+    if(nav){
+      const hasTheme=Boolean(nav.querySelector('#themeToggle'));
+      nav.innerHTML='<a href="/tools/">Tools</a><a href="/text-analyzer/">Text Analyzer</a><a href="/word-counter/">Word Counter</a><a href="/text-cleaner/">Clean Text</a><a href="/guides/">Guides</a>'+(hasTheme?'<button class="theme-toggle" id="themeToggle" type="button">Dark</button>':'');
+      if(hasTheme){
+        const btn=nav.querySelector('#themeToggle');
+        const sync=()=>btn.textContent=document.documentElement.dataset.theme==='dark'?'Light':'Dark';
+        sync();
+        btn.addEventListener('click',()=>setTimeout(sync,0));
+      }
+    }
+    const footer=document.querySelector('footer .footer-links');
+    if(footer) footer.innerHTML='<a href="/tools/">All Tools</a><a href="/text-analyzer/">Text Analyzer</a><a href="/word-counter/">Word Counter</a><a href="/about/">About</a><a href="/privacy/">Privacy</a><a href="/terms/">Terms</a>';
+    const tagline=document.querySelector('footer .footer-inner > div:first-child p');
+    if(tagline) tagline.textContent='Free tools to count, analyze, clean and format text.';
+  }
+
   function bindInteractionTracking(){
     document.addEventListener('input', event => {
       const target = event.target;
@@ -114,8 +133,8 @@
     else showConsent();
   }
 
-  if(document.readyState === 'loading') document.addEventListener('DOMContentLoaded', bindInteractionTracking, {once:true});
-  else bindInteractionTracking();
+  if(document.readyState === 'loading') document.addEventListener('DOMContentLoaded', ()=>{ normalizeShell(); bindInteractionTracking(); }, {once:true});
+  else { normalizeShell(); bindInteractionTracking(); }
 
   if (config.adsensePublisherId) {
     const script = document.createElement('script');
