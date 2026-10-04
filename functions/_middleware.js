@@ -136,6 +136,8 @@ export async function onRequest(context) {
   const normalizedPath = url.pathname.endsWith('/') ? url.pathname : `${url.pathname}/`;
   const isPrimaryFiveLetterTool = normalizedPath === '/5-letter-words/';
   const isProgrammaticWordPage =
+    normalizedPath === '/word/' ||
+    normalizedPath === '/high-scoring-5-letter-words/' ||
     /^\/word\/[^/]+\/$/i.test(normalizedPath) ||
     (/^\/\d+-letter-words(?:-[^/]+)?\/$/i.test(normalizedPath) && !isPrimaryFiveLetterTool) ||
     /^\/words-(?:that-)?(?:start|end|contain)[^/]*\/$/i.test(normalizedPath) ||
