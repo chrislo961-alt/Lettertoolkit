@@ -58,9 +58,14 @@
       nav.innerHTML='<a href="/tools/">Tools</a><a href="/text-analyzer/">Text Analyzer</a><a href="/word-counter/">Word Counter</a><a href="/text-cleaner/">Clean Text</a><a href="/guides/">Guides</a>'+(hasTheme?'<button class="theme-toggle" id="themeToggle" type="button">Dark</button>':'');
       if(hasTheme){
         const btn=nav.querySelector('#themeToggle');
-        const sync=()=>btn.textContent=document.documentElement.dataset.theme==='dark'?'Light':'Dark';
+        const sync=()=>btn.textContent=document.documentElement.dataset.theme==='dark'?'Light mode':'Dark mode';
         sync();
-        btn.addEventListener('click',()=>setTimeout(sync,0));
+        btn.addEventListener('click',()=>{
+          const dark=document.documentElement.dataset.theme!=='dark';
+          document.documentElement.dataset.theme=dark?'dark':'light';
+          localStorage.setItem('lt-theme',dark?'dark':'light');
+          sync();
+        });
       }
     }
     const footer=document.querySelector('footer .footer-links');

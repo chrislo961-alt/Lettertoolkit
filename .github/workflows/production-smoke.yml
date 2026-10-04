@@ -7,6 +7,9 @@ on:
     paths:
       - 'functions/**'
       - '*.html'
+      - 'editorial-policy/**'
+      - 'how-it-works/**'
+      - 'guides/**'
       - 'word-*/**'
       - 'anagram-solver/**'
       - 'crossword-solver/**'
@@ -25,8 +28,27 @@ permissions:
 jobs:
   smoke:
     runs-on: ubuntu-latest
+    timeout-minutes: 12
     steps:
-      - name: Verify production routes and SEO signals
+      - name: Wait for curated production surface
+        shell: bash
+        run: |
+          set -euo pipefail
+          base='https://lettertoolkit.com'
+          for attempt in $(seq 1 24); do
+            body=$(curl -fsS --max-time 30 "$base/sitemap.xml" || true)
+            policy=$(curl -fsS --max-time 30 "$base/editorial-policy/" || true)
+            if printf '%s' "$body" | grep -q 'sitemap-static.xml'               && printf '%s' "$body" | grep -q 'sitemap-tools.xml'               && printf '%s' "$body" | grep -q 'sitemap-guides.xml'               && ! printf '%s' "$body" | grep -q 'sitemap-word-lists.xml'               && ! printf '%s' "$body" | grep -q 'sitemap-words.xml'               && printf '%s' "$policy" | grep -q 'Editorial and tool quality policy'; then
+              echo "Latest AdSense readiness rebuild is live on attempt $attempt."
+              exit 0
+            fi
+            echo "Attempt $attempt: waiting for latest curated production surface"
+            sleep 15
+          done
+          echo 'Timed out waiting for latest production deploy' >&2
+          exit 1
+
+      - name: Verify production routes and AdSense quality signals
         shell: bash
         run: |
           set -euo pipefail
@@ -34,32 +56,17 @@ jobs:
 
           assert_200() {
             local path="$1"
-            local code=''
-            local attempt
-            for attempt in 1 2 3 4 5 6 7 8 9 10 11 12; do
-              code=$(curl -sS -o /tmp/body -w '%{http_code}' --max-time 30 "$base$path" || true)
-              if test "$code" = '200'; then
-                return 0
-              fi
-              if test "$attempt" -lt 12; then
-                echo "Waiting for production deploy: $path returned ${code:-request-error} (attempt $attempt/12)"
-                sleep 10
-              fi
-            done
-            echo "Expected 200 for $path after deploy retry window, got ${code:-request-error}"
-            exit 1
+            local code
+            code=$(curl -sS -o /tmp/body -w '%{http_code}' --max-time 30 "$base$path")
+            test "$code" = '200' || { echo "Expected 200 for $path, got $code"; exit 1; }
           }
 
           assert_canonical() {
             local path="$1"
             local canonical="$2"
             assert_200 "$path"
-            grep -Fq 'rel="canonical"' /tmp/body || {
-              echo "Missing canonical link element on $path"; exit 1;
-            }
-            grep -Fq "href=\"$canonical\"" /tmp/body || {
-              echo "Missing canonical URL $canonical on $path"; exit 1;
-            }
+            grep -Fq 'rel="canonical"' /tmp/body || { echo "Missing canonical on $path"; exit 1; }
+            grep -Fq "href="$canonical"" /tmp/body || { echo "Canonical mismatch on $path"; exit 1; }
           }
 
           assert_redirect() {
@@ -73,40 +80,71 @@ jobs:
             test "$location" = "$target" || { echo "Expected Location $target for $path, got $location"; exit 1; }
           }
 
-          assert_200 '/'
-          grep -Fq 'LetterToolkit' /tmp/body
+          assert_noindex_no_ads() {
+            local path="$1"
+            local headers code
+            headers=$(curl -sS -D - -o /tmp/body --max-time 30 "$base$path")
+            code=$(printf '%s' "$headers" | awk 'toupper($1) ~ /^HTTP\// {c=$2} END {print c}')
+            test "$code" = '200' || { echo "Expected 200 for generated route $path, got $code"; exit 1; }
+            printf '%s' "$headers" | grep -qi '^x-robots-tag: noindex, follow' || { echo "Missing X-Robots-Tag on $path"; exit 1; }
+            grep -qi 'name="robots" content="noindex,follow"' /tmp/body || { echo "Missing HTML noindex on $path"; exit 1; }
+            if grep -qi 'pagead2.googlesyndication.com/pagead/js/adsbygoogle.js' /tmp/body; then
+              echo "AdSense script remains on generated route $path" >&2
+              exit 1
+            fi
+          }
 
+          assert_200 '/'
+          grep -Fq 'See the rules behind the tools' /tmp/body
+
+          assert_canonical '/word-counter/' "$base/word-counter/"
+          assert_canonical '/text-analyzer/' "$base/text-analyzer/"
+          assert_canonical '/text-cleaner/' "$base/text-cleaner/"
           assert_canonical '/word-unscrambler/' "$base/word-unscrambler/"
           assert_canonical '/anagram-solver/' "$base/anagram-solver/"
           assert_canonical '/word-finder/' "$base/word-finder/"
           assert_canonical '/wordle-helper/' "$base/wordle-helper/"
-          assert_canonical '/crossword-solver/' "$base/crossword-solver/"
-          assert_canonical '/scrabble-helper/' "$base/scrabble-helper/"
-          assert_canonical '/rhyme-finder/' "$base/rhyme-finder/"
-          assert_canonical '/random-word-generator/' "$base/random-word-generator/"
           assert_canonical '/5-letter-words/' "$base/5-letter-words/"
-          assert_canonical '/15-letter-words/' "$base/15-letter-words/"
-          assert_canonical '/words-containing-q/' "$base/words-containing-q/"
-          assert_canonical '/words-that-end-with-in/' "$base/words-that-end-with-in/"
-          assert_canonical '/words-that-end-with-ing/' "$base/words-that-end-with-ing/"
+          assert_canonical '/how-it-works/' "$base/how-it-works/"
+          assert_canonical '/editorial-policy/' "$base/editorial-policy/"
+          assert_canonical '/guides/how-word-counting-works/' "$base/guides/how-word-counting-works/"
+          assert_canonical '/guides/clean-pasted-text/' "$base/guides/clean-pasted-text/"
+          assert_canonical '/guides/reading-speaking-time-estimates/' "$base/guides/reading-speaking-time-estimates/"
 
-          assert_redirect '/crossword-answer-finder/' "$base/crossword-solver/"
-          assert_redirect '/word-generator/' "$base/random-word-generator/"
-          assert_redirect '/words-with-q/?length=5' "$base/words-containing-q/?length=5"
-          assert_redirect '/words-ending-in-ing/' "$base/words-that-end-with-ing/"
+          assert_noindex_no_ads '/5-letter-words-containing-ch/'
+          assert_noindex_no_ads '/15-letter-words/'
+          assert_noindex_no_ads '/words-containing-q/'
+          assert_noindex_no_ads '/word/look/'
+          assert_noindex_no_ads '/high-scoring-5-letter-words/'
+
+          assert_redirect '/how-many-words-is-this/' "$base/word-counter/"
+          assert_redirect '/count-characters-in-text/' "$base/character-counter/"
+          assert_redirect '/how-long-does-this-take-to-read/' "$base/reading-time-calculator/"
+          assert_redirect '/how-long-does-this-take-to-say/' "$base/speaking-time-calculator/"
+          assert_redirect '/how-many-sentences-is-this/' "$base/sentence-counter/"
+          assert_redirect '/free-online-word-processor/' "$base/writer/"
+          assert_redirect '/free-document-editor/' "$base/writer/"
+          assert_redirect '/word-alternative/' "$base/writer/"
+          assert_redirect '/offline-writing-app/' "$base/writer/"
+          assert_redirect '/private-document-editor/' "$base/writer/"
+          assert_redirect '/open-docx-online/' "$base/writer/"
+          assert_redirect '/edit-word-document-online/' "$base/writer/"
+          assert_redirect '/writing-templates/' "$base/writer/"
 
           assert_200 '/robots.txt'
           grep -Fq 'Sitemap: https://lettertoolkit.com/sitemap.xml' /tmp/body
 
           assert_200 '/sitemap.xml'
           grep -Fq '<sitemapindex' /tmp/body
+          grep -Fq 'sitemap-static.xml' /tmp/body
           grep -Fq 'sitemap-tools.xml' /tmp/body
-          grep -Fq 'sitemap-word-lists.xml' /tmp/body
-          grep -Fq 'sitemap-words.xml' /tmp/body
+          grep -Fq 'sitemap-guides.xml' /tmp/body
+          ! grep -Fq 'sitemap-word-lists.xml' /tmp/body
+          ! grep -Fq 'sitemap-words.xml' /tmp/body
 
-          for child in sitemap-static.xml sitemap-tools.xml sitemap-guides.xml sitemap-word-lists.xml sitemap-words.xml; do
+          for child in sitemap-static.xml sitemap-tools.xml sitemap-guides.xml; do
             assert_200 "/$child"
             grep -Fq '<urlset' /tmp/body
           done
 
-          echo 'Production smoke OK.'
+          echo 'Production AdSense readiness smoke OK.'

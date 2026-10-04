@@ -60,6 +60,32 @@ const permanentRouteRedirects = new Map([
   ['/words-ending-in-er/', '/words-that-end-with-er/'],
   ['/words-ending-in-tion', '/words-that-end-with-tion/'],
   ['/words-ending-in-tion/', '/words-that-end-with-tion/'],
+  ['/how-many-words-is-this', '/word-counter/'],
+  ['/how-many-words-is-this/', '/word-counter/'],
+  ['/count-characters-in-text', '/character-counter/'],
+  ['/count-characters-in-text/', '/character-counter/'],
+  ['/how-long-does-this-take-to-read', '/reading-time-calculator/'],
+  ['/how-long-does-this-take-to-read/', '/reading-time-calculator/'],
+  ['/how-long-does-this-take-to-say', '/speaking-time-calculator/'],
+  ['/how-long-does-this-take-to-say/', '/speaking-time-calculator/'],
+  ['/how-many-sentences-is-this', '/sentence-counter/'],
+  ['/how-many-sentences-is-this/', '/sentence-counter/'],
+  ['/free-online-word-processor', '/writer/'],
+  ['/free-online-word-processor/', '/writer/'],
+  ['/free-document-editor', '/writer/'],
+  ['/free-document-editor/', '/writer/'],
+  ['/word-alternative', '/writer/'],
+  ['/word-alternative/', '/writer/'],
+  ['/offline-writing-app', '/writer/'],
+  ['/offline-writing-app/', '/writer/'],
+  ['/private-document-editor', '/writer/'],
+  ['/private-document-editor/', '/writer/'],
+  ['/open-docx-online', '/writer/'],
+  ['/open-docx-online/', '/writer/'],
+  ['/edit-word-document-online', '/writer/'],
+  ['/edit-word-document-online/', '/writer/'],
+  ['/writing-templates', '/writer/'],
+  ['/writing-templates/', '/writer/'],
 ]);
 
 export async function onRequest(context) {
@@ -106,6 +132,19 @@ export async function onRequest(context) {
 
   const response = await context.next();
   const headers = new Headers(response.headers);
+
+  const normalizedPath = url.pathname.endsWith('/') ? url.pathname : `${url.pathname}/`;
+  const isPrimaryFiveLetterTool = normalizedPath === '/5-letter-words/';
+  const isProgrammaticWordPage =
+    normalizedPath === '/word/' ||
+    normalizedPath === '/high-scoring-5-letter-words/' ||
+    /^\/word\/[^/]+\/$/i.test(normalizedPath) ||
+    (/^\/\d+-letter-words(?:-[^/]+)?\/$/i.test(normalizedPath) && !isPrimaryFiveLetterTool) ||
+    /^\/words-(?:that-)?(?:start|end|contain)[^/]*\/$/i.test(normalizedPath) ||
+    /^\/words-with-[^/]+\/$/i.test(normalizedPath) ||
+    /^\/5-letter-(?:palindromes|words-(?:containing|ending|starting|with|without)[^/]*)\/$/i.test(normalizedPath);
+
+  if (isProgrammaticWordPage) headers.set('X-Robots-Tag', 'noindex, follow');
   headers.set('Strict-Transport-Security', 'max-age=31536000; includeSubDomains');
   headers.set('X-Content-Type-Options', 'nosniff');
   headers.set('Referrer-Policy', 'strict-origin-when-cross-origin');
@@ -137,6 +176,25 @@ export async function onRequest(context) {
         element.setAttribute('defer', '');
       },
     });
+
+  if (isProgrammaticWordPage) {
+    rewriter = rewriter
+      .on('meta[name="robots"]', {
+        element(element) {
+          element.setAttribute('content', 'noindex,follow');
+        },
+      })
+      .on('meta[name="google-adsense-account"]', {
+        element(element) {
+          element.remove();
+        },
+      })
+      .on('script[src*="pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"]', {
+        element(element) {
+          element.remove();
+        },
+      });
+  }
 
   if (url.pathname === '/' || url.pathname === '') {
     rewriter = rewriter.on('head', {

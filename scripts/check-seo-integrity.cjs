@@ -8,8 +8,6 @@ const childSitemaps = [
   'sitemap-static.xml',
   'sitemap-tools.xml',
   'sitemap-guides.xml',
-  'sitemap-word-lists.xml',
-  'sitemap-words.xml',
 ];
 const edgeManagedRoutes = new Set(['/cv-builder/']);
 const retiredAliases = new Set([
@@ -33,6 +31,19 @@ const retiredAliases = new Set([
   '/job-application-examples/',
   '/cover-letter/',
   '/interview-questions/',
+  '/how-many-words-is-this/',
+  '/count-characters-in-text/',
+  '/how-long-does-this-take-to-read/',
+  '/how-long-does-this-take-to-say/',
+  '/how-many-sentences-is-this/',
+  '/free-online-word-processor/',
+  '/free-document-editor/',
+  '/word-alternative/',
+  '/offline-writing-app/',
+  '/private-document-editor/',
+  '/open-docx-online/',
+  '/edit-word-document-online/',
+  '/writing-templates/',
 ]);
 
 function routeToFile(route) {
@@ -87,7 +98,7 @@ for (const file of childSitemaps) {
 
 const uniqueRoutes = new Set(sitemapRoutes);
 if (uniqueRoutes.size !== sitemapRoutes.length) failures.push('Duplicate URL found across child sitemaps');
-if (sitemapRoutes.length < 80) failures.push(`Curated sitemap unexpectedly small: ${sitemapRoutes.length} URLs`);
+if (sitemapRoutes.length < 45) failures.push(`Curated sitemap unexpectedly small: ${sitemapRoutes.length} URLs`);
 
 const canonicalOwners = new Map();
 for (const route of uniqueRoutes) {

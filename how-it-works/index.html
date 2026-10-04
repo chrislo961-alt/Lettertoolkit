@@ -1,23 +1,30 @@
-<!doctype html><html lang="en"><head>
-<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
-<title>How Our Word Tools Work | LetterToolkit</title>
-<meta name="description" content="Learn how LetterToolkit matches letters, applies filters, scores words and manages its English word-list data.">
-<link rel="canonical" href="https://lettertoolkit.com/how-it-works/">
-<meta name="robots" content="index,follow">
-<link rel="stylesheet" href="/assets/style.css">
-<meta name="google-adsense-account" content="ca-pub-9212084765206199">
-<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-9212084765206199" crossorigin="anonymous"></script>
-</head><body><header><div class="shell nav"><a class="brand" href="/">LetterToolkit</a><nav><a href="/word-unscrambler/">Unscrambler</a><a href="/word-finder/">Word Finder</a><a href="/anagram-solver/">Anagram Solver</a><a href="/word-lists/">Word Lists</a></nav></div></header><main class="shell"><section class="content"><h1>How Our Word Tools Work</h1>
-<p>This page explains how LetterToolkit creates search results and how we review the site's word data and supporting content.</p>
-<h2>Unscrambling letters</h2>
-<p>The tool compares the letters entered by a user with entries in the site's English word index. A result is returned only when its letters can be formed from the available letters, including any wildcard characters supplied by the user.</p>
-<h2>Filters</h2>
-<p>Starts With, Ends With, Contains and Word Length filters are applied to the candidate results. Sorting can then prioritize longer words, alphabetical order or standard letter-tile point values.</p>
-<h2>Word-list source</h2>
-<p>The search index is based on an open-source Wordnik word list. We normalize entries for this tool by focusing on simple alphabetic words in supported lengths. The source license is retained with the project.</p>
-<h2>What the results do not mean</h2>
-<p>A result appearing on LetterToolkit does not guarantee acceptance in a specific branded word game or tournament. Different games use different approved dictionaries and rule sets.</p>
-<h2>Corrections</h2>
-<p>We welcome reports about questionable entries or missing words. Corrections can be sent through the Contact page and may be reviewed before being incorporated into the site's word data.</p>
-<h2>Editorial principle</h2>
-<p>Supporting pages are written to explain the tool, word patterns and common search tasks. We aim to avoid pages that exist only to repeat keywords without useful information.</p></section></main><footer><div class="shell"><div class="footerlinks"><a href="/about/">About</a><a href="/privacy/">Privacy</a><a href="/terms/">Terms</a><a href="/contact/">Contact</a></div><p>Independent English word tool. Game trademarks belong to their respective owners.</p></div></footer></body></html>
+<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>How LetterToolkit Works – Counting Rules, Privacy & Word Data</title>
+<meta name="description" content="See how LetterToolkit counts words and characters, estimates reading time, cleans text, matches word patterns and tests browser-based tools.">
+<link rel="canonical" href="https://lettertoolkit.com/how-it-works/"><meta name="robots" content="index,follow,max-image-preview:large,max-snippet:-1">
+<link href="/assets/favicon.svg" rel="icon"><link href="/styles.css?v=9.0" rel="stylesheet">
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"AboutPage","name":"How LetterToolkit Works","url":"https://lettertoolkit.com/how-it-works/","publisher":{"@type":"Organization","name":"LetterToolkit"}}</script></head>
+<body><a class="skip-link" href="#main">Skip to content</a>
+<header class="site-header"><div class="shell header-inner"><a class="brand" href="/"><span class="brand-mark">LT</span><span>LetterToolkit</span></a><nav aria-label="Primary navigation"><a href="/tools/">Tools</a><a href="/word-counter/">Word Counter</a><a href="/text-analyzer/">Text Analyzer</a><a href="/guides/">Guides</a><a href="/editorial-policy/">Editorial policy</a></nav></div></header>
+<main id="main" class="legal-page shell"><p class="eyebrow">Methodology</p><h1>How LetterToolkit works</h1>
+<p class="lead">LetterToolkit is a collection of browser-based text utilities. Most core calculations happen on your device. This page documents the rules and assumptions behind the tools so results can be checked and reproduced.</p>
+
+<section><h2>Word counting</h2><p>The Word Counter treats a sequence of letters or numbers as a word and keeps common apostrophes and hyphens inside a word. Repeated spaces, tabs and line breaks do not create extra words. This is a practical counting rule rather than a universal publishing standard, so unusual punctuation can produce small differences compared with another editor.</p><p>If a school, publisher or form enforces a strict word limit, use LetterToolkit for drafting and then compare the final count with the system that will receive the text.</p></section>
+
+<section><h2>Characters, sentences and paragraphs</h2><p>Character totals count the characters present in the input, with a separate figure available when whitespace is excluded. Sentence counting uses sentence-ending punctuation and non-empty text segments. Paragraphs are separated by blank-line boundaries in the tools that report paragraph totals. Empty input returns zero rather than creating a phantom sentence or paragraph.</p></section>
+
+<section><h2>Reading and speaking time</h2><p>These are estimates, not measurements. The main Word Counter currently uses approximately 200 words per minute for reading and 130 words per minute for speaking. The dedicated calculators explain their assumptions and let users work from the word total rather than pretending every person reads or speaks at the same speed.</p></section>
+
+<section><h2>Text cleaning and formatting</h2><p>Cleaning tools perform explicit transformations such as collapsing repeated spaces, removing empty lines, changing case, sorting lines or removing duplicates. The input stays visible so the user can inspect the result before copying or downloading it. We avoid silently rewriting meaning when a tool is intended only to change formatting.</p></section>
+
+<section><h2>Word finder and puzzle tools</h2><p>The word tools compare user input with a shared English word dataset and then apply deterministic filters such as length, starts with, ends with, contains, fixed positions, required letters and excluded letters. Anagram tools also compare letter counts so duplicate letters are preserved correctly.</p><p>The dataset is useful for discovery, but it is not an official tournament dictionary. A word can be present here and still be excluded by a particular game, publisher or regional dictionary.</p></section>
+
+<section><h2>Word-list source and curation</h2><p>The search index is based on an open-source English word list, with licensing retained in the project. The site normalizes entries for browser tools and separates the working tools from large generated reference pages. Automatically produced word-detail and pattern pages are not treated as editorial articles simply because they exist.</p></section>
+
+<section><h2>Privacy model</h2><p>Core counting, cleaning and word-search interactions run in the browser. The page itself and ordinary assets still make normal web requests, and analytics are loaded only after consent where configured. Writer documents are stored locally in the current browser rather than in a LetterToolkit cloud document account.</p></section>
+
+<section><h2>Testing and corrections</h2><p>Core tools are checked against empty input, normal prose, repeated whitespace, punctuation, line breaks and representative Unicode text. Word tools are checked for repeated letters and conflicting filters. If you find a result that does not match the documented rule, send the page address, input and expected result through <a href="/contact/">Contact</a>.</p><p>For more detail on editorial review and automated pages, see the <a href="/editorial-policy/">Editorial and Tool Quality Policy</a>.</p></section>
+
+<p><em>Methodology reviewed: October 4, 2026.</em></p></main>
+<footer><div class="shell footer-inner"><div><strong>LetterToolkit</strong><p>Free tools to count, analyze, clean and format text.</p></div><div class="footer-links"><a href="/tools/">All Tools</a><a href="/editorial-policy/">Editorial policy</a><a href="/about/">About</a><a href="/contact/">Contact</a><a href="/privacy/">Privacy</a><a href="/terms/">Terms</a></div></div></footer>
+<script src="/theme.js?v=4.1.0" defer></script><script src="/site-config.js?v=4.1.0" defer></script><script src="/integrations.js?v=5" defer></script></body></html>
