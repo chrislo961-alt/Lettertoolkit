@@ -26,11 +26,11 @@ jobs:
 
           const indexXml=fs.readFileSync('sitemap.xml','utf8');
           const sitemapFiles=[...indexXml.matchAll(/<loc>https:\/\/lettertoolkit\.com\/(sitemap-[^<]+\.xml)<\/loc>/g)].map(m=>m[1]);
-          if(sitemapFiles.length!==5) throw new Error(`Expected 5 child sitemaps, got ${sitemapFiles.length}`);
+          if(sitemapFiles.length!==3) throw new Error(`Expected 3 curated child sitemaps, got ${sitemapFiles.length}`);
           const urls=sitemapFiles.flatMap(file=>[...fs.readFileSync(file,'utf8').matchAll(/<loc>([^<]+)<\/loc>/g)].map(m=>m[1]));
           if(new Set(urls).size!==urls.length) throw new Error('Duplicate sitemap URLs');
           const sitemapPaths=new Set(urls.map(u=>new URL(u).pathname));
-          if(urls.length<80) throw new Error(`Expected expanded curated sitemap coverage, got ${urls.length}`);
+          if(urls.length<45) throw new Error(`Expected curated sitemap coverage, got ${urls.length}`);
 
           const runtimeNoindex=new Set([
             '/frontend/',
@@ -44,6 +44,29 @@ jobs:
             '/cover-letter/',
             '/interview-questions/',
           ]);
+          const runtimeRedirects=new Set([
+            '/how-many-words-is-this/',
+            '/count-characters-in-text/',
+            '/how-long-does-this-take-to-read/',
+            '/how-long-does-this-take-to-say/',
+            '/how-many-sentences-is-this/',
+            '/free-online-word-processor/',
+            '/free-document-editor/',
+            '/word-alternative/',
+            '/offline-writing-app/',
+            '/private-document-editor/',
+            '/open-docx-online/',
+            '/edit-word-document-online/',
+            '/writing-templates/',
+          ]);
+          function runtimeProgrammaticNoindex(route){
+            if(route==='/5-letter-words/'||route==='/word-lists/') return false;
+            return /^\/word\/[^/]+\/$/i.test(route)
+              || /^\/\d+-letter-words(?:-[^/]+)?\/$/i.test(route)
+              || /^\/words-(?:that-)?(?:start|end|contain)[^/]*\/$/i.test(route)
+              || /^\/words-with-[^/]+\/$/i.test(route)
+              || /^\/5-letter-(?:palindromes|words-(?:containing|ending|starting|with|without)[^/]*)\/$/i.test(route);
+          }
           function walk(dir){return fs.readdirSync(dir,{withFileTypes:true}).flatMap(e=>{if(['.git','node_modules'].includes(e.name))return[];const p=path.join(dir,e.name);return e.isDirectory()?walk(p):[p]})}
           const files=walk('.').filter(f=>f==='index.html'||f.endsWith(`${path.sep}index.html`));
           const indexable=[];
@@ -51,7 +74,7 @@ jobs:
             const html=fs.readFileSync(file,'utf8');
             const robots=html.match(/<meta[^>]+name=["']robots["'][^>]+content=["']([^"']*)["']/i)?.[1]||'';
             const route=file==='index.html'?'/':`/${path.dirname(file).split(path.sep).join('/')}/`;
-            if(!/noindex/i.test(robots) && !runtimeNoindex.has(route)) indexable.push(route);
+            if(!/noindex/i.test(robots) && !runtimeNoindex.has(route) && !runtimeRedirects.has(route) && !runtimeProgrammaticNoindex(route)) indexable.push(route);
           }
           const outside=indexable.filter(route=>!sitemapPaths.has(route));
           const stale=[...sitemapPaths].filter(route=>!indexable.includes(route));
@@ -92,6 +115,34 @@ jobs:
           curl -fsS http://127.0.0.1:8788/ > /tmp/home-transformed.html
           curl -fsS http://127.0.0.1:8788/word-counter/ > /tmp/counter.html
           curl -fsS http://127.0.0.1:8788/frontend/ > /tmp/frontend.html
+          curl -fsSI http://127.0.0.1:8788/5-letter-words-containing-ch/ > /tmp/generated-headers.txt
+          curl -fsS http://127.0.0.1:8788/5-letter-words-containing-ch/ > /tmp/generated.html
+          grep -qi '^x-robots-tag: noindex, follow' /tmp/generated-headers.txt
+          grep -qi 'name="robots" content="noindex,follow"' /tmp/generated.html
+          if grep -qi 'pagead2.googlesyndication.com/pagead/js/adsbygoogle.js' /tmp/generated.html; then
+            echo 'Generated word page still contains AdSense script' >&2
+            exit 1
+          fi
+          for pair in \
+            '/how-many-words-is-this/|/word-counter/' \
+            '/count-characters-in-text/|/character-counter/' \
+            '/how-long-does-this-take-to-read/|/reading-time-calculator/' \
+            '/how-long-does-this-take-to-say/|/speaking-time-calculator/' \
+            '/how-many-sentences-is-this/|/sentence-counter/' \
+            '/free-online-word-processor/|/writer/' \
+            '/free-document-editor/|/writer/' \
+            '/word-alternative/|/writer/' \
+            '/offline-writing-app/|/writer/' \
+            '/private-document-editor/|/writer/' \
+            '/open-docx-online/|/writer/' \
+            '/edit-word-document-online/|/writer/' \
+            '/writing-templates/|/writer/'
+          do
+            src="${pair%%|*}"; dst="${pair##*|}"
+            code=$(curl -sS -D /tmp/redirect-headers.txt -o /dev/null -w '%{http_code}' "http://127.0.0.1:8788${src}")
+            test "$code" = "301"
+            grep -qi "^location: http://127.0.0.1:8788${dst}" /tmp/redirect-headers.txt
+          done
 
           for route in \
             /cv-builder/ \
