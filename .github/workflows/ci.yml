@@ -61,7 +61,9 @@ jobs:
           ]);
           function runtimeProgrammaticNoindex(route){
             if(route==='/5-letter-words/'||route==='/word-lists/') return false;
-            return /^\/word\/[^/]+\/$/i.test(route)
+            return route==='/word/'
+              || route==='/high-scoring-5-letter-words/'
+              || /^\/word\/[^/]+\/$/i.test(route)
               || /^\/\d+-letter-words(?:-[^/]+)?\/$/i.test(route)
               || /^\/words-(?:that-)?(?:start|end|contain)[^/]*\/$/i.test(route)
               || /^\/words-with-[^/]+\/$/i.test(route)
