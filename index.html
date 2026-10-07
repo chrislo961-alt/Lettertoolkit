@@ -6,38 +6,53 @@
 <link href="/assets/favicon.svg" rel="icon"><link href="/styles.css?v=9.0" rel="stylesheet"><link href="/word-counter/counter.css?v=2" rel="stylesheet">
 <script type="application/ld+json">{"@context":"https://schema.org","@type":"WebSite","name":"LetterToolkit","url":"https://lettertoolkit.com/","description":"Free browser-based tools for counting, analyzing, cleaning and formatting text."}</script></head>
 <body><a class="skip-link" href="#main">Skip to content</a>
-<header class="site-header"><div class="shell header-inner"><a class="brand" href="/"><span class="brand-mark">LT</span><span>LetterToolkit</span></a><nav aria-label="Primary navigation"><a href="/tools/">Tools</a><a href="/text-analyzer/">Text Analyzer</a><a href="/word-counter/">Word Counter</a><a href="/text-cleaner/">Clean Text</a><a href="/guides/">Guides</a><button class="theme-toggle" id="themeToggle" type="button">Dark</button></nav></div></header>
+<header class="site-header"><div class="shell header-inner"><a class="brand" href="/"><span class="brand-mark">LT</span><span>LetterToolkit</span></a><nav aria-label="Primary navigation"><a href="/tools/">Tools</a><a href="/text-analyzer/">Text Analyzer</a><a href="/guides/">Guides</a><button class="theme-toggle" id="themeToggle" type="button">Dark</button></nav></div></header>
 <main id="main">
 <section class="premium-hero shell">
-  <p class="eyebrow">Fast, private, browser-based</p>
+  <p class="eyebrow">Private · Instant · No signup</p>
   <h1>How many words is this?</h1>
-  <p class="hero-lead">Paste your text and get the answer instantly. Then analyze, clean or format it without leaving LetterToolkit.</p>
+  <p class="hero-lead">Paste or type your text. The count updates instantly.</p>
 </section>
 
 <section class="home-tool shell" aria-label="Live word counter">
   <div class="home-editor">
     <div class="editor-toolbar">
-      <div class="toolbar-group"><button type="button" id="homePaste">Paste</button><button type="button" id="homeCopy">Copy</button><a href="/text-cleaner/">Clean text</a><a href="/case-converter/">Case</a><a href="/find-and-replace/">Find & replace</a></div>
-      <div class="toolbar-group"><button type="button" id="homeDownload">Download</button><button type="button" id="homeClear">Clear</button></div>
+      <div class="toolbar-group">
+        <button type="button" id="homePaste">Paste</button>
+        <button type="button" id="homeCopy">Copy</button>
+        <button type="button" id="homeClear">Clear</button>
+      </div>
+      <details class="toolbar-more">
+        <summary>More</summary>
+        <div class="toolbar-menu">
+          <a href="/text-cleaner/">Clean text</a>
+          <a href="/case-converter/">Case converter</a>
+          <a href="/find-and-replace/">Find & replace</a>
+          <button type="button" id="homeDownload">Download .txt</button>
+        </div>
+      </details>
     </div>
     <textarea id="homeCounterText" autofocus placeholder="Paste or type your text here..." spellcheck="true" aria-label="Text to count"></textarea>
   </div>
   <aside class="home-stats" aria-live="polite">
     <div class="hero-stat"><strong id="homeWordCount">0</strong><span>Words</span></div>
-    <div class="stat-list">
-      <div><span>Characters</span><strong id="homeCharacterCount">0</strong></div>
-      <div><span>No spaces</span><strong id="homeCharacterNoSpaceCount">0</strong></div>
-      <div><span>Sentences</span><strong id="homeSentenceCount">0</strong></div>
-      <div><span>Paragraphs</span><strong id="homeParagraphCount">0</strong></div>
-      <div><span>Reading time</span><strong id="homeReadingTime">0 min</strong></div>
-      <div><span>Speaking time</span><strong id="homeSpeakingTime">0 min</strong></div>
+    <div class="quick-stat-grid">
+      <div><strong id="homeCharacterCount">0</strong><span>Characters</span></div>
+      <div><strong id="homeSentenceCount">0</strong><span>Sentences</span></div>
+      <div><strong id="homeParagraphCount">0</strong><span>Paragraphs</span></div>
+      <div><strong id="homeReadingTime">0 min</strong><span>Reading time</span></div>
+    </div>
+    <div class="secondary-stats">
+      <span><b id="homeCharacterNoSpaceCount">0</b> characters without spaces</span>
+      <span><b id="homeSpeakingTime">0 min</b> speaking time</span>
     </div>
     <a class="analyze-cta" href="/text-analyzer/">Open full Text Analyzer →</a>
   </aside>
 </section>
+<p class="privacy-note shell">✓ Counted locally in your browser. Your text is not uploaded to LetterToolkit.</p>
 
 <section class="home-section shell">
-  <div class="section-heading"><p class="eyebrow">Popular tools</p><h2>The six tools most people need</h2><p class="lead">Start with the job you have now. The full toolkit stays one click away.</p></div>
+  <div class="section-heading"><p class="eyebrow">Popular tools</p><h2>Need more than a word count?</h2><p class="lead">Six focused tools for the next thing you need to do.</p></div>
   <div class="featured-tools">
     <a class="featured-card featured-card-large" href="/text-analyzer/"><span>Analyze</span><h3>Text Analyzer</h3><p>Words, characters, sentence length, reading time and word frequency in one workspace.</p><b>Analyze text →</b></a>
     <a class="featured-card" href="/character-counter/"><span>Count</span><h3>Character Counter</h3><p>Characters with and without spaces.</p><b>Count characters →</b></a>
@@ -50,7 +65,7 @@
 
 <section class="home-section task-section">
   <div class="shell">
-    <div class="section-heading"><p class="eyebrow">Explore by task</p><h2>Everything is organized around what you want to do</h2></div>
+    <div class="section-heading"><p class="eyebrow">Explore by task</p><h2>Count. Clean. Format. Done.</h2></div>
     <div class="task-grid">
       <article><div class="task-icon">01</div><h3>Count & analyze</h3><p>Measure length, structure, reading time and repetition.</p><div class="task-links"><a href="/word-counter/">Word Counter</a><a href="/text-analyzer/">Text Analyzer</a><a href="/word-frequency-counter/">Word Frequency</a><a href="/sentence-counter/">Sentence Counter</a></div></article>
       <article><div class="task-icon">02</div><h3>Clean & format</h3><p>Fix messy pasted text and transform it for your next destination.</p><div class="task-links"><a href="/text-cleaner/">Text Cleaner</a><a href="/remove-line-breaks/">Remove Line Breaks</a><a href="/case-converter/">Case Converter</a><a href="/find-and-replace/">Find & Replace</a></div></article>
@@ -60,17 +75,12 @@
   </div>
 </section>
 
-<section class="home-section shell">
-  <div class="section-heading"><p class="eyebrow">Built for speed</p><h2>Useful first. Explanations second.</h2></div>
-  <div class="principle-grid"><article><h3>Instant results</h3><p>Core text calculations happen as you type. No account and no submit button.</p></article><article><h3>Focused tools</h3><p>Each page solves one clear job instead of burying it behind a dashboard.</p></article><article><h3>Private by design</h3><p>Core counting and transformation tools run in your browser.</p></article></div>
-</section>
-
-<section class="home-section shell" aria-labelledby="trust-heading">
-  <div class="section-heading"><p class="eyebrow">Transparent by design</p><h2 id="trust-heading">See the rules behind the tools</h2><p class="lead">A useful calculator should be explainable. LetterToolkit publishes the counting rules, timing assumptions, word-data limits and editorial standards behind the site.</p></div>
-  <div class="principle-grid">
-    <article><h3>Documented methodology</h3><p>See how words, characters, sentences, reading time and word-pattern matches are calculated.</p><p><a href="/how-it-works/">How LetterToolkit works →</a></p></article>
-    <article><h3>Editorial quality policy</h3><p>See how tools and guides are reviewed, how automation is handled, and how corrections are made.</p><p><a href="/editorial-policy/">Editorial & quality policy →</a></p></article>
-    <article><h3>Practical guides</h3><p>Read original explanations for word counting, text cleanup, timing estimates and puzzle-solving methods.</p><p><a href="/guides/">Browse guides →</a></p></article>
+<section class="home-section trust-section shell" aria-labelledby="trust-heading">
+  <div class="trust-copy"><p class="eyebrow">Transparent by design</p><h2 id="trust-heading">Simple tools, clear rules.</h2><p>Counting rules, timing assumptions and editorial standards are documented instead of hidden behind the interface.</p></div>
+  <div class="trust-links">
+    <a href="/how-it-works/">How LetterToolkit works →</a>
+    <a href="/editorial-policy/">Editorial & quality policy →</a>
+    <a href="/guides/">Practical guides →</a>
   </div>
 </section>
 
