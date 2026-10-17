@@ -179,6 +179,7 @@ jobs:
           }
           if ((home.match(/"@type"\s*:\s*"WebSite"/g) || []).length !== 1) throw new Error('Homepage has duplicate WebSite structured data');
           if(!/site-config\.js[^>]*defer/i.test(home)) throw new Error('site-config.js is not deferred');
+          if(!/src=["']\/site-config\.js\?v=20261017["']/i.test(home)) throw new Error('Homepage still references the cached legacy script loader');
           if(!/integrations\.js[^>]*defer/i.test(home)) throw new Error('integrations.js is not deferred');
           if(!/name=["']robots["'][^>]+content=["']noindex,follow["']/i.test(frontend)) throw new Error('Legacy /frontend/ route is not runtime noindex');
           NODE
