@@ -42,6 +42,8 @@ jobs:
           }
 
           check_redirect '/crossword-answer-finder/' '/crossword-solver/'
+          check_redirect '/sitemap-word-lists.xml' '/sitemap-tools.xml'
+          check_redirect '/sitemap-words.xml' '/sitemap-tools.xml'
           check_redirect '/word-generator/' '/random-word-generator/'
           check_redirect '/words-with-q/?length=5' '/words-containing-q/?length=5'
           check_redirect '/words-with-x/' '/words-containing-x/'

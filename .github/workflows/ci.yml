@@ -173,6 +173,11 @@ jobs:
           if(!/WebApplication/.test(counter)) throw new Error('Word Counter structured data missing');
           if(!/manifest\.webmanifest/.test(home)) throw new Error('Manifest link missing from transformed homepage');
           if(!/property=["']og:title["']/.test(home) || !/"@type":"WebSite"/.test(home)) throw new Error('Homepage Open Graph or WebSite JSON-LD missing');
+          for (const property of ['og:title', 'og:description', 'og:type', 'og:site_name', 'og:url']) {
+            const count = (home.match(new RegExp(`property=["']${property}["']`, 'gi')) || []).length;
+            if (count !== 1) throw new Error(`Homepage has ${count} ${property} tags after edge transform`);
+          }
+          if ((home.match(/"@type"\s*:\s*"WebSite"/g) || []).length !== 1) throw new Error('Homepage has duplicate WebSite structured data');
           if(!/site-config\.js[^>]*defer/i.test(home)) throw new Error('site-config.js is not deferred');
           if(!/integrations\.js[^>]*defer/i.test(home)) throw new Error('integrations.js is not deferred');
           if(!/name=["']robots["'][^>]+content=["']noindex,follow["']/i.test(frontend)) throw new Error('Legacy /frontend/ route is not runtime noindex');
@@ -197,6 +202,14 @@ jobs:
           const persisted=await page.evaluate(()=>document.documentElement.dataset.theme);
           if(persisted!=='dark') throw new Error('Dark mode did not persist after reload');
           if(errors.length) throw new Error(`Homepage JS errors: ${errors.join(' | ')}`);
+          await page.goto('http://127.0.0.1:8788/word-counter/',{waitUntil:'domcontentloaded'});
+          await page.waitForFunction(()=>document.documentElement.dataset.phase44Init==='1');
+          const breadcrumbs=await page.evaluate(()=>[...document.querySelectorAll('script[type="application/ld+json"]')].flatMap(script=>{
+            try { const data=JSON.parse(script.textContent); return Array.isArray(data)?data:[data]; } catch { return []; }
+          }).filter(data=>data['@type']==='BreadcrumbList'));
+          if(breadcrumbs.length!==1 || breadcrumbs[0].itemListElement.map(item=>item.name).join(' > ')!=='Home > Word Counter') {
+            throw new Error('Word Counter has duplicate or outdated breadcrumbs: '+JSON.stringify(breadcrumbs));
+          }
           await browser.close();
           NODE
 

@@ -4,7 +4,7 @@ LetterToolkit uses focused generators only. Broad site-wide regeneration is inte
 
 ## Active generators
 
-- `generate-growth-pages.js` — owns the focused five-letter finder/growth pages it explicitly lists and is the only generator allowed to rebuild the five child sitemaps plus the root sitemap index.
+- `generate-growth-pages.js` — owns the focused five-letter finder/growth pages it explicitly lists. Its legacy sitemap output predates the three-child curated index; update that output and pass the SEO gates before using it to regenerate production sitemaps.
 - `generate-writer-seo.js` — owns the Writer SEO landing pages it explicitly lists plus its Writer report/sitemap entries.
 
 Active generators must only write routes they explicitly own. Do not expand them into catch-all word-list generation without reviewing canonical intent, redirect policy, sitemap placement, and CI coverage.
@@ -28,7 +28,9 @@ They are permanent aliases handled by Cloudflare Pages middleware. Their canonic
 
 ## Sitemap policy
 
-The root `sitemap.xml` is a sitemap index. `generate-growth-pages.js` is the single designated sitemap builder and must emit that root file only as `<sitemapindex>`. Other generators may update only their appropriate child sitemap when they own those routes.
+The published sitemap index lists exactly three curated children: `sitemap-static.xml`, `sitemap-tools.xml`, and `sitemap-guides.xml`. Legacy `/sitemap-word-lists.xml` and `/sitemap-words.xml` requests permanently redirect to `/sitemap-tools.xml`; their old generated files are not part of the active sitemap tree. Do not reintroduce excluded programmatic word pages into the active sitemaps.
+
+The root `sitemap.xml` is a sitemap index. `generate-growth-pages.js` is the only generator permitted to write the root index, which must remain a `<sitemapindex>` and follow the three-child policy above. Other generators may update only their appropriate child sitemap when they own those routes.
 
 ## CI guard
 
