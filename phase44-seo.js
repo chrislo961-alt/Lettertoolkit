@@ -5,7 +5,7 @@ function initPhase44(){
   const names={
     '/word-unscrambler':'Word Unscrambler','/word-generator-from-words':'Word Generator From Words','/anagram-solver':'Anagram Solver','/word-finder':'Word Finder','/5-letter-words':'5 Letter Word Finder','/crossword-solver':'Crossword Solver','/wordle-helper':'Wordle Solver','/scrabble-helper':'Scrabble Helper','/random-word-generator':'Random Word Generator','/rhyme-finder':'Rhyme Finder','/word-lists':'Word Lists','/guides':'Guides','/writer':'Writer','/word-counter':'Word Counter'
   };
-  const wordToolRoutes=new Set(['/word-unscrambler','/word-generator-from-words','/anagram-solver','/word-finder','/5-letter-words','/crossword-solver','/wordle-helper','/scrabble-helper','/random-word-generator','/rhyme-finder','/word-counter']);
+  const wordToolRoutes=new Set(['/word-unscrambler','/word-generator-from-words','/anagram-solver','/word-finder','/5-letter-words','/crossword-solver','/wordle-helper','/scrabble-helper','/random-word-generator','/rhyme-finder']);
   const core=names[path];
   if(core&&path!=='/'){
     const main=document.querySelector('main');
@@ -19,14 +19,19 @@ function initPhase44(){
       nav.innerHTML='<ol>'+crumbs.map((crumb,index)=>index===crumbs.length-1?`<li aria-current="page">${crumb.name}</li>`:`<li><a href="${new URL(crumb.item).pathname}">${crumb.name}</a></li>`).join('')+'</ol>';
       main.insertAdjacentElement('afterbegin',nav);
     }
-    if(!document.querySelector('script[data-breadcrumb-schema]')){
+    const containsBreadcrumbList=node=>{
+      if(Array.isArray(node))return node.some(containsBreadcrumbList);
+      if(!node||typeof node!=='object')return false;
+      const types=Array.isArray(node['@type'])?node['@type']:[node['@type']];
+      return types.some(type=>type==='BreadcrumbList'||type==='https://schema.org/BreadcrumbList'||type==='http://schema.org/BreadcrumbList')||containsBreadcrumbList(node['@graph']);
+    };
+    const hasBreadcrumbSchema=Array.from(document.querySelectorAll('script[type="application/ld+json"]')).some(script=>{
+      try{return containsBreadcrumbList(JSON.parse(script.textContent));}catch{return false;}
+    });
+    if(!hasBreadcrumbSchema){
       const data={"@context":"https://schema.org","@type":"BreadcrumbList","itemListElement":crumbs.map((crumb,index)=>({"@type":"ListItem","position":index+1,"name":crumb.name,"item":crumb.item}))};
       const s=document.createElement('script');s.type='application/ld+json';s.dataset.breadcrumbSchema='1';s.textContent=JSON.stringify(data);document.head.appendChild(s);
     }
-  }
-  if(path==='/'){
-    const tools=document.querySelector('#tools .section-heading');
-    if(tools&&!document.querySelector('.home-route-links'))tools.insertAdjacentHTML('beforeend','<div class="home-route-links" aria-label="Popular word tool paths"><a href="/word-counter/">Count words & characters</a><a href="/word-generator-from-words/">Generate words from a word</a><a href="/word-unscrambler/">Make words from letters</a><a href="/5-letter-words/">Find 5-letter words</a><a href="/crossword-solver/">Solve a pattern</a><a href="/random-word-generator/">Generate random words</a><a href="/scrabble-helper/">Score a rack</a><a href="/word-lists/">Browse word lists</a></div>');
   }
   if(path==='/random-word-generator'||path==='/word-unscrambler'){
     const main=document.querySelector('main');

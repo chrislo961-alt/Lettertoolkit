@@ -7,6 +7,7 @@ on:
     paths:
       - 'functions/**'
       - '*.html'
+      - 'tools/**'
       - 'editorial-policy/**'
       - 'how-it-works/**'
       - 'guides/**'
@@ -30,7 +31,7 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 12
     steps:
-      - name: Wait for curated production surface
+      - name: Wait for current production navigation
         shell: bash
         run: |
           set -euo pipefail
@@ -38,8 +39,16 @@ jobs:
           for attempt in $(seq 1 24); do
             body=$(curl -fsS --max-time 30 "$base/sitemap.xml" || true)
             policy=$(curl -fsS --max-time 30 "$base/editorial-policy/" || true)
+            home=$(curl -fsS --max-time 30 "$base/" || true)
+            tools=$(curl -fsS --max-time 30 "$base/tools/" || true)
+            if ! printf '%s' "$home" | grep -Fq 'id="text-formatting"' \
+              || ! printf '%s' "$tools" | grep -Fq 'href="/word-generator-from-words/"'; then
+              echo "Attempt $attempt: waiting for current discovery links"
+              sleep 15
+              continue
+            fi
             if printf '%s' "$body" | grep -q 'sitemap-static.xml'               && printf '%s' "$body" | grep -q 'sitemap-tools.xml'               && printf '%s' "$body" | grep -q 'sitemap-guides.xml'               && ! printf '%s' "$body" | grep -q 'sitemap-word-lists.xml'               && ! printf '%s' "$body" | grep -q 'sitemap-words.xml'               && printf '%s' "$policy" | grep -q 'Editorial and tool quality policy'; then
-              echo "Latest AdSense readiness rebuild is live on attempt $attempt."
+              echo "Current discovery navigation is live on attempt $attempt."
               exit 0
             fi
             echo "Attempt $attempt: waiting for latest curated production surface"
@@ -95,7 +104,18 @@ jobs:
           }
 
           assert_200 '/'
-          grep -Fq 'See the rules behind the tools' /tmp/body
+          grep -Fq 'id="homeCounterText"' /tmp/body
+          for fragment in tools text-counters text-analysis text-formatting; do
+            grep -Fq "id=\"$fragment\"" /tmp/body || { echo "Missing homepage anchor: $fragment"; exit 1; }
+          done
+          test "$(grep -o 'property="og:title"' /tmp/body | wc -l)" -eq 1
+
+          assert_200 '/tools/'
+          for route in 5-letter-words word-lists word-generator-from-words wordle-helper crossword-solver scrabble-helper random-word-generator writer; do
+            grep -Fq "href=\"/$route/\"" /tmp/body || { echo "Tool missing from directory: $route"; exit 1; }
+          done
+          assert_200 '/guides/'
+          grep -Fq 'href="/guides/using-word-tools-responsibly/"' /tmp/body
 
           assert_canonical '/word-counter/' "$base/word-counter/"
           assert_canonical '/text-analyzer/' "$base/text-analyzer/"
@@ -130,6 +150,8 @@ jobs:
           assert_redirect '/open-docx-online/' "$base/writer/"
           assert_redirect '/edit-word-document-online/' "$base/writer/"
           assert_redirect '/writing-templates/' "$base/writer/"
+          assert_redirect '/sitemap-word-lists.xml' "$base/sitemap-tools.xml"
+          assert_redirect '/sitemap-words.xml' "$base/sitemap-tools.xml"
 
           assert_200 '/robots.txt'
           grep -Fq 'Sitemap: https://lettertoolkit.com/sitemap.xml' /tmp/body

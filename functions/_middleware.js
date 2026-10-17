@@ -38,6 +38,9 @@ const retiredCareerRoutes = new Set([
 ]);
 
 const permanentRouteRedirects = new Map([
+  // Previously published word sitemaps must resolve to the current curated tools.
+  ['/sitemap-word-lists.xml', '/sitemap-tools.xml'],
+  ['/sitemap-words.xml', '/sitemap-tools.xml'],
   ['/crossword-answer-finder', '/crossword-solver/'],
   ['/crossword-answer-finder/', '/crossword-solver/'],
   ['/word-generator', '/random-word-generator/'],
@@ -194,22 +197,6 @@ export async function onRequest(context) {
           element.remove();
         },
       });
-  }
-
-  if (url.pathname === '/' || url.pathname === '') {
-    rewriter = rewriter.on('head', {
-      element(element) {
-        element.append(
-          '<meta property="og:type" content="website">' +
-            '<meta property="og:site_name" content="LetterToolkit">' +
-            '<meta property="og:title" content="LetterToolkit – Word Finder, Word Counter & Free Word Tools">' +
-            '<meta property="og:description" content="Free browser-based word tools for finding, counting, generating and solving words, including word finder, word counter, anagram, crossword and letter tools.">' +
-            '<meta property="og:url" content="https://lettertoolkit.com/">' +
-            '<script type="application/ld+json">{"@context":"https://schema.org","@type":"WebSite","name":"LetterToolkit","url":"https://lettertoolkit.com/","description":"Free browser-based word, letter and puzzle tools with practical guides."}</script>',
-          { html: true },
-        );
-      },
-    });
   }
 
   if (url.pathname === '/word-unscrambler/' || url.pathname === '/word-unscrambler') {
