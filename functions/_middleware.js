@@ -171,6 +171,8 @@ export async function onRequest(context) {
     })
     .on('script[src*="site-config.js"]', {
       element(element) {
+        // Existing pages shared a cached loader URL that still requested the old SEO script.
+        element.setAttribute('src', '/site-config.js?v=20261017');
         element.setAttribute('defer', '');
       },
     })

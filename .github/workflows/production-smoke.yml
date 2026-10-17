@@ -42,6 +42,7 @@ jobs:
             home=$(curl -fsS --max-time 30 "$base/" || true)
             tools=$(curl -fsS --max-time 30 "$base/tools/" || true)
             if ! printf '%s' "$home" | grep -Fq 'id="text-formatting"' \
+              || ! printf '%s' "$home" | grep -Fq '/site-config.js?v=20261017' \
               || ! printf '%s' "$tools" | grep -Fq 'href="/word-generator-from-words/"'; then
               echo "Attempt $attempt: waiting for current discovery links"
               sleep 15
@@ -105,6 +106,7 @@ jobs:
 
           assert_200 '/'
           grep -Fq 'id="homeCounterText"' /tmp/body
+          grep -Fq '/site-config.js?v=20261017' /tmp/body
           for fragment in tools text-counters text-analysis text-formatting; do
             grep -Fq "id=\"$fragment\"" /tmp/body || { echo "Missing homepage anchor: $fragment"; exit 1; }
           done
