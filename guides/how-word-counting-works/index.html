@@ -3,13 +3,58 @@
 <meta name="description" content="Learn what counts as a word, why editors can disagree, and how apostrophes, hyphens, numbers, URLs and line breaks affect word counts.">
 <link rel="canonical" href="https://lettertoolkit.com/guides/how-word-counting-works/"><meta name="robots" content="index,follow,max-image-preview:large,max-snippet:-1">
 <link href="/assets/favicon.svg" rel="icon"><link href="/styles.css?v=9.0" rel="stylesheet">
-<script type="application/ld+json">{"@context":"https://schema.org","@type":"Article","headline":"How Word Counting Works: Rules, Examples and Edge Cases","dateModified":"2026-10-04","author":{"@type":"Organization","name":"LetterToolkit"},"publisher":{"@type":"Organization","name":"LetterToolkit"},"mainEntityOfPage":"https://lettertoolkit.com/guides/how-word-counting-works/"}</script></head><body>
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"Article","headline":"How Word Counting Works: Rules, Examples and Edge Cases","dateModified":"2026-10-19","author":{"@type":"Organization","name":"LetterToolkit"},"publisher":{"@type":"Organization","name":"LetterToolkit"},"mainEntityOfPage":"https://lettertoolkit.com/guides/how-word-counting-works/"}</script>
+<style>
+.count-reference{overflow-x:auto;margin:1.5rem 0;border:1px solid var(--line);border-radius:12px;background:var(--surface)}
+.count-reference table{width:100%;border-collapse:collapse;text-align:left;font-size:.95rem}
+.count-reference caption{text-align:left;padding:1rem;font-weight:700}
+.count-reference th,.count-reference td{padding:.8rem 1rem;border-top:1px solid var(--line);vertical-align:top}
+.count-reference thead{background:var(--surface-2)}
+.count-reference th:nth-child(2),.count-reference td:nth-child(2){text-align:center}
+.count-reference code{white-space:nowrap}
+.count-test{padding:1.25rem;border:1px solid var(--line);border-radius:12px;background:var(--surface);white-space:pre-wrap;overflow-wrap:anywhere;font-size:1rem;line-height:1.7}
+.reference-link{overflow-wrap:anywhere}
+</style></head><body><a class="skip-link" href="#main">Skip to content</a>
 <header class="site-header"><div class="shell header-inner"><a class="brand" href="/"><span class="brand-mark">LT</span><span>LetterToolkit</span></a><nav><a href="/word-counter/">Word Counter</a><a href="/text-analyzer/">Text Analyzer</a><a href="/guides/">Guides</a><a href="/how-it-works/">Methodology</a></nav></div></header>
-<main class="legal-page shell"><p class="eyebrow">Text counting guide</p><h1>How word counting works</h1><p class="lead">“How many words is this?” sounds simple until punctuation, hyphens, numbers and unusual formatting enter the text. This guide explains a practical counting method and why two editors can sometimes disagree.</p>
+<main id="main" class="legal-page shell"><p class="eyebrow">Text counting guide</p><h1>How word counting works</h1><p class="lead">“How many words is this?” sounds simple until punctuation, hyphens, numbers and unusual formatting enter the text. This guide explains a practical counting method and why two editors can sometimes disagree.</p>
 
 <section><h2>The basic rule</h2><p>A practical word counter looks for meaningful sequences of letters or numbers separated by whitespace or punctuation. LetterToolkit keeps common internal apostrophes and hyphens inside a word, so <strong>don't</strong> and <strong>well-known</strong> are each treated as one word. Extra spaces, tabs and blank lines do not add words.</p><p>This is a useful general-purpose rule, not a universal publishing law. A university portal, newsroom or legal filing system may define a word differently.</p></section>
 
-<section><h2>Examples</h2><p>Consider these short examples:</p><ul><li><strong>Hello world</strong> → 2 words.</li><li><strong>Hello, world!</strong> → still 2 words because punctuation does not create an extra token.</li><li><strong>don't stop</strong> → 2 words under LetterToolkit's apostrophe rule.</li><li><strong>well-known author</strong> → 2 words under the hyphen rule.</li><li><strong>2026 plan</strong> → 2 words because a number can count as a token.</li><li>Several spaces or line breaks between the same two words do not change the count.</li></ul></section>
+<section id="word-count-examples" aria-labelledby="examples-heading"><h2 id="examples-heading">14 word-count examples you can check</h2><p>Paste each example separately into the <a href="/word-counter/">Word Counter</a>. These are the results of LetterToolkit's current counting rule, checked against the tool on October 19, 2026. They are not a claim about the counts shown by other editors.</p>
+<div class="count-reference" role="region" aria-label="Word count examples" tabindex="0"><table>
+<caption>Exact input, expected result and the reason for it</caption>
+<thead><tr><th scope="col">Input</th><th scope="col">Words</th><th scope="col">Why</th></tr></thead>
+<tbody>
+<tr><td><em>Empty input</em></td><td>0</td><td>There are no letters or numbers to count.</td></tr>
+<tr><td><code>Hello, world!</code></td><td>2</td><td>The comma and exclamation mark separate or surround words.</td></tr>
+<tr><td><code>don't stop</code></td><td>2</td><td>The straight apostrophe stays inside the first word.</td></tr>
+<tr><td><code>don’t stop</code></td><td>2</td><td>The curly apostrophe follows the same rule.</td></tr>
+<tr><td><code>well-known author</code></td><td>2</td><td>A standard hyphen joins the two parts of the compound.</td></tr>
+<tr><td><code>well–known author</code></td><td>3</td><td>This uses an en dash (–), which separates words.</td></tr>
+<tr><td><code>red—blue</code></td><td>2</td><td>An em dash (—) separates the two words, even without spaces.</td></tr>
+<tr><td><code>red / blue</code></td><td>2</td><td>The slash is not a word.</td></tr>
+<tr><td><code>2026 plan</code></td><td>2</td><td>A standalone number counts as a token.</td></tr>
+<tr><td><code>3.14</code></td><td>2</td><td>The decimal point splits two sequences of digits.</td></tr>
+<tr><td><code>writer@example.com</code></td><td>3</td><td>The @ sign and full stop split the address into three parts.</td></tr>
+<tr><td><code>2026-10-19</code></td><td>1</td><td>The standard hyphens keep this date in one token.</td></tr>
+<tr><td><code>🐈</code></td><td>0</td><td>An emoji alone contains no letters or numbers.</td></tr>
+<tr><td><code lang="zh">你好世界</code></td><td>1</td><td>Adjacent letters form one token; this rule does not identify Chinese word boundaries.</td></tr>
+</tbody></table></div>
+<p>The decimal, email and Chinese examples show the limits of a simple counter. For language-specific segmentation or a formal submission limit, check the system that will receive your work.</p></section>
+
+<section id="word-count-test" aria-labelledby="test-heading"><h2 id="test-heading">A reusable 15-word test</h2><p>Copy this complete block into the Word Counter. The expected total is <strong>15 words</strong>. Blank lines do not add words. Keep the punctuation as shown: changing a dash to a hyphen can change the result.</p>
+<pre class="count-test">Hello, world!
+
+don't stop
+well-known author
+red—blue
+3.14
+writer@example.com
+2026-10-19
+🐈
+你好世界</pre>
+<p><a href="/guides/how-word-counting-works/word-count-test.txt" download>Download the plain-text test</a> · <a href="/word-counter/">Open Word Counter</a></p>
+<p>This sample can be reused in a lesson, a writing guide or a software test. If you explain these results elsewhere, this section provides a stable source link: <a class="reference-link" href="https://lettertoolkit.com/guides/how-word-counting-works/#word-count-test">LetterToolkit word-count test and counting rules</a>.</p></section>
 
 <section><h2>Why Microsoft Word, Google Docs and websites can disagree</h2><p>Different products make different choices for compounds, em dashes, URLs, email addresses, emoji, symbols and non-Latin scripts. Some systems are optimized for publishing conventions while others use simpler token rules. A difference of one or two words does not automatically mean one counter is broken; it can mean the products use different definitions.</p><p>When a count matters for a formal limit, treat the destination system as the final authority. Draft with a consistent counter, then verify the final document in the submission platform.</p></section>
 
@@ -24,5 +69,5 @@
 <section><h2>A repeatable workflow for strict limits</h2><ol><li>Write and edit normally rather than cutting useful content too early.</li><li>Use one counter consistently while drafting.</li><li>Clean accidental repeated spaces or pasted formatting if needed.</li><li>Check the final total in the system that enforces the limit.</li><li>If the counts differ, inspect hyphenated terms, unusual punctuation, URLs and numbers first.</li></ol></section>
 
 <section><h2>Try the rule on your own text</h2><p>Open the <a href="/word-counter/">Word Counter</a> to see words, characters, sentences and paragraphs update as you type. The detailed methodology for LetterToolkit's tools is documented on <a href="/how-it-works/">How LetterToolkit Works</a>.</p></section>
-<p><em>Reviewed: October 4, 2026.</em></p></main>
+<p><em>Reviewed and examples checked: October 19, 2026.</em></p></main>
 <footer><div class="shell footer-inner"><div><strong>LetterToolkit</strong></div><div class="footer-links"><a href="/guides/">Guides</a><a href="/editorial-policy/">Editorial policy</a><a href="/about/">About</a><a href="/contact/">Contact</a></div></div></footer></body></html>

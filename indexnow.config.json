@@ -1,0 +1,67 @@
+{
+  "origin": "https://lettertoolkit.com",
+  "key": "f20ade352ec9142111250a0fb4af4f7b",
+  "sitemap": "sitemap.xml",
+  "deploymentCheck": {
+    "name": "Cloudflare Pages",
+    "appSlug": "cloudflare-workers-and-pages"
+  },
+  "globalFiles": [
+    "functions/_middleware.js",
+    "_headers",
+    "_redirects",
+    "robots.txt"
+  ],
+  "assetDependencies": {
+    "site-config.js": [
+      "phase44-seo.css",
+      "phase44-seo.js"
+    ],
+    "core/dictionary.js": [
+      "words.txt"
+    ],
+    "writer/app.js": [
+      "writer/sw.js"
+    ]
+  },
+  "routeAssets": {
+    "/word-unscrambler/": [
+      "growth-word-tools.css",
+      "growth-word-tools.js"
+    ],
+    "/5-letter-words/": [
+      "phase40-five-wordle.css"
+    ],
+    "/wordle-helper/": [
+      "phase40-five-wordle.css"
+    ],
+    "/crossword-solver/": [
+      "phase41-crossword-wordfinder.css",
+      "phase41-crossword-wordfinder.js"
+    ],
+    "/word-finder/": [
+      "phase41-crossword-wordfinder.css",
+      "phase41-crossword-wordfinder.js"
+    ],
+    "/scrabble-helper/": [
+      "phase42-scrabble-anagram.css",
+      "phase42-scrabble-anagram.js"
+    ],
+    "/anagram-solver/": [
+      "phase42-scrabble-anagram.css",
+      "phase42-scrabble-anagram.js"
+    ],
+    "/random-word-generator/": [
+      "phase43-random-rhyme-hub.css",
+      "phase43-random-rhyme-hub.js"
+    ],
+    "/rhyme-finder/": [
+      "phase43-random-rhyme-hub.css",
+      "phase43-random-rhyme-hub.js"
+    ],
+    "/word-lists/": [
+      "phase43-random-rhyme-hub.css",
+      "phase43-random-rhyme-hub.js"
+    ]
+  }
+}
