@@ -7,6 +7,95 @@
   Cross-Origin-Opener-Policy: same-origin
   Cache-Control: public, max-age=0, must-revalidate
 
+# AdSense-quality boundary: keep secondary/pattern content available to direct visitors,
+# but remove it from the search/index surface while LetterToolkit is reviewed as a text-tool site.
+/*-letter-words*
+  X-Robots-Tag: noindex, follow
+
+/words-*
+  X-Robots-Tag: noindex, follow
+
+/word/*
+  X-Robots-Tag: noindex, follow
+
+/word-lists*
+  X-Robots-Tag: noindex, follow
+
+/word-unscrambler*
+  X-Robots-Tag: noindex, follow
+
+/word-finder*
+  X-Robots-Tag: noindex, follow
+
+/wordle-helper*
+  X-Robots-Tag: noindex, follow
+
+/anagram-solver*
+  X-Robots-Tag: noindex, follow
+
+/crossword-*
+  X-Robots-Tag: noindex, follow
+
+/scrabble-helper*
+  X-Robots-Tag: noindex, follow
+
+/rhyme-finder*
+  X-Robots-Tag: noindex, follow
+
+/random-word-generator*
+  X-Robots-Tag: noindex, follow
+
+/word-generator*
+  X-Robots-Tag: noindex, follow
+
+/writer*
+  X-Robots-Tag: noindex, follow
+
+/cv-*
+  X-Robots-Tag: noindex, follow
+
+/application-builder*
+  X-Robots-Tag: noindex, follow
+
+/cover-letter*
+  X-Robots-Tag: noindex, follow
+
+/how-to-write-a-*
+  X-Robots-Tag: noindex, follow
+
+/interview-questions*
+  X-Robots-Tag: noindex, follow
+
+/job-application-examples*
+  X-Robots-Tag: noindex, follow
+
+/guides/anagram-guide*
+  X-Robots-Tag: noindex, follow
+
+/guides/crossword-solving-tips*
+  X-Robots-Tag: noindex, follow
+
+/guides/five-letter-word-strategy*
+  X-Robots-Tag: noindex, follow
+
+/guides/how-to-unscramble-words*
+  X-Robots-Tag: noindex, follow
+
+/guides/rhyme-finding-guide*
+  X-Robots-Tag: noindex, follow
+
+/guides/scrabble-word-finding*
+  X-Robots-Tag: noindex, follow
+
+/guides/using-word-tools-responsibly*
+  X-Robots-Tag: noindex, follow
+
+/guides/word-finder-patterns*
+  X-Robots-Tag: noindex, follow
+
+/guides/wordle-strategy*
+  X-Robots-Tag: noindex, follow
+
 /assets/*
   Cache-Control: public, max-age=31536000, immutable
 
