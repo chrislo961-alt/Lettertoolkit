@@ -147,6 +147,10 @@ export async function onRequest(context) {
     /^\/words-with-[^/]+\/$/i.test(normalizedPath) ||
     /^\/5-letter-(?:palindromes|words-(?:containing|ending|starting|with|without)[^/]*)\/$/i.test(normalizedPath);
 
+  // The Pages /words-* header rule also matches the curated /words-per-minute/
+  // text tool. Keep generated word lists noindex, but allow this self-canonical
+  // tool in the active sitemap to be indexed.
+  if (normalizedPath === '/words-per-minute/') headers.delete('X-Robots-Tag');
   if (isProgrammaticWordPage) headers.set('X-Robots-Tag', 'noindex, follow');
   headers.set('Strict-Transport-Security', 'max-age=31536000; includeSubDomains');
   headers.set('X-Content-Type-Options', 'nosniff');
