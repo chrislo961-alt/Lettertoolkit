@@ -16,7 +16,19 @@
 
 
 
-</div><p id="emptyTools" class="lead" hidden>No matching tools. Try a broader search.</p></section></main>
+</div><p id="emptyTools" class="lead" hidden>No matching tools. Try a broader search.</p></section>
+<section class="home-section shell" aria-labelledby="wordPuzzleTools"><h2 id="wordPuzzleTools">Word and puzzle tools</h2><p class="lead">Find words, solve puzzles and explore useful word lists with these free tools.</p><div class="tool-card-grid">
+<a class="tool-card" href="/word-finder/"><span>words</span><h3>Word Finder</h3><p>Find words using letters and patterns.</p><b>Open tool →</b></a>
+<a class="tool-card" href="/word-unscrambler/"><span>words</span><h3>Word Unscrambler</h3><p>Turn scrambled letters into possible words.</p><b>Open tool →</b></a>
+<a class="tool-card" href="/anagram-solver/"><span>words</span><h3>Anagram Solver</h3><p>Discover anagrams for letter games.</p><b>Open tool →</b></a>
+<a class="tool-card" href="/crossword-solver/"><span>words</span><h3>Crossword Solver</h3><p>Solve crossword clues using patterns.</p><b>Open tool →</b></a>
+<a class="tool-card" href="/rhyme-finder/"><span>words</span><h3>Rhyme Finder</h3><p>Explore rhyming words for writing.</p><b>Open tool →</b></a>
+<a class="tool-card" href="/random-word-generator/"><span>words</span><h3>Random Word Generator</h3><p>Generate words for inspiration and practice.</p><b>Open tool →</b></a>
+<a class="tool-card" href="/scrabble-helper/"><span>words</span><h3>Scrabble Helper</h3><p>Find playable words and scores.</p><b>Open tool →</b></a>
+<a class="tool-card" href="/wordle-helper/"><span>words</span><h3>Wordle Helper</h3><p>Narrow possible Wordle answers.</p><b>Open tool →</b></a>
+<a class="tool-card" href="/word-lists/"><span>words</span><h3>Word Lists</h3><p>Browse words by length and letters.</p><b>Open tool →</b></a>
+<a class="tool-card" href="/5-letter-words/"><span>words</span><h3>5 Letter Words</h3><p>Explore five-letter word lists.</p><b>Open tool →</b></a>
+</div></section></main>
 <footer><div class="shell footer-inner"><div><strong>LetterToolkit</strong><p>Free tools to count, analyze, clean and format text.</p></div><div class="footer-links"><a href="/">Home</a><a href="/text-analyzer/">Text Analyzer</a><a href="/word-counter/">Word Counter</a><a href="/about/">About</a><a href="/privacy/">Privacy</a></div></div></footer>
 <script>
 (()=>{const cards=[...document.querySelectorAll('.tool-filter-card')],search=document.getElementById('toolSearch'),buttons=[...document.querySelectorAll('.tool-filter')],count=document.getElementById('visibleCount'),empty=document.getElementById('emptyTools');let filter='all';function apply(){const q=search.value.trim().toLowerCase();let n=0;cards.forEach(c=>{const show=(filter==='all'||c.dataset.category===filter)&&(!q||c.dataset.search.includes(q));c.hidden=!show;if(show)n++});count.textContent=n;empty.hidden=n!==0}buttons.forEach(b=>b.onclick=()=>{filter=b.dataset.filter;buttons.forEach(x=>x.classList.toggle('active',x===b));apply()});search.addEventListener('input',apply);apply()})();
